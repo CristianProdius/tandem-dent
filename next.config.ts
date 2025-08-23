@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
 
   // Image optimization configuration
   images: {
+    // Add unoptimized option for better Edge compatibility
+    unoptimized: process.env.NODE_ENV === "development", // Disable optimization in dev
+
+    // Allow local images
     remotePatterns: [
       {
         protocol: "https",
@@ -19,10 +23,27 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      // Add localhost for development
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
     ],
+
+    // Add domains for legacy support
+    domains: ["tandemdent.md", "images.unsplash.com", "res.cloudinary.com"],
+
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+
+    // Add minimumCacheTTL for better caching control
+    minimumCacheTTL: 60,
+
+    // Allow SVG if you plan to use SVG logos
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // Headers for security and performance
@@ -55,6 +76,29 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(self)",
           },
+          // Add CORS headers for better compatibility
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+        ],
+      },
+      // Specific headers for logo images
+      {
+        source: "/images/logo/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600, must-revalidate", // Less aggressive caching
+          },
+          {
+            key: "Content-Type",
+            value: "image/png",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
         ],
       },
       {
@@ -63,6 +107,11 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable",
+          },
+          // Add CORS for images
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
           },
         ],
       },
@@ -87,7 +136,24 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Redirects for old URLs or common misspellings
+  // Add webpack configuration for better asset handling
+  webpack: (config, { isServer }) => {
+    // Handle images better
+    config.module.rules.push({
+      test: /\.(png|jpg|jpeg|gif|svg|webp|avif|ico)$/i,
+      type: "asset/resource",
+    });
+
+    return config;
+  },
+
+  // Experimental features for better compatibility
+  experimental: {
+    // Optimize CSS for better cross-browser support
+    optimizeCss: true,
+  },
+
+  // Rest of your config remains the same...
   async redirects() {
     return [
       {
@@ -118,7 +184,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Rewrites for external services
   async rewrites() {
     return [
       {
@@ -132,7 +197,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Environment variables to be exposed to the browser
   env: {
     NEXT_PUBLIC_SITE_URL:
       process.env.NEXT_PUBLIC_SITE_URL || "https://tandemdent.md",
@@ -147,37 +211,22 @@ const nextConfig: NextConfig = {
       process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "",
   },
 
-  // PoweredByHeader
   poweredByHeader: false,
-
-  // Compress
   compress: true,
-
-  // Generate ETags
   generateEtags: true,
-
-  // Page Extensions
   pageExtensions: ["tsx", "ts", "jsx", "js"],
-
-  // Trailing Slash
   trailingSlash: false,
 
-  // TypeScript configuration
   typescript: {
-    // Do not fail production builds on TypeScript errors
     ignoreBuildErrors: false,
   },
 
-  // ESLint configuration
   eslint: {
-    // Do not run ESLint during production builds
     ignoreDuringBuilds: false,
     dirs: ["src", "app", "pages", "components", "lib", "utils"],
   },
 
-  // Compiler options
   compiler: {
-    // Remove console.log in production
     removeConsole:
       process.env.NODE_ENV === "production"
         ? {

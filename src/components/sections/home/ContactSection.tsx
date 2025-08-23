@@ -169,7 +169,7 @@ const ContactSection: React.FC = () => {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900"
+      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50  dark:via-gray-950 dark:to-gray-900"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">

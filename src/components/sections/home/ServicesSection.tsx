@@ -256,7 +256,7 @@ const ServicesSection: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950"
+      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-gray-50 to-white  "
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">

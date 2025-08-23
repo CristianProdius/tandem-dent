@@ -178,7 +178,7 @@ const DoctorSection: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-gold-500/10 to-gold-600/10 border border-gold-500/20"
           >
             <Stethoscope className="w-4 h-4 text-gold-500" />
-            <span className="text-sm font-medium text-gold-600 dark:text-gold-400">
+            <span className="text-sm font-medium text-gold-600 ">
               Medicul Nostru Principal
             </span>
           </motion.div>
@@ -240,9 +240,7 @@ const DoctorSection: React.FC = () => {
                         <div className="text-2xl font-bold text-gradient-gold">
                           <AnimatedCounter from={0} to={3000} suffix="+" />
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          Implanturi
-                        </div>
+                        <div className="text-xs text-gray-600 ">Implanturi</div>
                       </div>
                     </div>
                   </motion.div>
@@ -259,9 +257,7 @@ const DoctorSection: React.FC = () => {
                         <div className="text-xl font-bold text-teal-500">
                           15+
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          Ani
-                        </div>
+                        <div className="text-xs text-gray-600 ">Ani</div>
                       </div>
                     </div>
                   </motion.div>
@@ -286,7 +282,7 @@ const DoctorSection: React.FC = () => {
                 Medic Stomatolog Principal
               </p>
               <div className="flex flex-wrap gap-3 mb-6">
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-gold-500/10 rounded-full text-sm text-gold-600 dark:text-gold-400">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-gold-500/10 rounded-full text-sm text-gold-600 ">
                   <Briefcase className="w-3 h-3" />
                   Implantologie
                 </span>
@@ -294,12 +290,12 @@ const DoctorSection: React.FC = () => {
                   <Heart className="w-3 h-3" />
                   Chirurgie Orală
                 </span>
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500/10 rounded-full text-sm text-blue-600 dark:text-blue-400">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500/10 rounded-full text-sm text-blue-600 ">
                   <Shield className="w-3 h-3" />
                   Ortopedie Dentară
                 </span>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              <p className="text-gray-600  leading-relaxed">
                 Cu o pasiune pentru excelența în stomatologie și o dedicare față
                 de bunăstarea pacienților, Dr. Căpățină Vitalie aduce peste 15
                 ani de experiență în tratamente dentare complexe și implanturi
@@ -315,12 +311,12 @@ const DoctorSection: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: 0.6 + index * 0.1 }}
-                  className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-soft border border-gray-200 dark:border-gray-700"
+                  className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-soft border border-gray-200 "
                 >
                   <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg text-white mb-2">
                     {achievement.icon}
                   </div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <div className="text-2xl font-bold text-gray-900 ">
                     {achievement.label === "Implanturi plasate" ? (
                       <AnimatedCounter from={0} to={3000} suffix="+" />
                     ) : achievement.label === "Ani experiență" ? (
@@ -329,7 +325,7 @@ const DoctorSection: React.FC = () => {
                       <AnimatedCounter from={0} to={5000} suffix="+" />
                     )}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                  <div className="text-xs text-gray-600 ">
                     {achievement.label}
                   </div>
                 </motion.div>
@@ -338,7 +334,7 @@ const DoctorSection: React.FC = () => {
 
             {/* Credentials List */}
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              <h4 className="text-lg font-semibold mb-4 text-gray-900 ">
                 Educație și Certificări
               </h4>
               {credentials.map((credential, index) => (
@@ -353,11 +349,9 @@ const DoctorSection: React.FC = () => {
                     <CheckCircle className="w-4 h-4" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-gray-700 dark:text-gray-300">
-                      {credential.title}
-                    </p>
+                    <p className="text-gray-700 ">{credential.title}</p>
                     {credential.description && (
-                      <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500  mt-1">
                         {credential.description}
                       </p>
                     )}
@@ -371,28 +365,28 @@ const DoctorSection: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 1.2 }}
-              className="flex flex-wrap gap-4 pt-6 border-t border-gray-200 dark:border-gray-700"
+              className="flex flex-wrap gap-4 pt-6 border-t border-gray-200 "
             >
               {/* Badge 1 */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-gold-50 dark:bg-gold-900/20 rounded-lg">
-                <Award className="w-5 h-5 text-gold-600 dark:text-gold-400" />
-                <span className="text-sm font-medium text-gold-800 dark:text-gold-300">
+              <div className="flex items-center gap-2 px-4 py-2 bg-gold-50  rounded-lg">
+                <Award className="w-5 h-5 text-gold-600 " />
+                <span className="text-sm font-medium text-gold-800 ">
                   Top Implantolog
                 </span>
               </div>
 
               {/* Badge 2 */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
+              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
+                <Shield className="w-5 h-5 text-blue-600 " />
+                <span className="text-sm font-medium text-blue-800 ">
                   Membru ASMM
                 </span>
               </div>
 
               {/* Badge 3 */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <Star className="w-5 h-5 text-green-600 dark:text-green-400" />
-                <span className="text-sm font-medium text-green-800 dark:text-green-300">
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-50  rounded-lg">
+                <Star className="w-5 h-5 text-green-600 " />
+                <span className="text-sm font-medium text-green-800 ">
                   5.0 Rating
                 </span>
               </div>
@@ -407,7 +401,7 @@ const DoctorSection: React.FC = () => {
             >
               <a
                 href="/echipa"
-                className="inline-flex items-center gap-2 text-gold-600 dark:text-gold-400 hover:text-gold-700 dark:hover:text-gold-300 transition-colors group"
+                className="inline-flex items-center gap-2 text-gold-600  hover:text-gold-700  transition-colors group"
               >
                 <span className="font-medium">Vezi Toată Echipa</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -433,13 +427,13 @@ const DoctorSection: React.FC = () => {
                 <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
               </svg>
             </div>
-            <p className="text-xl text-gray-600 dark:text-gray-400 italic">
+            <p className="text-xl text-gray-600  italic">
               "Pentru mine, fiecare pacient reprezintă o oportunitate de a reda
               nu doar sănătatea, ci și încrederea în zâmbet. Aceasta este
               misiunea mea."
             </p>
             <footer className="mt-4">
-              <cite className="text-gold-600 dark:text-gold-400 font-medium not-italic">
+              <cite className="text-gold-600  font-medium not-italic">
                 — Dr. Căpățină Vitalie
               </cite>
             </footer>

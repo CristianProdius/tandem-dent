@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import NavigationHeader from "@/components/layout/NavigationHeader";
 import "./globals.css";
 import Footer from "@/components/layout/Footer";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -66,11 +67,19 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-  },
+  // viewport removed from here
+};
+
+// Viewport is now a separate export
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#d4af37" },
+    { media: "(prefers-color-scheme: dark)", color: "#b89229" },
+  ],
 };
 
 export default function RootLayout({
@@ -79,29 +88,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ro" className="scroll-smooth">
+    <html lang="ro" className="scroll-smooth" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${playfair.variable} font-sans antialiased`}
+        suppressHydrationWarning
       >
-        {/* Skip to main content for accessibility */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-gold-600 text-white px-4 py-2 rounded-lg z-50"
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
         >
-          Sari la conținutul principal
-        </a>
+          {/* Navigation Header */}
+          <NavigationHeader />
 
-        {/* Navigation Header */}
-        <NavigationHeader />
+          {/* Main Content */}
+          <main id="main-content" className="min-h-screen">
+            {children}
+          </main>
 
-        {/* Main Content */}
-        <main id="main-content" className="min-h-screen">
-          {children}
-        </main>
-
-        <footer>
+          {/* Footer */}
           <Footer />
-        </footer>
+        </ThemeProvider>
       </body>
     </html>
   );

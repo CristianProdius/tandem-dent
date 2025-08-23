@@ -1,0 +1,13 @@
+{
+  "name": "Tandem Dent - Clinică Stomatologică",
+  "short_name": "Tandem Dent",
+  "description": "Clinică Stomatologică Premium în Chișinău",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#d4af37",
+  "orientation": "portrait-primary",
+  "icons": [],
+  "categories": ["medical", "health"],
+  "lang": "ro-MD"
+}
