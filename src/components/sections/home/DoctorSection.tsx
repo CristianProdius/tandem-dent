@@ -238,6 +238,8 @@ const DoctorSection: React.FC = () => {
                       src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=2070"
                       alt="Dr. Căpățină Vitalie"
                       className="w-full h-full object-cover"
+                      width={500}
+                      height={500}
                     />
 
                     {/* Premium Overlay */}

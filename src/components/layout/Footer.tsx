@@ -210,6 +210,8 @@ const Footer: React.FC = () => {
                     {/* Logo Image - Replace src with your actual logo path */}
                     <Image
                       src="images/logo/logo.png"
+                      width={172}
+                      height={48}
                       alt="Tandem Dent Logo"
                       onError={(e) => {
                         // Fallback if image doesn't load
