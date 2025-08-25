@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   motion,
   useScroll,
@@ -15,7 +15,6 @@ import {
   GraduationCap,
   Users,
   Calendar,
-  Stethoscope,
   Shield,
   Star,
   Trophy,
@@ -23,7 +22,9 @@ import {
   Heart,
   Briefcase,
   Medal,
+  Sparkles,
 } from "lucide-react";
+import Image from "next/image";
 
 interface Achievement {
   icon: React.ReactNode;
@@ -37,7 +38,6 @@ interface Credential {
   description?: string;
 }
 
-// Animated Counter Component
 interface CounterProps {
   from: number;
   to: number;
@@ -83,7 +83,6 @@ const DoctorSection: React.FC = () => {
     offset: ["start end", "end start"],
   });
 
-  // Parallax effects
   const imageY = useTransform(scrollYProgress, [0, 1], [-50, 50]);
   const imageScale = useTransform(
     scrollYProgress,
@@ -132,23 +131,23 @@ const DoctorSection: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-gray-900"
+      className="relative py-24 lg:py-36 overflow-hidden bg-gradient-to-br from-gold-50/20 via-white to-gold-50/30"
     >
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
+      {/* Premium Background Pattern */}
+      <div className="absolute inset-0 opacity-[0.02]">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `linear-gradient(45deg, transparent 48%, rgba(212, 175, 55, 0.1) 49%, rgba(212, 175, 55, 0.1) 51%, transparent 52%)`,
-            backgroundSize: "20px 20px",
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(217 119 6) 1px, transparent 1px)`,
+            backgroundSize: "40px 40px",
           }}
         />
       </div>
 
-      {/* Floating Decorative Elements */}
+      {/* Enhanced Floating Decorative Elements */}
       <motion.div
         style={{ y: decorY }}
-        className="absolute top-20 right-10 w-64 h-64 bg-gradient-to-br from-gold-400/10 to-gold-600/10 rounded-full blur-3xl pointer-events-none"
+        className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-br from-gold-300/20 via-yellow-300/15 to-gold-300/20 rounded-full blur-3xl"
       />
 
       <motion.div
@@ -156,41 +155,60 @@ const DoctorSection: React.FC = () => {
           rotate: [0, 360],
         }}
         transition={{
-          duration: 50,
+          duration: 60,
           repeat: Infinity,
           ease: "linear",
         }}
-        className="absolute bottom-20 left-10 w-48 h-48 bg-gradient-to-br from-teal-400/10 to-teal-600/10 rounded-full blur-3xl pointer-events-none"
+        className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-br from-gold-200/20 to-yellow-200/20 rounded-full blur-3xl"
+      />
+
+      {/* Additional decorative elements */}
+      <motion.div
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+        }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-gold-200/10 to-transparent rounded-full"
       />
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Section Header */}
+        {/* Premium Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
           <motion.div
             initial={{ scale: 0 }}
             animate={isInView ? { scale: 1 } : {}}
             transition={{ delay: 0.2, type: "spring" }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-gold-500/10 to-gold-600/10 border border-gold-500/20"
+            className="inline-flex items-center gap-2 px-6 py-3 mb-8 rounded-full bg-gradient-to-r from-gold-100 to-yellow-100 border border-gold-200 shadow-lg shadow-gold-100/50"
           >
-            <Stethoscope className="w-4 h-4 text-gold-500" />
-            <span className="text-sm font-medium text-gold-600 ">
+            <Sparkles className="w-4 h-4 text-gold-500" />
+            <span className="text-sm font-semibold text-gold-700 tracking-wide uppercase">
               Medicul Nostru Principal
             </span>
+            <Sparkles className="w-4 h-4 text-gold-500" />
           </motion.div>
 
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            <span className="text-gradient-gold">Cunoaște-ți Medicul</span>
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-gold-500 to-gold-600 bg-clip-text text-transparent">
+              Cunoaște-ți Medicul
+            </span>
           </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Experiență, profesionalism și grijă pentru fiecare pacient
+          </p>
         </motion.div>
 
-        {/* Main Content - Split Layout */}
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Image Section */}
+        {/* Main Content - Premium Split Layout */}
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+          {/* Enhanced Image Section */}
           <motion.div
             ref={imageRef}
             initial={{ opacity: 0, x: -50 }}
@@ -202,62 +220,74 @@ const DoctorSection: React.FC = () => {
               style={{ y: imageY, scale: imageScale }}
               className="relative"
             >
-              {/* Elegant Frame */}
               <div className="relative group">
-                {/* Background Glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gold-400/20 to-gold-600/20 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-500" />
+                {/* Premium Background Glow */}
+                <div className="absolute -inset-4 bg-gradient-to-br from-gold-400/30 via-yellow-400/20 to-gold-400/30 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-700" />
 
-                {/* Image Container with Float Animation */}
                 <motion.div
-                  className="relative float-animation"
+                  className="relative"
                   whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  {/* Premium Frame Border */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-gold-400 to-gold-600 rounded-3xl" />
+                  {/* Premium Frame with Gold Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gold-400 via-yellow-500 to-gold-400 rounded-3xl shadow-2xl" />
 
-                  {/* Image Placeholder */}
-                  <div className="relative m-1 bg-gray-200 dark:bg-gray-800 rounded-3xl overflow-hidden aspect-[3/4]">
-                    <img
+                  {/* Image Container */}
+                  <div className="relative m-[3px] bg-white rounded-3xl overflow-hidden aspect-[3/4] shadow-inner">
+                    <Image
                       src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=2070"
                       alt="Dr. Căpățină Vitalie"
                       className="w-full h-full object-cover"
                     />
 
-                    {/* Overlay Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                    {/* Premium Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                   </div>
 
-                  {/* Floating Badge */}
+                  {/* Premium Floating Badge */}
                   <motion.div
-                    animate={{ rotate: [0, 5, 0, -5, 0] }}
+                    animate={{
+                      rotate: [0, 5, 0, -5, 0],
+                      y: [0, -5, 0],
+                    }}
                     transition={{ duration: 6, repeat: Infinity }}
-                    className="absolute -bottom-4 -right-4 bg-white dark:bg-gray-900 rounded-2xl p-4 shadow-xl border border-gold-500/20"
+                    className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-5 shadow-2xl border-2 border-gold-100"
                   >
-                    <div className="flex items-center gap-2">
-                      <Trophy className="w-6 h-6 text-gold-500" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-gold-400 to-gold-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <Trophy className="w-6 h-6 text-white" />
+                      </div>
                       <div>
-                        <div className="text-2xl font-bold text-gradient-gold">
+                        <div className="text-2xl font-bold bg-gradient-to-r from-gold-500 to-gold-600 bg-clip-text text-transparent">
                           <AnimatedCounter from={0} to={3000} suffix="+" />
                         </div>
-                        <div className="text-xs text-gray-600 ">Implanturi</div>
+                        <div className="text-xs text-gray-500 font-medium">
+                          Implanturi
+                        </div>
                       </div>
                     </div>
                   </motion.div>
 
-                  {/* Experience Badge */}
+                  {/* Premium Experience Badge */}
                   <motion.div
-                    animate={{ rotate: [0, -5, 0, 5, 0] }}
+                    animate={{
+                      rotate: [0, -5, 0, 5, 0],
+                      y: [0, 5, 0],
+                    }}
                     transition={{ duration: 7, repeat: Infinity }}
-                    className="absolute -top-4 -left-4 bg-white dark:bg-gray-900 rounded-2xl p-3 shadow-xl border border-gold-500/20"
+                    className="absolute -top-6 -left-6 bg-white rounded-2xl p-4 shadow-2xl border-2 border-gold-100"
                   >
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-teal-500" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <Calendar className="w-5 h-5 text-white" />
+                      </div>
                       <div>
-                        <div className="text-xl font-bold text-teal-500">
+                        <div className="text-xl font-bold text-emerald-600">
                           15+
                         </div>
-                        <div className="text-xs text-gray-600 ">Ani</div>
+                        <div className="text-xs text-gray-500 font-medium">
+                          Ani Experiență
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -266,36 +296,39 @@ const DoctorSection: React.FC = () => {
             </motion.div>
           </motion.div>
 
-          {/* Information Section */}
+          {/* Premium Information Section */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
             className="space-y-8"
           >
-            {/* Name and Title */}
+            {/* Name and Title with Premium Style */}
             <div>
-              <h3 className="text-3xl md:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
+              <h3 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                 Dr. Căpățină Vitalie
               </h3>
-              <p className="text-xl text-gold-500 font-medium mb-4">
+              <p className="text-xl font-semibold bg-gradient-to-r from-gold-500 to-gold-600 bg-clip-text text-transparent mb-5">
                 Medic Stomatolog Principal
               </p>
-              <div className="flex flex-wrap gap-3 mb-6">
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-gold-500/10 rounded-full text-sm text-gold-600 ">
-                  <Briefcase className="w-3 h-3" />
+
+              {/* Premium Specialty Tags */}
+              <div className="flex flex-wrap gap-3 mb-8">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gold-100 to-yellow-100 rounded-full text-sm font-semibold text-gold-700 shadow-md">
+                  <Briefcase className="w-4 h-4" />
                   Implantologie
                 </span>
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-teal-500/10 rounded-full text-sm text-teal-600 dark:text-teal-400">
-                  <Heart className="w-3 h-3" />
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full text-sm font-semibold text-emerald-700 shadow-md">
+                  <Heart className="w-4 h-4" />
                   Chirurgie Orală
                 </span>
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500/10 rounded-full text-sm text-blue-600 ">
-                  <Shield className="w-3 h-3" />
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full text-sm font-semibold text-blue-700 shadow-md">
+                  <Shield className="w-4 h-4" />
                   Ortopedie Dentară
                 </span>
               </div>
-              <p className="text-gray-600  leading-relaxed">
+
+              <p className="text-gray-600 leading-relaxed text-lg">
                 Cu o pasiune pentru excelența în stomatologie și o dedicare față
                 de bunăstarea pacienților, Dr. Căpățină Vitalie aduce peste 15
                 ani de experiență în tratamente dentare complexe și implanturi
@@ -303,38 +336,45 @@ const DoctorSection: React.FC = () => {
               </p>
             </div>
 
-            {/* Achievement Stats */}
-            <div className="grid grid-cols-3 gap-4">
+            {/* Premium Achievement Stats */}
+            <div className="grid grid-cols-3 gap-5">
               {achievements.map((achievement, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: 0.6 + index * 0.1 }}
-                  className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-soft border border-gray-200 "
+                  whileHover={{ y: -5, scale: 1.05 }}
+                  className="relative text-center p-5 bg-white rounded-2xl shadow-xl border border-gold-100 overflow-hidden group"
                 >
-                  <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg text-white mb-2">
-                    {achievement.icon}
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 ">
-                    {achievement.label === "Implanturi plasate" ? (
-                      <AnimatedCounter from={0} to={3000} suffix="+" />
-                    ) : achievement.label === "Ani experiență" ? (
-                      <AnimatedCounter from={0} to={15} suffix="+" />
-                    ) : (
-                      <AnimatedCounter from={0} to={5000} suffix="+" />
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-600 ">
-                    {achievement.label}
+                  {/* Background gradient on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gold-50 to-yellow-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  <div className="relative">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-gold-400 to-gold-500 rounded-xl text-white mb-3 shadow-lg">
+                      {achievement.icon}
+                    </div>
+                    <div className="text-2xl font-bold bg-gradient-to-r from-gold-500 to-gold-600 bg-clip-text text-transparent">
+                      {achievement.label === "Implanturi plasate" ? (
+                        <AnimatedCounter from={0} to={3000} suffix="+" />
+                      ) : achievement.label === "Ani experiență" ? (
+                        <AnimatedCounter from={0} to={15} suffix="+" />
+                      ) : (
+                        <AnimatedCounter from={0} to={5000} suffix="+" />
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-600 font-medium mt-1">
+                      {achievement.label}
+                    </div>
                   </div>
                 </motion.div>
               ))}
             </div>
 
-            {/* Credentials List */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-semibold mb-4 text-gray-900 ">
+            {/* Premium Credentials List */}
+            <div className="space-y-4 bg-gradient-to-br from-gold-50/50 to-yellow-50/50 rounded-2xl p-6 border border-gold-100">
+              <h4 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-gold-500" />
                 Educație și Certificări
               </h4>
               {credentials.map((credential, index) => (
@@ -343,15 +383,17 @@ const DoctorSection: React.FC = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={isInView ? { opacity: 1, x: 0 } : {}}
                   transition={{ delay: 0.8 + index * 0.1 }}
-                  className="flex items-start gap-3 group"
+                  className="flex items-start gap-4 group"
                 >
-                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-gold-400 to-gold-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                    <CheckCircle className="w-4 h-4" />
+                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-500 rounded-xl flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-all duration-300">
+                    <CheckCircle className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-gray-700 ">{credential.title}</p>
+                    <p className="text-gray-700 font-medium">
+                      {credential.title}
+                    </p>
                     {credential.description && (
-                      <p className="text-sm text-gray-500  mt-1">
+                      <p className="text-sm text-gray-500 mt-1">
                         {credential.description}
                       </p>
                     )}
@@ -360,39 +402,36 @@ const DoctorSection: React.FC = () => {
               ))}
             </div>
 
-            {/* Trust Badges */}
+            {/* Premium Trust Badges */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 1.2 }}
-              className="flex flex-wrap gap-4 pt-6 border-t border-gray-200 "
+              className="flex flex-wrap gap-4 pt-8 border-t-2 border-gold-100"
             >
-              {/* Badge 1 */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-gold-50  rounded-lg">
-                <Award className="w-5 h-5 text-gold-600 " />
-                <span className="text-sm font-medium text-gold-800 ">
+              <div className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-gold-100 to-yellow-100 rounded-xl shadow-md">
+                <Award className="w-5 h-5 text-gold-600" />
+                <span className="text-sm font-bold text-gold-700">
                   Top Implantolog
                 </span>
               </div>
 
-              {/* Badge 2 */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
-                <Shield className="w-5 h-5 text-blue-600 " />
-                <span className="text-sm font-medium text-blue-800 ">
+              <div className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-xl shadow-md">
+                <Shield className="w-5 h-5 text-blue-600" />
+                <span className="text-sm font-bold text-blue-700">
                   Membru ASMM
                 </span>
               </div>
 
-              {/* Badge 3 */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-50  rounded-lg">
-                <Star className="w-5 h-5 text-green-600 " />
-                <span className="text-sm font-medium text-green-800 ">
+              <div className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-100 to-green-100 rounded-xl shadow-md">
+                <Star className="w-5 h-5 text-emerald-600" />
+                <span className="text-sm font-bold text-emerald-700">
                   5.0 Rating
                 </span>
               </div>
             </motion.div>
 
-            {/* CTA Link */}
+            {/* Premium CTA */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
@@ -401,39 +440,41 @@ const DoctorSection: React.FC = () => {
             >
               <a
                 href="/echipa"
-                className="inline-flex items-center gap-2 text-gold-600  hover:text-gold-700  transition-colors group"
+                className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-500 text-white font-semibold rounded-xl hover:shadow-xl transition-all duration-300 group"
               >
-                <span className="font-medium">Vezi Toată Echipa</span>
+                <span>Vezi Toată Echipa</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
             </motion.div>
           </motion.div>
         </div>
 
-        {/* Bottom Quote */}
+        {/* Premium Bottom Quote */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 1.6 }}
-          className="mt-20 text-center max-w-3xl mx-auto"
+          className="mt-24 text-center max-w-4xl mx-auto"
         >
-          <blockquote className="relative">
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-gold-500/20">
-              <svg
-                className="w-16 h-16"
-                fill="currentColor"
-                viewBox="0 0 32 32"
-              >
-                <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
-              </svg>
+          <blockquote className="relative bg-gradient-to-br from-white to-gold-50/30 rounded-3xl p-12 shadow-xl border border-gold-100">
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2">
+              <div className="bg-gradient-to-br from-gold-400 to-gold-500 rounded-full p-4 shadow-xl">
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 32 32"
+                >
+                  <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
+                </svg>
+              </div>
             </div>
-            <p className="text-xl text-gray-600  italic">
-              "Pentru mine, fiecare pacient reprezintă o oportunitate de a reda
-              nu doar sănătatea, ci și încrederea în zâmbet. Aceasta este
-              misiunea mea."
+            <p className="text-2xl text-gray-700 italic font-light leading-relaxed mb-6">
+              &quot;Pentru mine, fiecare pacient reprezintă o oportunitate de a
+              reda nu doar sănătatea, ci și încrederea în zâmbet. Aceasta este
+              misiunea mea.&quot;
             </p>
-            <footer className="mt-4">
-              <cite className="text-gold-600  font-medium not-italic">
+            <footer>
+              <cite className="text-lg font-semibold bg-gradient-to-r from-gold-600 to-gold-600 bg-clip-text text-transparent not-italic">
                 — Dr. Căpățină Vitalie
               </cite>
             </footer>

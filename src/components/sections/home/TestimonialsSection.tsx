@@ -149,7 +149,8 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
           <Quote className="w-24 h-24 fill-current" />
         </div>
 
-        <div className="relative glass backdrop-blur-xl rounded-3xl p-8 md:p-12 shadow-premium border border-gold-500/10">
+        {/* Light themed card with subtle shadow instead of glass effect */}
+        <div className="relative bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gold-500/20 hover:shadow-2xl transition-shadow duration-300">
           {/* Rating Stars */}
           <div className="flex items-center gap-1 mb-6">
             {[...Array(5)].map((_, i) => (
@@ -167,10 +168,10 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.6, type: "spring" }}
-                className="ml-2 flex items-center gap-1 px-2 py-1 bg-green-500/10 rounded-full"
+                className="ml-2 flex items-center gap-1 px-2 py-1 bg-teal-50 rounded-full"
               >
-                <ThumbsUp className="w-3 h-3 text-green-500" />
-                <span className="text-xs text-green-600 dark:text-green-400">
+                <ThumbsUp className="w-3 h-3 text-teal-600" />
+                <span className="text-xs text-teal-700 font-medium">
                   Verificat
                 </span>
               </motion.div>
@@ -179,18 +180,18 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
 
           {/* Testimonial Content */}
           <blockquote className="relative">
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-700 dark:text-gray-300 leading-relaxed italic mb-6">
-              "{testimonial.content}"
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-700 leading-relaxed italic mb-6">
+              &quot;{testimonial.content}&quot;
             </p>
           </blockquote>
 
           {/* Author Info */}
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+              <div className="font-semibold text-lg text-gray-900">
                 {testimonial.name}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-sm text-gray-600">
                 {testimonial.role} • {testimonial.date}
               </div>
             </div>
@@ -199,7 +200,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
             <motion.div
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="text-red-500"
+              className="text-red-400"
             >
               <Heart className="w-6 h-6 fill-current" />
             </motion.div>
@@ -223,21 +224,6 @@ const TestimonialsSection: React.FC = () => {
   const opacity = useTransform(x, [-100, 0, 100], [0.5, 1, 0.5]);
   const scale = useTransform(x, [-100, 0, 100], [0.95, 1, 0.95]);
 
-  // Auto-play functionality
-  useEffect(() => {
-    if (!isPaused) {
-      intervalRef.current = setInterval(() => {
-        nextTestimonial();
-      }, 5000); // Change testimonial every 5 seconds
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [currentIndex, isPaused]);
-
   const nextTestimonial = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % allTestimonials.length);
   }, []);
@@ -251,6 +237,21 @@ const TestimonialsSection: React.FC = () => {
   const goToTestimonial = useCallback((index: number) => {
     setCurrentIndex(index);
   }, []);
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (!isPaused) {
+      intervalRef.current = setInterval(() => {
+        nextTestimonial();
+      }, 5000);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [currentIndex, isPaused, nextTestimonial]);
 
   // Handle swipe gestures
   const handleDragEnd = (
@@ -267,22 +268,22 @@ const TestimonialsSection: React.FC = () => {
 
   return (
     <section
-      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50  dark:via-gray-950 dark:to-gray-900"
+      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-white via-gray-50 to-gold-50/20"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Background Pattern */}
+      {/* Light Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(212, 175, 55, 0.15) 1px, transparent 1px)`,
+            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(212, 175, 55, 0.1) 1px, transparent 1px)`,
             backgroundSize: "40px 40px",
           }}
         />
       </div>
 
-      {/* Floating Elements */}
+      {/* Floating Elements with lighter colors */}
       <motion.div
         animate={{
           y: [0, -20, 0],
@@ -293,7 +294,7 @@ const TestimonialsSection: React.FC = () => {
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-gold-400/10 to-gold-600/10 rounded-full blur-3xl"
+        className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-gold-200/20 to-gold-300/20 rounded-full blur-3xl"
       />
 
       <motion.div
@@ -306,7 +307,7 @@ const TestimonialsSection: React.FC = () => {
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute bottom-10 right-10 w-40 h-40 bg-gradient-to-br from-teal-400/10 to-teal-600/10 rounded-full blur-3xl"
+        className="absolute bottom-10 right-10 w-40 h-40 bg-gradient-to-br from-teal-200/20 to-teal-300/20 rounded-full blur-3xl"
       />
 
       <div className="container mx-auto px-4 relative z-10">
@@ -318,16 +319,16 @@ const TestimonialsSection: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          {/* Premium Badge */}
+          {/* Premium Badge with light colors */}
           <motion.div
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2, type: "spring" }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-gold-500/10 to-gold-600/10 border border-gold-500/20"
+            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-gold-100 to-gold-200 border border-gold-300"
           >
-            <MessageSquare className="w-4 h-4 text-gold-500" />
-            <span className="text-sm font-medium text-gold-600 dark:text-gold-400">
+            <MessageSquare className="w-4 h-4 text-gold-600" />
+            <span className="text-sm font-medium text-gold-700">
               Părerile Pacienților
             </span>
           </motion.div>
@@ -336,7 +337,7 @@ const TestimonialsSection: React.FC = () => {
             <span className="text-gradient-gold">Ce Spun Pacienții Noștri</span>
           </h2>
 
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Încrederea și satisfacția pacienților noștri sunt cele mai
             importante mărturii ale muncii noastre
           </p>
@@ -361,21 +362,21 @@ const TestimonialsSection: React.FC = () => {
             </AnimatePresence>
           </motion.div>
 
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows - Light theme */}
           <button
             onClick={prevTestimonial}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gold-500/20 flex items-center justify-center hover:bg-gold-50 dark:hover:bg-gray-700 transition-colors group"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg border border-gold-200 flex items-center justify-center hover:bg-gold-50 transition-colors group"
             aria-label="Previous testimonial"
           >
-            <ChevronLeft className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-gold-500 transition-colors" />
+            <ChevronLeft className="w-6 h-6 text-gray-700 group-hover:text-gold-600 transition-colors" />
           </button>
 
           <button
             onClick={nextTestimonial}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gold-500/20 flex items-center justify-center hover:bg-gold-50 dark:hover:bg-gray-700 transition-colors group"
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg border border-gold-200 flex items-center justify-center hover:bg-gold-50 transition-colors group"
             aria-label="Next testimonial"
           >
-            <ChevronRight className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-gold-500 transition-colors" />
+            <ChevronRight className="w-6 h-6 text-gray-700 group-hover:text-gold-600 transition-colors" />
           </button>
         </motion.div>
 
@@ -388,14 +389,14 @@ const TestimonialsSection: React.FC = () => {
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
                 index === currentIndex
                   ? "w-8 bg-gradient-to-r from-gold-400 to-gold-600"
-                  : "bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600"
+                  : "bg-gray-300 hover:bg-gray-400"
               }`}
               aria-label={`Go to testimonial ${index + 1}`}
             />
           ))}
         </div>
 
-        {/* Google Reviews Badge */}
+        {/* Google Reviews Badge - Light theme */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -407,7 +408,7 @@ const TestimonialsSection: React.FC = () => {
             href="https://www.google.com/search?q=tandem+dent+chisinau"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-shadow group"
+            className="inline-flex items-center gap-3 px-6 py-3 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow group border border-gray-100"
           >
             <GoogleIcon className="w-6 h-6" />
             <div className="flex items-center gap-2">
@@ -419,7 +420,7 @@ const TestimonialsSection: React.FC = () => {
                   />
                 ))}
               </div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-medium text-gray-700">
                 5.0 pe Google Reviews
               </span>
             </div>
@@ -427,7 +428,7 @@ const TestimonialsSection: React.FC = () => {
           </a>
         </motion.div>
 
-        {/* Stats */}
+        {/* Stats - Light theme cards */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -435,23 +436,17 @@ const TestimonialsSection: React.FC = () => {
           transition={{ delay: 0.6 }}
           className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mt-12"
         >
-          <div className="text-center">
+          <div className="text-center bg-white rounded-xl p-4 shadow-md border border-gold-100">
             <div className="text-3xl font-bold text-gradient-gold">98%</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Pacienți Mulțumiți
-            </div>
+            <div className="text-sm text-gray-600">Pacienți Mulțumiți</div>
           </div>
-          <div className="text-center">
+          <div className="text-center bg-white rounded-xl p-4 shadow-md border border-gold-100">
             <div className="text-3xl font-bold text-gradient-gold">3000+</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Recenzii Pozitive
-            </div>
+            <div className="text-sm text-gray-600">Recenzii Pozitive</div>
           </div>
-          <div className="text-center">
+          <div className="text-center bg-white rounded-xl p-4 shadow-md border border-gold-100">
             <div className="text-3xl font-bold text-gradient-gold">5.0</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Rating Mediu
-            </div>
+            <div className="text-sm text-gray-600">Rating Mediu</div>
           </div>
         </motion.div>
       </div>

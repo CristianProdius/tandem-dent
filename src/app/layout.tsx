@@ -91,7 +91,6 @@ export default function RootLayout({
     <html lang="ro" className="scroll-smooth" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${playfair.variable} font-sans antialiased`}
-        suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"

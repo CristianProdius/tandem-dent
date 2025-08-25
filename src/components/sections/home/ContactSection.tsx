@@ -1,23 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useInView } from "motion/react";
+import React, { useState, useEffect } from "react";
 import {
   Phone,
   Mail,
   MapPin,
   Clock,
   Send,
-  Check,
   AlertCircle,
-  MessageCircle,
-  Calendar,
   Car,
   Globe,
   ChevronDown,
   Loader2,
   CheckCircle,
-  X,
 } from "lucide-react";
 
 // WhatsApp Icon Component
@@ -32,7 +27,7 @@ interface FormData {
   phone: string;
   email: string;
   service: string;
-  message?: string;
+  message: string;
 }
 
 interface FormErrors {
@@ -55,9 +50,6 @@ const services = [
 ];
 
 const ContactSection: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-
   const [formData, setFormData] = useState<FormData>({
     name: "",
     phone: "",
@@ -131,7 +123,7 @@ const ContactSection: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -167,330 +159,254 @@ const ContactSection: React.FC = () => {
 
   return (
     <section
-      ref={sectionRef}
       id="contact"
-      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50  dark:via-gray-950 dark:to-gray-900"
+      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(212, 175, 55, 0.1) 100px, rgba(212, 175, 55, 0.1) 200px)`,
+            backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(245, 158, 11, 0.1) 100px, rgba(245, 158, 11, 0.1) 200px)`,
           }}
         />
       </div>
 
       {/* Floating Elements */}
-      <motion.div
-        animate={{
-          y: [0, -30, 0],
-          rotate: [0, 5, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="absolute top-20 right-10 w-32 h-32 bg-gradient-to-br from-gold-400/10 to-gold-600/10 rounded-full blur-3xl"
-      />
+      <div className="absolute top-20 right-10 w-32 h-32 bg-gradient-to-br from-gold-400/10 to-gold-600/10 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={isInView ? { scale: 1 } : {}}
-            transition={{ delay: 0.2, type: "spring" }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-gold-500/10 to-gold-600/10 border border-gold-500/20"
-          >
-            <MapPin className="w-4 h-4 text-gold-500" />
-            <span className="text-sm font-medium text-gold-600 dark:text-gold-400">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-gold-500/10 to-gold-600/10 border border-gold-500/20">
+            <MapPin className="w-4 h-4 text-gold-600" />
+            <span className="text-sm font-medium text-gold-700">
               Contact & Locație
             </span>
-          </motion.div>
+          </div>
 
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            <span className="text-gradient-gold">Programează o Vizită</span>
+            <span className="bg-gradient-to-r from-gold-600 to-gold-700 bg-clip-text text-transparent">
+              Programează o Vizită
+            </span>
           </h2>
 
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Suntem aici pentru a-ți oferi cel mai bun tratament. Contactează-ne
             pentru o programare.
           </p>
-        </motion.div>
+        </div>
 
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <div className="glass backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-gold-500/10 shadow-premium">
-              <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+          <div>
+            <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-gold-500/10 shadow-xl">
+              <h3 className="text-2xl font-bold mb-6 text-gray-900">
                 Formular de Programare
               </h3>
 
-              <AnimatePresence mode="wait">
-                {!isSuccess ? (
-                  <motion.form
-                    key="form"
-                    initial={{ opacity: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    onSubmit={handleSubmit}
-                    className="space-y-6"
-                  >
-                    {/* Name Input */}
-                    <div className="relative">
-                      <input
-                        type="text"
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) =>
-                          handleInputChange("name", e.target.value)
-                        }
-                        className={`peer w-full px-4 py-3 bg-white dark:bg-gray-800 border rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none ${
-                          errors.name
-                            ? "border-red-500"
-                            : "border-gray-300 dark:border-gray-700"
-                        }`}
-                        placeholder=" "
-                      />
-                      <label
-                        htmlFor="name"
-                        className="absolute left-4 top-3 text-gray-600 dark:text-gray-400 transition-all duration-300 
-                          peer-placeholder-shown:top-3 peer-placeholder-shown:text-base
-                          peer-focus:-top-6 peer-focus:text-sm peer-focus:text-gold-500
-                          peer-[:not(:placeholder-shown)]:-top-6 peer-[:not(:placeholder-shown)]:text-sm"
-                      >
-                        Nume complet *
-                      </label>
-                      {errors.name && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="text-red-500 text-sm mt-1 flex items-center gap-1"
-                        >
-                          <AlertCircle className="w-3 h-3" />
-                          {errors.name}
-                        </motion.p>
-                      )}
-                    </div>
-
-                    {/* Phone Input */}
-                    <div className="relative">
-                      <input
-                        type="tel"
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) =>
-                          handleInputChange("phone", e.target.value)
-                        }
-                        className={`peer w-full px-4 py-3 bg-white dark:bg-gray-800 border rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none ${
-                          errors.phone
-                            ? "border-red-500"
-                            : "border-gray-300 dark:border-gray-700"
-                        }`}
-                        placeholder=" "
-                      />
-                      <label
-                        htmlFor="phone"
-                        className="absolute left-4 top-3 text-gray-600 dark:text-gray-400 transition-all duration-300 
-                          peer-placeholder-shown:top-3 peer-placeholder-shown:text-base
-                          peer-focus:-top-6 peer-focus:text-sm peer-focus:text-gold-500
-                          peer-[:not(:placeholder-shown)]:-top-6 peer-[:not(:placeholder-shown)]:text-sm"
-                      >
-                        Telefon *
-                      </label>
-                      {errors.phone && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="text-red-500 text-sm mt-1 flex items-center gap-1"
-                        >
-                          <AlertCircle className="w-3 h-3" />
-                          {errors.phone}
-                        </motion.p>
-                      )}
-                    </div>
-
-                    {/* Email Input */}
-                    <div className="relative">
-                      <input
-                        type="email"
-                        id="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
-                        className={`peer w-full px-4 py-3 bg-white dark:bg-gray-800 border rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none ${
-                          errors.email
-                            ? "border-red-500"
-                            : "border-gray-300 dark:border-gray-700"
-                        }`}
-                        placeholder=" "
-                      />
-                      <label
-                        htmlFor="email"
-                        className="absolute left-4 top-3 text-gray-600 dark:text-gray-400 transition-all duration-300 
-                          peer-placeholder-shown:top-3 peer-placeholder-shown:text-base
-                          peer-focus:-top-6 peer-focus:text-sm peer-focus:text-gold-500
-                          peer-[:not(:placeholder-shown)]:-top-6 peer-[:not(:placeholder-shown)]:text-sm"
-                      >
-                        Email *
-                      </label>
-                      {errors.email && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="text-red-500 text-sm mt-1 flex items-center gap-1"
-                        >
-                          <AlertCircle className="w-3 h-3" />
-                          {errors.email}
-                        </motion.p>
-                      )}
-                    </div>
-
-                    {/* Service Select */}
-                    <div className="relative">
-                      <select
-                        id="service"
-                        value={formData.service}
-                        onChange={(e) =>
-                          handleInputChange("service", e.target.value)
-                        }
-                        className={`peer w-full px-4 py-3 bg-white dark:bg-gray-800 border rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none appearance-none ${
-                          errors.service
-                            ? "border-red-500"
-                            : "border-gray-300 dark:border-gray-700"
-                        }`}
-                      >
-                        <option value="">Selectați serviciul dorit</option>
-                        {services.map((service) => (
-                          <option key={service} value={service}>
-                            {service}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                      {errors.service && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="text-red-500 text-sm mt-1 flex items-center gap-1"
-                        >
-                          <AlertCircle className="w-3 h-3" />
-                          {errors.service}
-                        </motion.p>
-                      )}
-                    </div>
-
-                    {/* Message Textarea */}
-                    <div className="relative">
-                      <textarea
-                        id="message"
-                        value={formData.message}
-                        onChange={(e) =>
-                          handleInputChange("message", e.target.value)
-                        }
-                        rows={4}
-                        className="peer w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none resize-none"
-                        placeholder=" "
-                      />
-                      <label
-                        htmlFor="message"
-                        className="absolute left-4 top-3 text-gray-600 dark:text-gray-400 transition-all duration-300 
-                          peer-placeholder-shown:top-3 peer-placeholder-shown:text-base
-                          peer-focus:-top-6 peer-focus:text-sm peer-focus:text-gold-500
-                          peer-[:not(:placeholder-shown)]:-top-6 peer-[:not(:placeholder-shown)]:text-sm"
-                      >
-                        Mesaj (opțional)
-                      </label>
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="btn-premium w-full py-4 text-lg font-semibold text-white rounded-xl transition-all duration-300 hover-lift hover-glow shimmer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                      style={{
-                        background: "linear-gradient(135deg, #d4af37, #b89229)",
-                      }}
+              {!isSuccess ? (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Name Input */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
+                      className={`peer w-full px-4 py-3 bg-white border rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none ${
+                        errors.name ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder=" "
+                    />
+                    <label
+                      htmlFor="name"
+                      className="absolute left-4 top-3 text-gray-600 transition-all duration-300 
+                        peer-placeholder-shown:top-3 peer-placeholder-shown:text-base
+                        peer-focus:-top-6 peer-focus:text-sm peer-focus:text-gold-600
+                        peer-[:not(:placeholder-shown)]:-top-6 peer-[:not(:placeholder-shown)]:text-sm"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Se trimite...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-5 h-5" />
-                          Trimite Programarea
-                        </>
-                      )}
-                    </button>
-                  </motion.form>
-                ) : (
-                  <motion.div
-                    key="success"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-12"
-                  >
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", delay: 0.2 }}
-                      className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
+                      Nume complet *
+                    </label>
+                    {errors.name && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.name}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Phone Input */}
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
+                      }
+                      className={`peer w-full px-4 py-3 bg-white border rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none ${
+                        errors.phone ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder=" "
+                    />
+                    <label
+                      htmlFor="phone"
+                      className="absolute left-4 top-3 text-gray-600 transition-all duration-300 
+                        peer-placeholder-shown:top-3 peer-placeholder-shown:text-base
+                        peer-focus:-top-6 peer-focus:text-sm peer-focus:text-gold-600
+                        peer-[:not(:placeholder-shown)]:-top-6 peer-[:not(:placeholder-shown)]:text-sm"
                     >
-                      <CheckCircle className="w-10 h-10 text-white" />
-                    </motion.div>
-                    <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                      Programare Trimisă!
-                    </h4>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Vă vom contacta în curând pentru confirmare.
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      Telefon *
+                    </label>
+                    {errors.phone && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.phone}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Email Input */}
+                  <div className="relative">
+                    <input
+                      type="email"
+                      id="email"
+                      value={formData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                      className={`peer w-full px-4 py-3 bg-white border rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none ${
+                        errors.email ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder=" "
+                    />
+                    <label
+                      htmlFor="email"
+                      className="absolute left-4 top-3 text-gray-600 transition-all duration-300 
+                        peer-placeholder-shown:top-3 peer-placeholder-shown:text-base
+                        peer-focus:-top-6 peer-focus:text-sm peer-focus:text-gold-600
+                        peer-[:not(:placeholder-shown)]:-top-6 peer-[:not(:placeholder-shown)]:text-sm"
+                    >
+                      Email *
+                    </label>
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.email}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Service Select */}
+                  <div className="relative">
+                    <select
+                      id="service"
+                      value={formData.service}
+                      onChange={(e) =>
+                        handleInputChange("service", e.target.value)
+                      }
+                      className={`peer w-full px-4 py-3 bg-white border rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none appearance-none ${
+                        errors.service ? "border-red-500" : "border-gray-300"
+                      }`}
+                    >
+                      <option value="">Selectați serviciul dorit</option>
+                      {services.map((service) => (
+                        <option key={service} value={service}>
+                          {service}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                    {errors.service && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.service}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Message Textarea */}
+                  <div className="relative">
+                    <textarea
+                      id="message"
+                      value={formData.message}
+                      onChange={(e) =>
+                        handleInputChange("message", e.target.value)
+                      }
+                      rows={4}
+                      className="peer w-full px-4 py-3 bg-white border border-gray-300 rounded-xl transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none resize-none"
+                      placeholder=" "
+                    />
+                    <label
+                      htmlFor="message"
+                      className="absolute left-4 top-3 text-gray-600 transition-all duration-300 
+                        peer-placeholder-shown:top-3 peer-placeholder-shown:text-base
+                        peer-focus:-top-6 peer-focus:text-sm peer-focus:text-gold-600
+                        peer-[:not(:placeholder-shown)]:-top-6 peer-[:not(:placeholder-shown)]:text-sm"
+                    >
+                      Mesaj (opțional)
+                    </label>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-4 text-lg font-semibold text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    style={{
+                      background: "linear-gradient(135deg, #8b6e20, #b89229)",
+                      boxShadow: "0 4px 20px rgba(245, 158, 11, 0.3)",
+                    }}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Se trimite...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Trimite Programarea
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-10 h-10 text-white" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900 mb-2">
+                    Programare Trimisă!
+                  </h4>
+                  <p className="text-gray-600">
+                    Vă vom contacta în curând pentru confirmare.
+                  </p>
+                </div>
+              )}
             </div>
-          </motion.div>
+          </div>
 
           {/* Contact Information */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
             {/* Quick Contact Cards */}
             <div className="grid sm:grid-cols-2 gap-4 mb-6">
               {/* Phone Card */}
               <a
                 href="tel:+37361234555"
-                className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover:border-gold-500/50 transition-all duration-300 hover-lift"
+                className="group relative overflow-hidden bg-white rounded-2xl p-6 border border-gray-200 hover:border-gold-500/50 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1"
               >
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-gold-400 to-gold-600 rounded-xl flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform">
                     <Phone className="w-6 h-6" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                    Telefon
-                  </h4>
-                  <p className="text-gold-600 dark:text-gold-400 font-medium">
-                    061 234 555
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Apelează acum
-                  </p>
+                  <h4 className="font-semibold text-gray-900 mb-1">Telefon</h4>
+                  <p className="text-gold-600 font-medium">061 234 555</p>
+                  <p className="text-sm text-gray-500 mt-1">Apelează acum</p>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-gold-500/0 to-gold-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               </a>
@@ -500,21 +416,15 @@ const ContactSection: React.FC = () => {
                 href="https://wa.me/37361234555"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover:border-green-500/50 transition-all duration-300 hover-lift"
+                className="group relative overflow-hidden bg-white rounded-2xl p-6 border border-gray-200 hover:border-green-500/50 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1"
               >
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform">
                     <WhatsAppIcon className="w-6 h-6" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                    WhatsApp
-                  </h4>
-                  <p className="text-green-600 dark:text-green-400 font-medium">
-                    +373 61 234 555
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Scrie-ne acum
-                  </p>
+                  <h4 className="font-semibold text-gray-900 mb-1">WhatsApp</h4>
+                  <p className="text-green-600 font-medium">+373 61 234 555</p>
+                  <p className="text-sm text-gray-500 mt-1">Scrie-ne acum</p>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               </a>
@@ -522,40 +432,30 @@ const ContactSection: React.FC = () => {
               {/* Email Card */}
               <a
                 href="mailto:tandemdent22@gmail.com"
-                className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover:border-blue-500/50 transition-all duration-300 hover-lift"
+                className="group relative overflow-hidden bg-white rounded-2xl p-6 border border-gray-200 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1"
               >
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform">
                     <Mail className="w-6 h-6" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                    Email
-                  </h4>
-                  <p className="text-blue-600 dark:text-blue-400 font-medium text-sm">
+                  <h4 className="font-semibold text-gray-900 mb-1">Email</h4>
+                  <p className="text-blue-600 font-medium text-sm">
                     tandemdent22@gmail.com
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Trimite email
-                  </p>
+                  <p className="text-sm text-gray-500 mt-1">Trimite email</p>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               </a>
 
               {/* Schedule Card */}
-              <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+              <div className="relative overflow-hidden bg-white rounded-2xl p-6 border border-gray-200">
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center text-white mb-3">
                     <Clock className="w-6 h-6" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                    Program
-                  </h4>
-                  <p className="text-teal-600 dark:text-teal-400 font-medium">
-                    Luni-Vineri
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    9:00 - 18:00
-                  </p>
+                  <h4 className="font-semibold text-gray-900 mb-1">Program</h4>
+                  <p className="text-teal-600 font-medium">Luni-Vineri</p>
+                  <p className="text-sm text-gray-600">9:00 - 18:00</p>
 
                   {/* Open/Closed Status */}
                   <div className="mt-2 flex items-center gap-2">
@@ -566,9 +466,7 @@ const ContactSection: React.FC = () => {
                     />
                     <span
                       className={`text-sm font-medium ${
-                        isOpen
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
+                        isOpen ? "text-green-600" : "text-red-600"
                       }`}
                     >
                       {isOpen ? "Deschis acum" : "Închis"}
@@ -579,9 +477,9 @@ const ContactSection: React.FC = () => {
             </div>
 
             {/* Location Card with Map */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div className="bg-white rounded-2xl overflow-hidden border border-gray-200">
               {/* Map Container */}
-              <div className="relative h-64 bg-gray-200 dark:bg-gray-700">
+              <div className="relative h-64 bg-gray-200">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2719.2!2d28.8638!3d47.0105!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDfCsDAwJzM3LjgiTiAyOMKwNTEnNDkuNyJF!5e0!3m2!1sen!2s!4v1234567890"
                   width="100%"
@@ -595,13 +493,9 @@ const ContactSection: React.FC = () => {
 
                 {/* Map Overlay with Marker */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="bg-white rounded-full p-3 shadow-lg"
-                  >
+                  <div className="bg-white rounded-full p-3 shadow-lg">
                     <MapPin className="w-6 h-6 text-gold-500" />
-                  </motion.div>
+                  </div>
                 </div>
               </div>
 
@@ -610,10 +504,8 @@ const ContactSection: React.FC = () => {
                 <div className="flex items-start gap-3 mb-4">
                   <MapPin className="w-5 h-5 text-gold-500 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                      Adresa
-                    </h4>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <h4 className="font-semibold text-gray-900 mb-1">Adresa</h4>
+                    <p className="text-gray-600">
                       Strada Nicolae Zelinski 5/8
                       <br />
                       MD-2032, Chișinău
@@ -622,9 +514,9 @@ const ContactSection: React.FC = () => {
                 </div>
 
                 {/* Parking Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <Car className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  <span className="text-sm font-medium text-green-800 dark:text-green-300">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 rounded-lg">
+                  <Car className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-800">
                     Parcare gratuită în fața clinicii
                   </span>
                 </div>
@@ -634,7 +526,7 @@ const ContactSection: React.FC = () => {
                   href="https://maps.google.com/?q=Tandem+Dent+Chisinau"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
                 >
                   <Globe className="w-4 h-4" />
                   <span className="font-medium">Vezi pe Google Maps</span>
@@ -643,16 +535,16 @@ const ContactSection: React.FC = () => {
             </div>
 
             {/* Emergency Notice */}
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
                   <AlertCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-red-900 dark:text-red-200 mb-1">
+                  <h4 className="font-semibold text-red-900 mb-1">
                     Urgențe Stomatologice 24/7
                   </h4>
-                  <p className="text-sm text-red-700 dark:text-red-300">
+                  <p className="text-sm text-red-700">
                     Pentru urgențe în afara programului, sunați la:{" "}
                     <a href="tel:+37361234555" className="font-bold underline">
                       061 234 555
@@ -661,7 +553,7 @@ const ContactSection: React.FC = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

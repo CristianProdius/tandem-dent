@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "motion/react";
 import {
   Phone,
   Mail,
@@ -22,6 +20,8 @@ import {
   Check,
   ExternalLink,
 } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 // Types
 interface FooterLink {
@@ -86,19 +86,20 @@ const Footer: React.FC = () => {
       name: "Facebook",
       href: "https://facebook.com/tandemdent",
       icon: <Facebook size={20} />,
-      color: "hover:bg-blue-600",
+      color: "hover:bg-blue-600 hover:text-white",
     },
     {
       name: "Instagram",
       href: "https://instagram.com/tandemdent",
       icon: <Instagram size={20} />,
-      color: "hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-600",
+      color:
+        "hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-600 hover:text-white",
     },
     {
       name: "YouTube",
       href: "https://youtube.com/@tandemdent",
       icon: <Youtube size={20} />,
-      color: "hover:bg-red-600",
+      color: "hover:bg-red-600 hover:text-white",
     },
   ];
 
@@ -147,8 +148,10 @@ const Footer: React.FC = () => {
   }, []);
 
   // Handle newsletter subscription
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleNewsletterSubmit = async (
+    e?: React.MouseEvent | React.KeyboardEvent
+  ) => {
+    if (e) e.preventDefault();
     setEmailError("");
 
     // Email validation
@@ -183,13 +186,13 @@ const Footer: React.FC = () => {
 
   return (
     <>
-      <footer className="relative bg-gradient-to-b from-gray-900 to-black text-white overflow-hidden">
+      <footer className="relative bg-gray-50 text-gray-900 overflow-hidden border-t border-gray-200">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23EAB308' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
             }}
           />
         </div>
@@ -198,40 +201,44 @@ const Footer: React.FC = () => {
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             {/* Brand Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="lg:col-span-1"
-            >
+            <div className="lg:col-span-1">
               {/* Logo */}
               <Link href="/" className="inline-block mb-4 group">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-gold-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <div className="w-12 h-12 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-glow transition-all duration-300">
+                    <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    {/* Logo Image - Replace src with your actual logo path */}
+                    <Image
+                      src="images/logo/logo.png"
+                      alt="Tandem Dent Logo"
+                      onError={(e) => {
+                        // Fallback if image doesn't load
+                        e.currentTarget.style.display = "none";
+                        if (e.currentTarget.nextElementSibling) {
+                          (
+                            e.currentTarget.nextElementSibling as HTMLElement
+                          ).style.display = "flex";
+                        }
+                      }}
+                    />
+                    {/* Fallback logo */}
+                    <div
+                      className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300"
+                      style={{ display: "none" }}
+                    >
                       <span className="text-white font-bold text-2xl">T</span>
                     </div>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">
-                      Tandem Dent
-                    </h3>
-                    <p className="text-sm text-gray-400">
-                      Clinică Stomatologică
-                    </p>
                   </div>
                 </div>
               </Link>
 
               {/* Tagline */}
-              <p className="text-gray-300 mb-6 text-lg italic">
-                "Zâmbete Sănătoase în Chișinău"
+              <p className="text-gray-700 mb-6 text-lg italic">
+                &quot;Zâmbete Sănătoase în Chișinău&quot;
               </p>
 
               {/* Description */}
-              <p className="text-gray-400 mb-6 text-sm leading-relaxed">
+              <p className="text-gray-600 mb-6 text-sm leading-relaxed">
                 Pentru noi eficacitatea tratamentului și siguranța pacienților
                 este prioritară. Oferim servicii stomatologice complete cu
                 echipamente moderne și o echipă dedicată.
@@ -240,94 +247,80 @@ const Footer: React.FC = () => {
               {/* Social Media Icons */}
               <div className="flex gap-3">
                 {socialLinks.map((social) => (
-                  <motion.a
+                  <a
                     key={social.name}
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center transition-all duration-300 hover:text-white ${social.color}`}
+                    className={`w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center transition-all duration-300 text-gray-600 hover:scale-110 shadow-sm hover:shadow-md ${social.color}`}
                     aria-label={`Urmărește-ne pe ${social.name}`}
                   >
                     {social.icon}
-                  </motion.a>
+                  </a>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             {/* Quick Links Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="lg:col-span-1"
-            >
-              <h4 className="text-lg font-bold mb-6 text-white flex items-center gap-2">
-                <div className="w-8 h-0.5 bg-gradient-to-r from-gold-500 to-gold-600"></div>
+            <div className="lg:col-span-1">
+              <h4 className="text-lg font-bold mb-6 text-gray-900 flex items-center gap-2">
+                <div className="w-8 h-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600"></div>
                 Servicii Principale
               </h4>
               <ul className="space-y-3">
                 {servicesLinks.map((link) => (
                   <li key={link.label}>
-                    <Link
+                    <a
                       href={link.href}
-                      className="group flex items-center gap-2 text-gray-400 hover:text-gold-400 transition-colors duration-300"
+                      className="group flex items-center gap-2 text-gray-600 hover:text-yellow-600 transition-colors duration-300"
                     >
                       <ChevronRight
                         size={14}
-                        className="text-gold-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1"
+                        className="text-yellow-500 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1"
                       />
                       <span className="group-hover:translate-x-1 transition-transform duration-300">
                         {link.label}
                       </span>
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ul>
 
-              <h4 className="text-lg font-bold mt-8 mb-4 text-white flex items-center gap-2">
-                <div className="w-8 h-0.5 bg-gradient-to-r from-gold-500 to-gold-600"></div>
+              <h4 className="text-lg font-bold mt-8 mb-4 text-gray-900 flex items-center gap-2">
+                <div className="w-8 h-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600"></div>
                 Informații Utile
               </h4>
               <ul className="space-y-3">
                 {usefulLinks.map((link) => (
                   <li key={link.label}>
-                    <Link
+                    <a
                       href={link.href}
-                      className="group flex items-center gap-2 text-gray-400 hover:text-gold-400 transition-colors duration-300"
+                      className="group flex items-center gap-2 text-gray-600 hover:text-yellow-600 transition-colors duration-300"
                     >
                       <ChevronRight
                         size={14}
-                        className="text-gold-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1"
+                        className="text-yellow-500 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1"
                       />
                       <span className="group-hover:translate-x-1 transition-transform duration-300">
                         {link.label}
                       </span>
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </div>
 
             {/* Contact Information */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-1"
-            >
-              <h4 className="text-lg font-bold mb-6 text-white flex items-center gap-2">
-                <div className="w-8 h-0.5 bg-gradient-to-r from-gold-500 to-gold-600"></div>
+            <div className="lg:col-span-1">
+              <h4 className="text-lg font-bold mb-6 text-gray-900 flex items-center gap-2">
+                <div className="w-8 h-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600"></div>
                 Contact
               </h4>
               <div className="space-y-4">
                 {contactInfo.map((info) => (
                   <div key={info.label} className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-gold-400">{info.icon}</span>
+                    <div className="w-10 h-10 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-yellow-600">{info.icon}</span>
                     </div>
                     <div className="flex-1">
                       <p className="text-xs text-gray-500 mb-1">{info.label}</p>
@@ -342,7 +335,7 @@ const Footer: React.FC = () => {
                               ? "noopener noreferrer"
                               : undefined
                           }
-                          className="text-gray-300 hover:text-gold-400 transition-colors duration-300 text-sm"
+                          className="text-gray-700 hover:text-yellow-600 transition-colors duration-300 text-sm"
                         >
                           {info.value}
                           {info.href.startsWith("http") && (
@@ -350,7 +343,7 @@ const Footer: React.FC = () => {
                           )}
                         </a>
                       ) : (
-                        <p className="text-gray-300 text-sm">{info.value}</p>
+                        <p className="text-gray-700 text-sm">{info.value}</p>
                       )}
                     </div>
                   </div>
@@ -358,36 +351,30 @@ const Footer: React.FC = () => {
               </div>
 
               {/* Emergency Notice */}
-              <div className="mt-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-                <p className="text-sm text-red-400 font-medium mb-1">
+              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600 font-medium mb-1">
                   Urgențe 24/7
                 </p>
                 <a
                   href="tel:+37361234555"
-                  className="text-white font-bold hover:text-red-400 transition-colors"
+                  className="text-gray-900 font-bold hover:text-red-600 transition-colors"
                 >
                   +373 61 234 555
                 </a>
               </div>
-            </motion.div>
+            </div>
 
             {/* Newsletter Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="lg:col-span-1"
-            >
-              <h4 className="text-lg font-bold mb-6 text-white flex items-center gap-2">
-                <div className="w-8 h-0.5 bg-gradient-to-r from-gold-500 to-gold-600"></div>
+            <div className="lg:col-span-1">
+              <h4 className="text-lg font-bold mb-6 text-gray-900 flex items-center gap-2">
+                <div className="w-8 h-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600"></div>
                 Newsletter
               </h4>
-              <p className="text-gray-400 mb-4">
+              <p className="text-gray-600 mb-4">
                 Primește sfaturi lunare pentru sănătatea orală
               </p>
 
-              <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+              <div className="space-y-3">
                 <div className="relative">
                   <input
                     type="email"
@@ -396,41 +383,36 @@ const Footer: React.FC = () => {
                       setEmail(e.target.value);
                       setEmailError("");
                     }}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleNewsletterSubmit(e);
+                      }
+                    }}
                     placeholder="Email-ul tău"
-                    className={`w-full px-4 py-3 bg-white/10 backdrop-blur-sm border ${
-                      emailError ? "border-red-500" : "border-white/20"
-                    } rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition-all duration-300`}
-                    required
+                    className={`w-full px-4 py-3 bg-white border ${
+                      emailError ? "border-red-500" : "border-gray-300"
+                    } rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-yellow-500 transition-all duration-300`}
                     disabled={isSubmitting}
                   />
-                  <AnimatePresence>
-                    {isSubscribed && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0 }}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                      >
-                        <Check className="text-green-500" size={20} />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {isSubscribed && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <Check className="text-green-500" size={20} />
+                    </div>
+                  )}
                 </div>
 
                 {emailError && (
-                  <p className="text-red-400 text-xs">{emailError}</p>
+                  <p className="text-red-600 text-xs">{emailError}</p>
                 )}
 
-                <motion.button
-                  type="submit"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                <button
+                  onClick={handleNewsletterSubmit}
                   disabled={isSubmitting || isSubscribed}
                   className={`w-full px-6 py-3 ${
                     isSubscribed
                       ? "bg-green-600"
-                      : "bg-gradient-to-r from-gold-500 to-gold-600"
-                  } text-white rounded-lg font-semibold shadow-lg hover:shadow-glow transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
+                      : "bg-gradient-to-r from-yellow-500 to-yellow-600"
+                  } text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105`}
                 >
                   {isSubmitting ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -445,8 +427,8 @@ const Footer: React.FC = () => {
                       <span>Abonează-te</span>
                     </>
                   )}
-                </motion.button>
-              </form>
+                </button>
+              </div>
 
               <p className="text-xs text-gray-500 mt-3">
                 * Nu trimitem spam. Te poți dezabona oricând.
@@ -454,96 +436,77 @@ const Footer: React.FC = () => {
 
               {/* Payment Methods */}
               <div className="mt-8">
-                <p className="text-sm text-gray-400 mb-3">
+                <p className="text-sm text-gray-600 mb-3">
                   Metode de plată acceptate:
                 </p>
                 <div className="flex gap-3">
                   {paymentMethods.map((method) => (
                     <div
                       key={method.name}
-                      className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm rounded-lg"
+                      className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-sm"
                       title={method.label}
                     >
-                      <span className="text-gold-400">{method.icon}</span>
-                      <span className="text-xs text-gray-300">
+                      <span className="text-yellow-600">{method.icon}</span>
+                      <span className="text-xs text-gray-700">
                         {method.label}
                       </span>
                     </div>
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Premium Divider */}
-          <div className="divider-premium my-8"></div>
+          <div className="border-t border-gray-200 my-8"></div>
 
           {/* Bottom Section */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-center md:text-left"
-            >
-              <p className="text-gray-400 text-sm">
+            <div className="text-center md:text-left">
+              <p className="text-gray-600 text-sm">
                 © 2024 Tandem Dent. Toate drepturile rezervate.
               </p>
               <p className="text-xs text-gray-500 mt-1 flex items-center justify-center md:justify-start gap-1">
                 Realizat cu <Heart size={12} className="text-red-500" /> în
                 Chișinău
               </p>
-            </motion.div>
+            </div>
 
             {/* Legal Links */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex flex-wrap justify-center gap-4 text-sm"
-            >
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
               {legalLinks.map((link, index) => (
                 <React.Fragment key={link.label}>
-                  <Link
+                  <a
                     href={link.href}
-                    className="text-gray-500 hover:text-gold-400 transition-colors duration-300"
+                    className="text-gray-500 hover:text-yellow-600 transition-colors duration-300"
                   >
                     {link.label}
-                  </Link>
+                  </a>
                   {index < legalLinks.length - 1 && (
-                    <span className="text-gray-600 hidden md:inline">•</span>
+                    <span className="text-gray-400 hidden md:inline">•</span>
                   )}
                 </React.Fragment>
               ))}
-            </motion.div>
+            </div>
           </div>
         </div>
 
         {/* Decorative Elements */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-400/5 rounded-full blur-3xl"></div>
       </footer>
 
       {/* Back to Top Button */}
-      <AnimatePresence>
-        {showBackToTop && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            onClick={scrollToTop}
-            className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-gradient-to-r from-gold-500 to-gold-600 text-white rounded-full shadow-lg hover:shadow-glow flex items-center justify-center transition-all duration-300 hover:scale-110"
-            aria-label="Înapoi sus"
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ArrowUp size={20} />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 transform hover:-translate-y-1"
+          aria-label="Înapoi sus"
+        >
+          <ArrowUp size={20} />
+        </button>
+      )}
     </>
   );
 };

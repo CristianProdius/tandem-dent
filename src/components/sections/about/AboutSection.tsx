@@ -6,7 +6,6 @@ import {
   Shield,
   Handshake,
   Award,
-  Calendar,
   Star,
   CheckCircle,
   Play,
@@ -15,12 +14,9 @@ import {
   Scan,
   Armchair,
   Trophy,
-  Clock,
   Smile,
   Building,
   ChevronLeft,
-  ChevronRight,
-  ArrowRight,
   Sparkles,
   Target,
   TrendingUp,
@@ -35,7 +31,7 @@ const AboutSection = () => {
     team: 0,
   });
   const [isVisible, setIsVisible] = useState(false);
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
+
   const statsRef = useRef(null);
 
   // Core Values Data
@@ -474,7 +470,7 @@ const AboutSection = () => {
             </div>
 
             <div className="space-y-4 text-gray-700 leading-relaxed">
-              <p className="italic">"Dragă pacient,</p>
+              <p className="italic">&quot;Dragă pacient,</p>
               <p>
                 Când am fondat Tandem Dent, visul meu a fost să creez o clinică
                 unde fiecare pacient să se simtă ca acasă, unde teama de
@@ -486,7 +482,8 @@ const AboutSection = () => {
                 clinică, ci o familie dedicată sănătății dumneavoastră.
               </p>
               <p>
-                Vă așteptăm cu drag să faceți parte din familia Tandem Dent!"
+                Vă așteptăm cu drag să faceți parte din familia Tandem
+                Dent!&quot;
               </p>
               <div className="mt-6">
                 <div className="font-handwriting text-3xl text-gold-600">

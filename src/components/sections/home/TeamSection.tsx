@@ -101,6 +101,28 @@ const TeamSection = () => {
     setExpandedMember(expandedMember === id ? null : id);
   };
 
+  // Deterministic positions for floating icons (no Math.random())
+  const floatingIcons = [
+    {
+      left: "10%",
+      top: "15%",
+      delay: "0s",
+      duration: "15s",
+      icon: Stethoscope,
+    },
+    { left: "85%", top: "20%", delay: "0.5s", duration: "17s", icon: Heart },
+    { left: "20%", top: "70%", delay: "1s", duration: "19s", icon: Shield },
+    {
+      left: "75%",
+      top: "60%",
+      delay: "1.5s",
+      duration: "21s",
+      icon: Stethoscope,
+    },
+    { left: "40%", top: "30%", delay: "2s", duration: "23s", icon: Heart },
+    { left: "60%", top: "85%", delay: "2.5s", duration: "25s", icon: Shield },
+  ];
+
   return (
     <section className="relative py-20 overflow-hidden bg-gradient-to-b from-white via-gray-50/50 to-white">
       {/* Parallax Background Pattern */}
@@ -110,31 +132,28 @@ const TeamSection = () => {
           style={{
             backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(212, 175, 55, 0.1) 35px, rgba(212, 175, 55, 0.1) 70px)`,
           }}
-        ></div>
+        />
       </div>
 
-      {/* Floating Medical Icons Background */}
+      {/* Floating Medical Icons Background - Fixed positions */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute opacity-10 float-animation"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${i * 0.5}s`,
-              animationDuration: `${15 + i * 2}s`,
-            }}
-          >
-            {i % 3 === 0 ? (
-              <Stethoscope size={40} />
-            ) : i % 3 === 1 ? (
-              <Heart size={40} />
-            ) : (
-              <Shield size={40} />
-            )}
-          </div>
-        ))}
+        {floatingIcons.map((item, i) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={i}
+              className="absolute opacity-10 float-animation"
+              style={{
+                left: item.left,
+                top: item.top,
+                animationDelay: item.delay,
+                animationDuration: item.duration,
+              }}
+            >
+              <Icon size={40} />
+            </div>
+          );
+        })}
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -210,8 +229,6 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
 }) => {
   const accentColor =
     member.color === "gold" ? "bg-gradient-gold" : "bg-gradient-teal";
-  const borderColor =
-    member.color === "gold" ? "border-gold-500/30" : "border-teal-500/30";
   const tagColor =
     member.color === "gold"
       ? "bg-gold-100 text-gold-800"

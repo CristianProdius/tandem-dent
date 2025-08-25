@@ -1,20 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "motion/react";
 import {
-  Menu,
   X,
   Phone,
   ChevronDown,
   Calendar,
   Globe,
-  Sparkles,
   MapPin,
   Clock,
   Mail,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 
 // Types
@@ -29,6 +28,7 @@ interface SubNavItem {
   label: string;
   href: string;
   description?: string;
+  icon?: React.ReactNode;
 }
 
 interface Language {
@@ -38,62 +38,78 @@ interface Language {
 }
 
 const NavigationHeader: React.FC = () => {
+  // Track if we're on the client and ready for animations
+  const [mounted, setMounted] = useState(false);
+
+  // Core states
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("RO");
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [headerVisible, setHeaderVisible] = useState(false);
+  const [mobileMenuStage, setMobileMenuStage] = useState(0);
+
+  // Refs
   const navRef = useRef<HTMLElement>(null);
   const languageRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
-  // Navigation Items
-  const navItems: NavItem[] = [
-    { id: "home", label: "Acasă", href: "#home" },
-    { id: "despre-noi", label: "Despre Noi", href: "#despre-noi" },
-    {
-      id: "servicii",
-      label: "Servicii",
-      href: "#servicii",
-      subItems: [
-        {
-          label: "Implantologie",
-          href: "#implantologie",
-          description: "Soluții permanente pentru dinți lipsă",
-        },
-        {
-          label: "Ortodonție",
-          href: "#ortodontie",
-          description: "Aliniere perfectă cu Invisalign",
-        },
-        {
-          label: "Estetică Dentară",
-          href: "#estetica",
-          description: "Pentru un zâmbet perfect",
-        },
-        {
-          label: "Chirurgie Orală",
-          href: "#chirurgie",
-          description: "Intervenții sigure și moderne",
-        },
-        {
-          label: "Terapie Dentară",
-          href: "#terapie",
-          description: "Tratamente complete pentru sănătatea dinților",
-        },
-        {
-          label: "Endodonție",
-          href: "#endodontie",
-          description: "Salvarea dinților prin tratamente de canal",
-        },
-      ],
-    },
-    { id: "echipa", label: "Echipa", href: "#echipa" },
-    { id: "testimoniale", label: "Testimoniale", href: "#testimoniale" },
-    { id: "contact", label: "Contact", href: "#contact" },
-  ];
+  // Navigation Items with enhanced descriptions
+  const navItems = useMemo<NavItem[]>(
+    () => [
+      { id: "home", label: "Acasă", href: "#home" },
+      { id: "despre-noi", label: "Despre Noi", href: "#despre-noi" },
+      {
+        id: "servicii",
+        label: "Servicii",
+        href: "#servicii",
+        subItems: [
+          {
+            label: "Implantologie",
+            href: "#implantologie",
+            description: "Soluții permanente pentru dinți lipsă",
+            icon: <Sparkles size={16} className="text-gold-500" />,
+          },
+          {
+            label: "Ortodonție",
+            href: "#ortodontie",
+            description: "Aliniere perfectă cu Invisalign",
+            icon: <Sparkles size={16} className="text-gold-500" />,
+          },
+          {
+            label: "Estetică Dentară",
+            href: "#estetica",
+            description: "Pentru un zâmbet perfect",
+            icon: <Sparkles size={16} className="text-gold-500" />,
+          },
+          {
+            label: "Chirurgie Orală",
+            href: "#chirurgie",
+            description: "Intervenții sigure și moderne",
+            icon: <Sparkles size={16} className="text-gold-500" />,
+          },
+          {
+            label: "Terapie Dentară",
+            href: "#terapie",
+            description: "Tratamente complete pentru sănătatea dinților",
+            icon: <Sparkles size={16} className="text-gold-500" />,
+          },
+          {
+            label: "Endodonție",
+            href: "#endodontie",
+            description: "Salvarea dinților prin tratamente de canal",
+            icon: <Sparkles size={16} className="text-gold-500" />,
+          },
+        ],
+      },
+      { id: "echipa", label: "Echipa", href: "#echipa" },
+      { id: "testimoniale", label: "Testimoniale", href: "#testimoniale" },
+      { id: "contact", label: "Contact", href: "#contact" },
+    ],
+    []
+  );
 
   // Languages
   const languages: Language[] = [
@@ -110,24 +126,39 @@ const NavigationHeader: React.FC = () => {
     schedule: "Luni-Vineri: 9:00-18:00",
   };
 
-  // Handle scroll effects with proper offset calculation
+  // Mount effect - enable animations after hydration
   useEffect(() => {
+    setMounted(true);
+    // Trigger header animation after mount
+    setTimeout(() => setHeaderVisible(true), 100);
+  }, []);
+
+  // Handle mobile menu animation stages
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      // Stagger the animation stages
+      setTimeout(() => setMobileMenuStage(1), 50);
+      setTimeout(() => setMobileMenuStage(2), 150);
+      setTimeout(() => setMobileMenuStage(3), 250);
+    } else {
+      setMobileMenuStage(0);
+    }
+  }, [isMobileMenuOpen]);
+
+  // Handle scroll effects
+  useEffect(() => {
+    if (!mounted) return;
+
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
 
-      // Calculate scroll progress
-      const progress = (scrollPosition / (documentHeight - windowHeight)) * 100;
-      setScrollProgress(Math.min(progress, 100));
+      // Set scrolled state with premium threshold
+      setIsScrolled(scrollPosition > 50);
 
-      // Set scrolled state with debounce
-      setIsScrolled(scrollPosition > 20);
-
-      // Update active section based on scroll position with proper offset
-      const offset = headerRef.current?.offsetHeight || 80;
-
+      // Update active section
+      const offset = 100;
       const sections = navItems.map((item) => item.id);
+
       const currentSection = sections.find((section) => {
         const element = document.getElementById(section);
         if (element) {
@@ -135,7 +166,6 @@ const NavigationHeader: React.FC = () => {
           const elementTop = rect.top + scrollPosition;
           const elementBottom = elementTop + rect.height;
 
-          // Check if the scroll position is within the section bounds
           return (
             scrollPosition >= elementTop - offset - 100 &&
             scrollPosition < elementBottom - offset
@@ -149,34 +179,30 @@ const NavigationHeader: React.FC = () => {
       }
     };
 
-    // Add passive listener for better performance
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Check initial scroll position
-
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [navItems]);
+  }, [mounted, navItems]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
+    if (!mounted) return;
+
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.width = "100%";
     } else {
       document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
     }
 
     return () => {
       document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
     };
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, mounted]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
+    if (!mounted) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         languageRef.current &&
@@ -188,15 +214,15 @@ const NavigationHeader: React.FC = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [mounted]);
 
-  // Handle smooth scroll to section with proper offset
+  // Handle smooth scroll to section
   const handleScrollToSection = (href: string) => {
     const targetId = href.replace("#", "");
     const element = document.getElementById(targetId);
 
     if (element) {
-      const offset = headerRef.current?.offsetHeight || 80;
+      const offset = 100;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - offset;
 
@@ -206,7 +232,6 @@ const NavigationHeader: React.FC = () => {
       });
     }
 
-    // Close mobile menu after navigation
     setIsMobileMenuOpen(false);
   };
 
@@ -220,60 +245,58 @@ const NavigationHeader: React.FC = () => {
 
   return (
     <>
-      {/* Scroll Progress Bar */}
-      <div
-        className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-[60]"
-        aria-hidden="true"
-      >
-        <motion.div
-          className="h-full bg-gradient-to-r from-gold-500 to-gold-600"
-          style={{ width: `${scrollProgress}%` }}
-          transition={{ ease: "linear", duration: 0.1 }}
-        />
-      </div>
-
-      {/* Main Navigation with proper positioning */}
-      <motion.header
+      {/* Main Navigation with Premium Glass Effect */}
+      <header
         ref={headerRef}
-        className="fixed top-1 left-0 right-0 z-50 w-full"
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-700 ${
+          mounted && headerVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
       >
         <nav
           ref={navRef}
-          className={`relative transition-all duration-300 ${
+          className={`relative transition-all duration-500 ${
             isScrolled
-              ? "bg-white/95 backdrop-blur-xl shadow-soft"
-              : "bg-transparent"
+              ? "bg-white/90 backdrop-blur-2xl shadow-2xl border-b border-gray-100"
+              : "bg-gradient-to-b from-black/40 to-transparent backdrop-blur-sm"
           }`}
           role="navigation"
           aria-label="Main navigation"
         >
+          {/* Premium gradient overlay */}
+          <div
+            className={`absolute inset-0 bg-gradient-to-r from-gold-500/5 via-transparent to-gold-500/5 opacity-50 pointer-events-none transition-opacity duration-500 ${
+              isScrolled ? "opacity-100" : "opacity-0"
+            }`}
+          />
+
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16 sm:h-20">
-              {/* Logo - Responsive sizing */}
-              <motion.div
-                className="flex items-center flex-shrink-0"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400 }}
+            <div className="flex items-center justify-between h-20 sm:h-24">
+              {/* Enhanced Logo with Animation */}
+              <div
+                className={`flex items-center flex-shrink-0 transition-all duration-500 ${
+                  mounted ? "hover:scale-110" : ""
+                } ${isScrolled ? "scale-100" : "scale-110"}`}
               >
-                <Link href="/" aria-label="Tandem Dent - Acasă">
+                <Link
+                  href="/"
+                  aria-label="Tandem Dent - Acasă"
+                  className="relative group"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-gold-400/20 to-gold-600/20 blur-xl group-hover:blur-2xl transition-all duration-500 rounded-full" />
                   <Image
                     src="/images/logo/logo.png"
                     alt="Tandem Dent Logo"
-                    width="56"
-                    height="56"
-                    className="object-contain"
+                    width={120}
+                    height={80}
+                    className="object-contain relative z-10"
                     priority
                   />
                 </Link>
-              </motion.div>
+              </div>
 
-              {/* Desktop Navigation - Hidden on tablets and below */}
-              <div className="hidden xl:flex items-center gap-6 lg:gap-8">
-                {/* Nav Items */}
-                <ul className="flex items-center gap-4 lg:gap-6" role="menubar">
+              {/* Desktop Navigation with Premium Effects */}
+              <div className="hidden xl:flex items-center gap-8">
+                <ul className="flex items-center gap-6 lg:gap-8" role="menubar">
                   {navItems.map((item) => (
                     <li
                       key={item.id}
@@ -284,14 +307,14 @@ const NavigationHeader: React.FC = () => {
                     >
                       <button
                         onClick={() => handleScrollToSection(item.href)}
-                        className={`relative py-2 font-medium text-sm lg:text-base transition-all duration-300 flex items-center gap-1 ${
+                        className={`relative py-3 font-medium text-sm lg:text-base transition-all duration-300 flex items-center gap-2 group ${
                           activeSection === item.id
                             ? isScrolled
                               ? "text-gold-600"
-                              : "text-gold-400"
+                              : "text-gold-300"
                             : isScrolled
                             ? "text-gray-700 hover:text-gold-600"
-                            : "text-white/90 hover:text-white"
+                            : "text-white hover:text-gold-300"
                         }`}
                         role="menuitem"
                         aria-current={
@@ -304,354 +327,446 @@ const NavigationHeader: React.FC = () => {
                           )
                         }
                       >
-                        {item.label}
+                        <span className="relative">
+                          {item.label}
+                          {/* Premium hover effect */}
+                          <span
+                            className={`absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-gold-400 to-gold-600 transform origin-left transition-transform duration-300 ${
+                              hoveredItem === item.id ||
+                              activeSection === item.id
+                                ? "scale-x-100"
+                                : "scale-x-0"
+                            }`}
+                          />
+                        </span>
                         {item.subItems && (
                           <ChevronDown
-                            size={14}
+                            size={16}
                             className={`transition-transform duration-300 ${
                               hoveredItem === item.id ? "rotate-180" : ""
                             }`}
                           />
                         )}
-                        {activeSection === item.id && (
-                          <motion.div
-                            layoutId="activeSection"
-                            className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-gold-500 to-gold-600"
-                            transition={{
-                              type: "spring",
-                              stiffness: 380,
-                              damping: 30,
-                            }}
-                          />
-                        )}
                       </button>
 
-                      {/* Dropdown for sub-items */}
-                      {item.subItems && (
-                        <AnimatePresence>
-                          {hoveredItem === item.id && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 10 }}
-                              transition={{ duration: 0.2 }}
-                              className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden"
-                            >
-                              <div className="max-h-[400px] overflow-y-auto">
-                                {item.subItems.map((subItem, index) => (
-                                  <button
-                                    key={index}
-                                    onClick={() =>
-                                      handleScrollToSection(subItem.href)
-                                    }
-                                    className="w-full px-4 py-3 text-left hover:bg-gold-50 transition-colors group"
-                                  >
-                                    <div className="font-medium text-gray-900 group-hover:text-gold-600">
-                                      {subItem.label}
-                                    </div>
-                                    {subItem.description && (
-                                      <div className="text-xs text-gray-600 mt-1">
-                                        {subItem.description}
-                                      </div>
-                                    )}
-                                  </button>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Contact Info - Responsive */}
-                <div className="hidden lg:flex items-center gap-4 xl:gap-6">
-                  {/* Phone Number */}
-                  <a
-                    href="tel:+37361234555"
-                    className={`flex items-center gap-2 font-medium transition-colors ${
-                      isScrolled
-                        ? "text-gray-700 hover:text-gold-600"
-                        : "text-white/90 hover:text-white"
-                    }`}
-                    aria-label="Sunați la +373 61 234 555"
-                  >
-                    <Phone size={16} />
-                    <span className="text-sm">061 234 555</span>
-                  </a>
-
-                  {/* Language Switcher */}
-                  <div className="relative" ref={languageRef}>
-                    <button
-                      onClick={() =>
-                        setShowLanguageDropdown(!showLanguageDropdown)
-                      }
-                      className={`flex items-center gap-1 px-2 lg:px-3 py-1.5 rounded-lg transition-all ${
-                        isScrolled
-                          ? "text-gray-600 hover:bg-gray-100"
-                          : "text-white/80 hover:bg-white/10"
-                      }`}
-                      aria-label="Selectare limbă"
-                      aria-expanded={showLanguageDropdown}
-                    >
-                      <Globe size={16} />
-                      <span className="text-sm font-medium">
-                        {selectedLanguage}
-                      </span>
-                      <ChevronDown
-                        size={14}
-                        className={`transition-transform ${
-                          showLanguageDropdown ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence>
-                      {showLanguageDropdown && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute top-full right-0 mt-2 w-36 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden"
-                        >
-                          {languages.map((lang) => (
-                            <button
-                              key={lang.code}
-                              onClick={() => {
-                                setSelectedLanguage(lang.code);
-                                setShowLanguageDropdown(false);
-                              }}
-                              className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-2 ${
-                                selectedLanguage === lang.code
-                                  ? "bg-gold-50 text-gold-600"
-                                  : "text-gray-700"
-                              }`}
-                            >
-                              <span>{lang.flag}</span>
-                              <span>{lang.label}</span>
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="hidden lg:flex btn-premium px-4 xl:px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-glow transition-all items-center gap-2"
-                  onClick={() => handleScrollToSection("#contact")}
-                  aria-label="Programează o consultație"
-                >
-                  <Calendar size={18} />
-                  <span className="hidden xl:inline">Programare</span>
-                </motion.button>
-              </div>
-
-              {/* Tablet Menu (Medium devices) */}
-              <div className="hidden md:flex xl:hidden items-center gap-4">
-                <a
-                  href="tel:+37361234555"
-                  className={`flex items-center gap-2 font-medium transition-colors ${
-                    isScrolled
-                      ? "text-gray-700 hover:text-gold-600"
-                      : "text-white/90 hover:text-white"
-                  }`}
-                >
-                  <Phone size={18} />
-                </a>
-                <button
-                  onClick={() => handleScrollToSection("#contact")}
-                  className="btn-premium px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-600 text-white rounded-lg font-semibold shadow-lg"
-                >
-                  <Calendar size={18} />
-                </button>
-              </div>
-
-              {/* Mobile/Tablet Menu Button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={`xl:hidden p-2 rounded-lg transition-colors ${
-                  isScrolled
-                    ? "text-gray-700 hover:bg-gray-100"
-                    : "text-white hover:bg-white/10"
-                }`}
-                aria-label={
-                  isMobileMenuOpen ? "Închide meniul" : "Deschide meniul"
-                }
-                aria-expanded={isMobileMenuOpen}
-              >
-                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-          </div>
-        </nav>
-      </motion.header>
-
-      {/* Mobile/Tablet Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 xl:hidden"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-
-            {/* Mobile Menu Panel - Responsive width */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed right-0 top-0 bottom-0 w-full sm:w-96 md:w-[400px] bg-white z-50 xl:hidden overflow-y-auto"
-            >
-              <div className="flex flex-col h-full">
-                {/* Mobile Menu Header */}
-                <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-                  <Link
-                    href="/"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="relative w-10 h-10">
-                      <Image
-                        src="/images/logo/logo.png"
-                        alt="Tandem Dent Logo"
-                        width={40}
-                        height={40}
-                        className="object-contain"
-                      />
-                    </div>
-                  </Link>
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                    aria-label="Închide meniul"
-                  >
-                    <X size={24} className="text-gray-700" />
-                  </button>
-                </div>
-
-                {/* Mobile Nav Items - Scrollable */}
-                <nav className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-                  <ul className="space-y-2">
-                    {navItems.map((item) => (
-                      <li key={item.id}>
-                        <button
-                          onClick={() => handleScrollToSection(item.href)}
-                          className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all ${
-                            activeSection === item.id
-                              ? "bg-gold-50 text-gold-600"
-                              : "text-gray-700 hover:bg-gray-50"
+                      {/* Premium Dropdown with Enhanced Styling */}
+                      {item.subItems && hoveredItem === item.id && (
+                        <div
+                          className={`absolute top-full left-0 mt-4 w-72 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transition-all duration-300 ${
+                            mounted
+                              ? "opacity-100 translate-y-0"
+                              : "opacity-0 -translate-y-4"
                           }`}
                         >
-                          {item.label}
-                        </button>
-                        {item.subItems && (
-                          <div className="ml-4 mt-2 space-y-1">
+                          <div className="p-2">
                             {item.subItems.map((subItem, index) => (
                               <button
                                 key={index}
                                 onClick={() =>
                                   handleScrollToSection(subItem.href)
                                 }
-                                className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gold-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                className="w-full px-4 py-3 text-left rounded-xl hover:bg-gradient-to-r hover:from-gold-50 hover:to-gold-100/50 transition-all duration-300 group flex items-start gap-3"
                               >
-                                {subItem.label}
+                                {subItem.icon && (
+                                  <span className="mt-1">{subItem.icon}</span>
+                                )}
+                                <div>
+                                  <div className="font-medium text-gray-900 group-hover:text-gold-600 transition-colors">
+                                    {subItem.label}
+                                  </div>
+                                  {subItem.description && (
+                                    <div className="text-sm text-gray-500 mt-0.5">
+                                      {subItem.description}
+                                    </div>
+                                  )}
+                                </div>
                               </button>
                             ))}
                           </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
 
-                  {/* Mobile Contact Info */}
-                  <div className="mt-8 pt-8 border-t border-gray-200 space-y-4">
+                {/* Premium Language Switcher */}
+                <div className="relative" ref={languageRef}>
+                  <button
+                    onClick={() =>
+                      setShowLanguageDropdown(!showLanguageDropdown)
+                    }
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 ${
+                      isScrolled
+                        ? "hover:bg-gray-100 text-gray-700"
+                        : "hover:bg-white/10 text-white backdrop-blur-sm"
+                    }`}
+                    aria-label="Schimbă limba"
+                    aria-expanded={showLanguageDropdown}
+                  >
+                    <Globe size={20} />
+                    <span className="text-sm font-medium">
+                      {selectedLanguage}
+                    </span>
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform duration-300 ${
+                        showLanguageDropdown ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {/* Premium Language Dropdown */}
+                  {showLanguageDropdown && (
+                    <div
+                      className={`absolute top-full right-0 mt-3 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-100 py-2 min-w-[180px] transition-all duration-300 ${
+                        mounted ? "opacity-100 scale-100" : "opacity-0 scale-95"
+                      }`}
+                    >
+                      {languages.map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => {
+                            setSelectedLanguage(lang.code);
+                            setShowLanguageDropdown(false);
+                          }}
+                          className={`w-full text-left px-5 py-3 hover:bg-gradient-to-r hover:from-gold-50 hover:to-transparent transition-all duration-300 flex items-center gap-3 ${
+                            selectedLanguage === lang.code ? "bg-gold-50" : ""
+                          }`}
+                        >
+                          <span className="text-lg">{lang.flag}</span>
+                          <span className="text-sm font-medium">
+                            {lang.label}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Premium Desktop CTA Buttons */}
+                <div className="flex items-center gap-4">
+                  <a
+                    href={`tel:${contactInfo.phone.replace(/\s/g, "")}`}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-300 ${
+                      isScrolled
+                        ? "hover:bg-gray-100 text-gray-700"
+                        : "hover:bg-white/10 text-white backdrop-blur-sm"
+                    }`}
+                    aria-label="Sună acum"
+                  >
+                    <Phone size={20} />
+                    <span className="hidden lg:inline">
+                      {contactInfo.phone}
+                    </span>
+                  </a>
+
+                  <button
+                    onClick={() => handleScrollToSection("#contact")}
+                    className="group relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-gold-500 to-gold-600 transition-all duration-300 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-gold-600 to-gold-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <span className="relative flex items-center gap-2">
+                      <Calendar size={20} />
+                      <span>Programează</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Premium Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className={`xl:hidden relative p-3 rounded-xl transition-all duration-300 ${
+                  isScrolled
+                    ? "text-gray-700 hover:bg-gray-100"
+                    : "text-white hover:bg-white/10 backdrop-blur-sm"
+                }`}
+                aria-label={
+                  isMobileMenuOpen ? "Închide meniul" : "Deschide meniul"
+                }
+                aria-expanded={isMobileMenuOpen}
+              >
+                <div className="relative w-6 h-6">
+                  <span
+                    className={`absolute top-0 left-0 w-6 h-0.5 ${
+                      isScrolled ? "bg-gray-700" : "bg-white"
+                    } transition-all duration-300 ${
+                      isMobileMenuOpen ? "rotate-45 top-[11px]" : ""
+                    }`}
+                  />
+                  <span
+                    className={`absolute top-[11px] left-0 w-6 h-0.5 ${
+                      isScrolled ? "bg-gray-700" : "bg-white"
+                    } transition-all duration-300 ${
+                      isMobileMenuOpen ? "opacity-0" : ""
+                    }`}
+                  />
+                  <span
+                    className={`absolute bottom-0 left-0 w-6 h-0.5 ${
+                      isScrolled ? "bg-gray-700" : "bg-white"
+                    } transition-all duration-300 ${
+                      isMobileMenuOpen ? "-rotate-45 bottom-[11px]" : ""
+                    }`}
+                  />
+                </div>
+              </button>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      {/* Premium Mobile Menu */}
+      {isMobileMenuOpen && (
+        <>
+          {/* Premium Backdrop with Blur */}
+          <div
+            className={`fixed inset-0 bg-black/60 backdrop-blur-md z-40 xl:hidden transition-all duration-500 ${
+              mobileMenuStage >= 1 ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+
+          {/* Premium Mobile Menu Panel */}
+          <div
+            className={`fixed right-0 top-0 bottom-0 w-full sm:w-96 md:w-[420px] bg-white z-50 xl:hidden overflow-hidden transition-all duration-500 ease-out ${
+              mobileMenuStage >= 2 ? "translate-x-0" : "translate-x-full"
+            }`}
+            style={{
+              boxShadow:
+                mobileMenuStage >= 2 ? "-10px 0 40px rgba(0,0,0,0.1)" : "none",
+            }}
+          >
+            <div className="flex flex-col h-full bg-gradient-to-br from-white via-gray-50/30 to-gold-50/20">
+              {/* Premium Mobile Menu Header */}
+              <div
+                className={`flex items-center justify-between p-6 border-b border-gray-100 bg-white/80 backdrop-blur-sm transition-all duration-500 delay-100 ${
+                  mobileMenuStage >= 3
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 -translate-y-4"
+                }`}
+              >
+                <Link
+                  href="/"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="transform hover:scale-105 transition-transform"
+                >
+                  <Image
+                    src="/images/logo/logo.png"
+                    alt="Tandem Dent Logo"
+                    width={100}
+                    height={70}
+                    className="object-contain"
+                  />
+                </Link>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-3 rounded-xl hover:bg-gray-100 transition-all duration-300 group"
+                  aria-label="Închide meniul"
+                >
+                  <X
+                    size={24}
+                    className="text-gray-700 group-hover:rotate-90 transition-transform duration-300"
+                  />
+                </button>
+              </div>
+
+              {/* Premium Mobile Nav Items with Staggered Animation */}
+              <nav className="flex-1 overflow-y-auto px-6 py-8">
+                <ul className="space-y-3">
+                  {navItems.map((item, itemIndex) => (
+                    <li
+                      key={item.id}
+                      className={`transition-all duration-500 ${
+                        mobileMenuStage >= 3
+                          ? `opacity-100 translate-x-0`
+                          : "opacity-0 translate-x-8"
+                      }`}
+                      style={{
+                        transitionDelay:
+                          mobileMenuStage >= 3
+                            ? `${200 + itemIndex * 60}ms`
+                            : "0ms",
+                      }}
+                    >
+                      <button
+                        onClick={() => handleScrollToSection(item.href)}
+                        className={`w-full text-left px-5 py-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-between group ${
+                          activeSection === item.id
+                            ? "bg-gradient-to-r from-gold-100 to-gold-50 text-gold-700 shadow-lg"
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <span className="text-base">{item.label}</span>
+                        <ArrowRight
+                          size={18}
+                          className={`transition-all duration-300 ${
+                            activeSection === item.id
+                              ? "translate-x-1 text-gold-600"
+                              : "text-gray-400 group-hover:translate-x-1"
+                          }`}
+                        />
+                      </button>
+
+                      {/* Premium Mobile Subitems */}
+                      {item.subItems && (
+                        <ul className="ml-4 mt-2 space-y-1">
+                          {item.subItems.map((subItem, index) => (
+                            <li key={index}>
+                              <button
+                                onClick={() =>
+                                  handleScrollToSection(subItem.href)
+                                }
+                                className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:text-gold-600 hover:bg-gold-50/50 rounded-lg transition-all duration-300 flex items-center gap-2"
+                              >
+                                <span className="w-1.5 h-1.5 bg-gold-400 rounded-full" />
+                                {subItem.label}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Premium Mobile Contact Info */}
+                <div
+                  className={`mt-10 space-y-6 transition-all duration-500 ${
+                    mobileMenuStage >= 3
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-4"
+                  }`}
+                  style={{
+                    transitionDelay: mobileMenuStage >= 3 ? "600ms" : "0ms",
+                  }}
+                >
+                  <div className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Sparkles size={16} className="text-gold-500" />
+                    Contact Rapid
+                  </div>
+
+                  <div className="space-y-4">
                     <a
                       href={`tel:${contactInfo.phone.replace(/\s/g, "")}`}
-                      className="flex items-center gap-3 text-gray-700 hover:text-gold-600 transition-colors"
+                      className="flex items-start gap-4 text-gray-700 hover:text-gold-600 transition-all duration-300 p-3 rounded-xl hover:bg-gold-50/50"
                     >
-                      <Phone size={20} />
+                      <div className="p-2 bg-gold-100 rounded-lg">
+                        <Phone size={20} className="text-gold-600" />
+                      </div>
                       <div>
-                        <div className="text-xs text-gray-500">Sunați-ne</div>
-                        <div className="font-semibold">{contactInfo.phone}</div>
+                        <div className="text-xs text-gray-500 uppercase tracking-wider">
+                          Telefon
+                        </div>
+                        <div className="text-base font-semibold mt-1">
+                          {contactInfo.phone}
+                        </div>
                       </div>
                     </a>
 
                     <a
                       href={`mailto:${contactInfo.email}`}
-                      className="flex items-center gap-3 text-gray-700 hover:text-gold-600 transition-colors"
+                      className="flex items-start gap-4 text-gray-700 hover:text-gold-600 transition-all duration-300 p-3 rounded-xl hover:bg-gold-50/50"
                     >
-                      <Mail size={20} />
+                      <div className="p-2 bg-gold-100 rounded-lg">
+                        <Mail size={20} className="text-gold-600" />
+                      </div>
                       <div>
-                        <div className="text-xs text-gray-500">Email</div>
-                        <div className="text-sm break-all">
+                        <div className="text-xs text-gray-500 uppercase tracking-wider">
+                          Email
+                        </div>
+                        <div className="text-base mt-1">
                           {contactInfo.email}
                         </div>
                       </div>
                     </a>
 
-                    <div className="flex items-start gap-3 text-gray-700">
-                      <MapPin size={20} className="flex-shrink-0 mt-1" />
+                    <div className="flex items-start gap-4 text-gray-700 p-3">
+                      <div className="p-2 bg-gold-100 rounded-lg">
+                        <MapPin size={20} className="text-gold-600" />
+                      </div>
                       <div>
-                        <div className="text-xs text-gray-500">Adresă</div>
-                        <div className="text-sm">{contactInfo.address}</div>
+                        <div className="text-xs text-gray-500 uppercase tracking-wider">
+                          Adresă
+                        </div>
+                        <div className="text-base mt-1">
+                          {contactInfo.address}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-3 text-gray-700">
-                      <Clock size={20} className="flex-shrink-0 mt-1" />
+                    <div className="flex items-start gap-4 text-gray-700 p-3">
+                      <div className="p-2 bg-gold-100 rounded-lg">
+                        <Clock size={20} className="text-gold-600" />
+                      </div>
                       <div>
-                        <div className="text-xs text-gray-500">Program</div>
-                        <div className="text-sm">{contactInfo.schedule}</div>
+                        <div className="text-xs text-gray-500 uppercase tracking-wider">
+                          Program
+                        </div>
+                        <div className="text-base mt-1">
+                          {contactInfo.schedule}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Mobile Language Switcher */}
-                  <div className="mt-6">
-                    <div className="text-sm text-gray-500 mb-3">Limba</div>
+                  {/* Premium Mobile Language Switcher */}
+                  <div className="mt-8">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">
+                      Selectează Limba
+                    </div>
                     <div className="grid grid-cols-3 gap-2">
                       {languages.map((lang) => (
                         <button
                           key={lang.code}
                           onClick={() => setSelectedLanguage(lang.code)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
                             selectedLanguage === lang.code
-                              ? "bg-gold-100 text-gold-600"
-                              : "bg-gray-100 text-gray-700"
+                              ? "bg-gradient-to-r from-gold-100 to-gold-50 text-gold-700 shadow-md"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
                         >
-                          {lang.flag} {lang.code}
+                          <span className="text-lg">{lang.flag}</span>
+                          <span className="block mt-1 text-xs">
+                            {lang.code}
+                          </span>
                         </button>
                       ))}
                     </div>
                   </div>
-                </nav>
-
-                {/* Mobile CTA - Sticky bottom */}
-                <div className="p-4 sm:p-6 border-t border-gray-200 bg-white">
-                  <button
-                    onClick={() => handleScrollToSection("#contact")}
-                    className="w-full btn-premium py-3 bg-gradient-to-r from-gold-500 to-gold-600 text-white rounded-lg font-semibold shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <Calendar size={20} />
-                    <span>Programează Consultație</span>
-                  </button>
                 </div>
+              </nav>
+
+              {/* Premium Mobile CTA */}
+              <div
+                className={`p-6 border-t border-gray-100 bg-white/80 backdrop-blur-sm transition-all duration-500 ${
+                  mobileMenuStage >= 3
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
+                }`}
+                style={{
+                  transitionDelay: mobileMenuStage >= 3 ? "700ms" : "0ms",
+                }}
+              >
+                <button
+                  onClick={() => handleScrollToSection("#contact")}
+                  className="w-full py-4 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 group"
+                >
+                  <Calendar
+                    size={20}
+                    className="group-hover:rotate-12 transition-transform duration-300"
+                  />
+                  <span>Programează Consultație</span>
+                  <ArrowRight
+                    size={18}
+                    className="group-hover:translate-x-1 transition-transform duration-300"
+                  />
+                </button>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };

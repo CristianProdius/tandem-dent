@@ -127,15 +127,19 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, index }) => {
       transition: {
         duration: 0.5,
         delay: index * 0.1,
-        // Removed 'ease' property to fix type error
       },
     },
   };
 
   const iconBgClass =
     service.color === "gold"
-      ? "bg-gradient-to-br from-gold-400 to-gold-600"
+      ? "bg-gradient-to-br from-yellow-400 to-yellow-600"
       : "bg-gradient-to-br from-teal-400 to-teal-600";
+
+  const hoverBorderClass =
+    service.color === "gold"
+      ? "hover:border-yellow-400/50"
+      : "hover:border-teal-400/50";
 
   return (
     <motion.div
@@ -145,105 +149,191 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, index }) => {
       viewport={{ once: true, margin: "-50px" }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="relative group"
+      className="relative group h-full"
     >
-      <div className="card-hover relative h-full bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:border-gold-400/50 dark:hover:border-gold-400/30">
+      <div
+        className={`relative h-full bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all duration-500 ${hoverBorderClass} hover:shadow-xl flex flex-col`}
+      >
         {/* Background Gradient on Hover */}
         <motion.div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
           style={{
             background: `radial-gradient(circle at top left, ${
               service.color === "gold"
-                ? "rgba(212, 175, 55, 0.05)"
+                ? "rgba(250, 204, 21, 0.05)"
                 : "rgba(20, 184, 166, 0.05)"
             }, transparent)`,
           }}
         />
 
-        {/* Icon Container */}
-        <motion.div
-          animate={{
-            rotate: isHovered ? 360 : 0,
-            scale: isHovered ? 1.1 : 1,
-          }}
-          transition={{ duration: 0.5 }}
-          className="relative mb-4"
-        >
-          <div
-            className={`w-16 h-16 ${iconBgClass} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:shadow-glow transition-shadow duration-300`}
-          >
-            {service.icon}
-          </div>
-
-          {/* Floating Sparkle on Hover */}
-          {isHovered && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              className="absolute -top-2 -right-2"
-            >
-              <Sparkles className="w-4 h-4 text-gold-400" />
-            </motion.div>
-          )}
-        </motion.div>
-
-        {/* Service Name */}
-        <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white group-hover:text-gradient-gold transition-all duration-300">
-          {service.name}
-        </h3>
-
-        {/* Description */}
-        <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-          {service.description}
-        </p>
-
-        {/* Benefits List (Shows on Hover) */}
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{
-            height: isHovered ? "auto" : 0,
-            opacity: isHovered ? 1 : 0,
-          }}
-          transition={{ duration: 0.3 }}
-          className="overflow-hidden"
-        >
-          <ul className="space-y-1 mb-4">
-            {service.benefits?.map((benefit, idx) => (
-              <motion.li
-                key={idx}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{
-                  x: isHovered ? 0 : -20,
-                  opacity: isHovered ? 1 : 0,
-                }}
-                transition={{ delay: idx * 0.1 }}
-                className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-              >
-                <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                <span>{benefit}</span>
-              </motion.li>
-            ))}
-          </ul>
-        </motion.div>
-
-        {/* Learn More Link */}
-        <motion.a
-          href={`/servicii/${service.id}`}
-          className="inline-flex items-center gap-2 text-sm font-medium transition-colors duration-300"
-          style={{ color: service.color === "gold" ? "#d4af37" : "#14b8a6" }}
-          whileHover={{ x: 5 }}
-        >
-          Află mai mult
-          <ArrowRight className="w-4 h-4" />
-        </motion.a>
-
         {/* Premium Badge for Special Services */}
         {(service.id === "implantologie" || service.id === "ortodontie") && (
-          <div className="absolute top-4 right-4">
-            <Award className="w-5 h-5 text-gold-400" />
-          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="absolute top-6 right-6 z-10"
+          >
+            <div className="relative">
+              <Award className="w-6 h-6 text-yellow-400" />
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 bg-yellow-400/20 rounded-full blur-xl"
+              />
+            </div>
+          </motion.div>
         )}
+
+        {/* Card Content */}
+        <div className="relative z-10 p-8 flex flex-col flex-1">
+          {/* Top Section - Icon and Title */}
+          <div className="mb-6">
+            {/* Icon Container */}
+            <motion.div
+              animate={{
+                rotate: isHovered ? 360 : 0,
+                scale: isHovered ? 1.1 : 1,
+              }}
+              transition={{ duration: 0.6, type: "spring" }}
+              className="relative mb-5 inline-block"
+            >
+              <div
+                className={`w-14 h-14 ${iconBgClass} rounded-2xl flex items-center justify-center text-white shadow-lg transition-all duration-300 ${
+                  isHovered ? "shadow-2xl" : ""
+                }`}
+              >
+                {service.icon}
+              </div>
+
+              {/* Floating Sparkle on Hover */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{
+                  scale: isHovered ? 1 : 0,
+                  opacity: isHovered ? 1 : 0,
+                  rotate: isHovered ? 360 : 0,
+                }}
+                transition={{ duration: 0.4 }}
+                className="absolute -top-2 -right-2"
+              >
+                <Sparkles className="w-4 h-4 text-yellow-400" />
+              </motion.div>
+            </motion.div>
+
+            {/* Service Name */}
+            <h3
+              className={`text-2xl font-bold mb-3 text-gray-900 transition-colors duration-300 ${
+                isHovered
+                  ? service.color === "gold"
+                    ? "text-yellow-600"
+                    : "text-teal-600"
+                  : ""
+              }`}
+            >
+              {service.name}
+            </h3>
+
+            {/* Description */}
+            <p className="text-gray-600 leading-relaxed text-base">
+              {service.description}
+            </p>
+          </div>
+
+          {/* Middle Section - Benefits (Always visible but highlighted on hover) */}
+          <div className="flex-1 mb-6">
+            <motion.div
+              animate={{
+                opacity: isHovered ? 1 : 0.7,
+                y: isHovered ? 0 : 5,
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              <ul className="space-y-2.5">
+                {service.benefits?.map((benefit, idx) => (
+                  <motion.li
+                    key={idx}
+                    initial={{ opacity: 0.6, x: 0 }}
+                    animate={{
+                      opacity: isHovered ? 1 : 0.6,
+                      x: isHovered ? 8 : 0,
+                    }}
+                    transition={{
+                      delay: isHovered ? idx * 0.1 : 0,
+                      duration: 0.3,
+                    }}
+                    className="flex items-start gap-2.5 text-sm text-gray-600"
+                  >
+                    <motion.div
+                      animate={{
+                        scale: isHovered ? 1.2 : 1,
+                        rotate: isHovered ? 360 : 0,
+                      }}
+                      transition={{ delay: idx * 0.1 }}
+                    >
+                      <CheckCircle
+                        className={`w-4 h-4 flex-shrink-0 mt-0.5 transition-colors duration-300 ${
+                          isHovered ? "text-green-500" : "text-gray-400"
+                        }`}
+                      />
+                    </motion.div>
+                    <span
+                      className={`transition-colors duration-300 ${
+                        isHovered ? "text-gray-700 font-medium" : ""
+                      }`}
+                    >
+                      {benefit}
+                    </span>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+
+          {/* Bottom Section - CTA */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: 1,
+              y: isHovered ? -2 : 0,
+            }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+          >
+            <a
+              href={`/servicii/${service.id}`}
+              className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                isHovered
+                  ? service.color === "gold"
+                    ? "bg-yellow-50 text-yellow-700"
+                    : "bg-teal-50 text-teal-700"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              <span>Află mai mult</span>
+              <motion.div
+                animate={{ x: isHovered ? 5 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ArrowRight className="w-4 h-4" />
+              </motion.div>
+            </a>
+          </motion.div>
+        </div>
+
+        {/* Decorative Corner Element */}
+        <motion.div
+          className={`absolute bottom-0 right-0 w-24 h-24 opacity-10 ${
+            service.color === "gold" ? "bg-yellow-400" : "bg-teal-400"
+          }`}
+          style={{
+            clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+          }}
+          animate={{
+            scale: isHovered ? 1.5 : 1,
+            opacity: isHovered ? 0.15 : 0.05,
+          }}
+          transition={{ duration: 0.4 }}
+        />
       </div>
     </motion.div>
   );
@@ -256,14 +346,14 @@ const ServicesSection: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-gray-50 to-white  "
+      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-gray-50 to-white"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(212, 175, 55, 0.1) 35px, rgba(212, 175, 55, 0.1) 70px)`,
+            backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(250, 204, 21, 0.1) 35px, rgba(250, 204, 21, 0.1) 70px)`,
           }}
         />
       </div>
@@ -279,7 +369,7 @@ const ServicesSection: React.FC = () => {
           repeat: Infinity,
           ease: "linear",
         }}
-        className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-gold-400/20 to-gold-600/20 rounded-full blur-2xl"
+        className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-yellow-400/20 to-yellow-600/20 rounded-full blur-2xl"
       />
 
       <motion.div
@@ -308,19 +398,19 @@ const ServicesSection: React.FC = () => {
             initial={{ scale: 0 }}
             animate={isInView ? { scale: 1 } : {}}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-gold-500/10 to-gold-600/10 border border-gold-500/20"
+            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 border border-yellow-500/20"
           >
-            <Award className="w-4 h-4 text-gold-500" />
-            <span className="text-sm font-medium text-gold-600 dark:text-gold-400">
+            <Award className="w-4 h-4 text-yellow-500" />
+            <span className="text-sm font-medium text-yellow-600">
               Servicii Premium
             </span>
           </motion.div>
 
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-            <span className="text-gradient-gold">Serviciile Noastre</span>
+            <span>Serviciile Noastre</span>
           </h2>
 
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
             Clinica Stomatologică Tandem Dent îți pune la dispoziție un spectru
             larg de servicii stomatologice, la cel mai înalt nivel
           </p>
@@ -333,10 +423,10 @@ const ServicesSection: React.FC = () => {
               transition={{ delay: 0.3 }}
               className="text-center"
             >
-              <div className="text-3xl font-bold text-gradient-gold">15+</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Ani Experiență
+              <div className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-500 bg-clip-text text-transparent">
+                15+
               </div>
+              <div className="text-sm text-gray-600">Ani Experiență</div>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
@@ -344,10 +434,10 @@ const ServicesSection: React.FC = () => {
               transition={{ delay: 0.4 }}
               className="text-center"
             >
-              <div className="text-3xl font-bold text-gradient-gold">3000+</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Pacienți Mulțumiți
+              <div className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-500 bg-clip-text text-transparent">
+                3000+
               </div>
+              <div className="text-sm text-gray-600">Pacienți Mulțumiți</div>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
@@ -355,16 +445,19 @@ const ServicesSection: React.FC = () => {
               transition={{ delay: 0.5 }}
               className="text-center"
             >
-              <div className="text-3xl font-bold text-gradient-gold">7</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Specializări
+              <div className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-500 bg-clip-text text-transparent">
+                7
               </div>
+              <div className="text-sm text-gray-600">Specializări</div>
             </motion.div>
           </div>
         </motion.div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
+        {/* Services Grid - Improved spacing */}
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10 mb-12"
+          role="list"
+        >
           {services.map((service, index) => (
             <ServiceCard key={service.id} service={service} index={index} />
           ))}
@@ -375,19 +468,19 @@ const ServicesSection: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="text-center mt-12"
+          className="text-center mt-16"
         >
           {/* Additional Info */}
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 italic">
-            "Frumusețea zâmbetului tău trebuie întreținută cu grijă!"
+          <p className="text-lg text-gray-600 mb-8 italic">
+            &quot;Frumusețea zâmbetului tău trebuie întreținută cu grijă!&quot;
           </p>
 
           {/* CTA Button */}
           <motion.a
             href="/servicii"
-            className="btn-premium inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white rounded-2xl transition-all duration-300 hover-lift hover-glow shimmer group"
+            className="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl"
             style={{
-              background: "linear-gradient(135deg, #d4af37, #b89229)",
+              background: "linear-gradient(135deg, #facc15, #eab308)",
             }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -402,9 +495,9 @@ const ServicesSection: React.FC = () => {
           </motion.a>
 
           {/* Quick Info */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8 text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8 text-sm text-gray-600">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-gold-400" />
+              <Clock className="w-4 h-4 text-yellow-400" />
               <span>Consultație gratuită</span>
             </div>
             <div className="flex items-center gap-2">

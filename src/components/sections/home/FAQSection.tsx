@@ -328,7 +328,7 @@ const FAQSection: React.FC = () => {
               </div>
               {searchTerm && (
                 <p className="mt-2 text-sm text-gray-600">
-                  {currentFAQs.length} rezultate pentru "{searchTerm}"
+                  {currentFAQs.length} rezultate pentru &quot;{searchTerm}&quot;
                 </p>
               )}
             </div>
@@ -522,14 +522,46 @@ const FAQSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating Ask Question Button */}
-      <button
-        onClick={() => setShowAskQuestion(true)}
-        className="fixed bottom-24 right-8 bg-gradient-to-r from-teal-500 to-teal-600 text-white p-4 rounded-full shadow-2xl hover:shadow-glow-lg transition-all hover-scale hidden md:flex items-center gap-2 z-30"
-      >
-        <HelpCircle size={24} />
-        <span className="pr-2">Pune o Întrebare</span>
-      </button>
+      {showAskQuestion && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4">Întreabă-ne Direct</h3>
+            {/* Add your form content here */}
+            <form className="space-y-4">
+              <input
+                type="text"
+                placeholder="Numele tău"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold-500"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold-500"
+              />
+              <textarea
+                placeholder="Întrebarea ta..."
+                rows={4}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold-500"
+              />
+              <div className="flex gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowAskQuestion(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Anulează
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 transition-colors"
+                >
+                  Trimite Întrebarea
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
