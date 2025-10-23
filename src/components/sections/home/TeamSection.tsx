@@ -15,6 +15,7 @@ import {
   Sparkles,
   Phone,
 } from "lucide-react";
+import { SectionHeader } from "@/components/common";
 
 const TeamSection = () => {
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
@@ -158,17 +159,11 @@ const TeamSection = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-16 enter-fade-in">
-          <h2 className="text-5xl font-bold mb-4">
-            <span className="text-gradient-premium">
-              Echipa Noastră de Profesioniști
-            </span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Medici dedicați cu experiență vastă în stomatologie modernă
-          </p>
-          <div className="divider-premium mt-8"></div>
-        </div>
+        <SectionHeader
+          badge={{ icon: Users, text: "Echipa Noastră", color: "gold" }}
+          title="Echipa Noastră de Profesioniști"
+          description="Medici dedicați cu experiență vastă în stomatologie modernă"
+        />
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">

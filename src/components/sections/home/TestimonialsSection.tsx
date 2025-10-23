@@ -18,6 +18,7 @@ import {
   Award,
   Heart,
 } from "lucide-react";
+import { SectionHeader } from "@/components/common";
 
 // Google Icon Component
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -312,36 +313,11 @@ const TestimonialsSection: React.FC = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          {/* Premium Badge with light colors */}
-          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, type: "spring" }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-gold-100 to-gold-200 border border-gold-300"
-          >
-            <MessageSquare className="w-4 h-4 text-gold-600" />
-            <span className="text-sm font-medium text-gold-700">
-              Părerile Pacienților
-            </span>
-          </motion.div>
-
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            <span className="text-gradient-gold">Ce Spun Pacienții Noștri</span>
-          </h2>
-
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Încrederea și satisfacția pacienților noștri sunt cele mai
-            importante mărturii ale muncii noastre
-          </p>
-        </motion.div>
+        <SectionHeader
+          badge={{ icon: MessageSquare, text: "Părerile Pacienților", color: "gold" }}
+          title="Ce Spun Pacienții Noștri"
+          description="Încrederea și satisfacția pacienților noștri sunt cele mai importante mărturii ale muncii noastre"
+        />
 
         {/* Testimonials Carousel */}
         <motion.div className="relative" style={{ opacity, scale }}>

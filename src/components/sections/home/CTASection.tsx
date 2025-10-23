@@ -20,7 +20,7 @@ import {
   Zap,
 } from "lucide-react";
 
-type CtaVariant = "appointment" | "emergency" | "offer";
+type CtaVariant = "appointment" | "offer";
 
 const CTASection = () => {
   // State for A/B testing variations
@@ -159,13 +159,6 @@ const CTASection = () => {
       icon: Calendar,
       color: "gold",
     },
-    emergency: {
-      headline: "Urgențe Dentare? Suntem Aici 24/7",
-      subtext: "Răspundem imediat la situații urgente",
-      button: "Sună Acum: +373 61 234 555",
-      icon: Phone,
-      color: "red",
-    },
     offer: {
       headline: "Ofertă Specială: Control + Detartraj",
       subtext: "Economisește 30% ca pacient nou",
@@ -256,7 +249,7 @@ const CTASection = () => {
             {/* Appointment Type Selector */}
             <div className="mb-8">
               <div className="inline-flex bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
-                {["consultation", "emergency", "treatment", "checkup"].map(
+                {["consultation", "treatment", "checkup"].map(
                   (type) => (
                     <button
                       key={type}
@@ -268,7 +261,6 @@ const CTASection = () => {
                       }`}
                     >
                       {type === "consultation" && "Consultație"}
-                      {type === "emergency" && "Urgență"}
                       {type === "treatment" && "Tratament"}
                       {type === "checkup" && "Control"}
                     </button>
@@ -283,13 +275,7 @@ const CTASection = () => {
                 className="inline-flex items-center gap-3 px-8 py-4 text-lg font-bold rounded-full
                   bg-gold-600 hover:bg-gold-700 text-white shadow-lg hover:shadow-xl
                   transform transition-all duration-300 hover:scale-105"
-                onClick={() => {
-                  if (ctaVariant === "emergency") {
-                    window.location.href = "tel:+37361234555";
-                  } else {
-                    setShowCallbackForm(true);
-                  }
-                }}
+                onClick={() => setShowCallbackForm(true)}
               >
                 {currentCTA.button}
                 <ArrowRight className="transition-transform group-hover:translate-x-1" />
@@ -451,7 +437,6 @@ const CTASection = () => {
                 >
                   <option value="">Selectează serviciul dorit *</option>
                   <option value="consultation">Consultație generală</option>
-                  <option value="emergency">Urgență dentară</option>
                   <option value="implant">Implant dentar</option>
                   <option value="orthodontics">Ortodonție</option>
                   <option value="cleaning">Curățare profesională</option>

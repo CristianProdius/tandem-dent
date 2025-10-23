@@ -16,7 +16,6 @@ export const CLINIC_INFO = {
       whatsapp: "+37361234555",
     },
     email: "tandemdent22@gmail.com",
-    emergency: "+373 61 234 555", // 24/7 emergency line
   },
 
   // Location
@@ -45,7 +44,6 @@ export const CLINIC_INFO = {
       sunday: { closed: true },
     },
     display: "Luni-Vineri: 9:00-18:00",
-    emergency: "24/7 pentru urgențe",
     holidays: "Închis în zilele de sărbătoare națională",
   },
 
@@ -428,43 +426,6 @@ export const FAQ_CATEGORIES = [
     name: "Costuri și Plăți",
     icon: "dollarSign",
   },
-  {
-    id: "urgente",
-    name: "Urgențe",
-    icon: "alertCircle",
-  },
-];
-
-// Emergency Guide
-export const EMERGENCY_GUIDE = [
-  {
-    problem: "Dinte căzut",
-    action: "Pune-l în lapte, vino urgent",
-    urgency: "Maximă",
-    timeFrame: "30 minute",
-    color: "red",
-  },
-  {
-    problem: "Durere severă",
-    action: "Ia un calmant, aplică frig",
-    urgency: "Înaltă",
-    timeFrame: "Programare urgentă",
-    color: "orange",
-  },
-  {
-    problem: "Umflătură facială",
-    action: "Nu aplica căldură, vino urgent",
-    urgency: "Înaltă",
-    timeFrame: "Posibilă infecție",
-    color: "orange",
-  },
-  {
-    problem: "Sângerare gingie",
-    action: "Clătește cu apă sărată",
-    urgency: "Medie",
-    timeFrame: "24-48 ore",
-    color: "yellow",
-  },
 ];
 
 // Meta Information for SEO
@@ -473,7 +434,7 @@ export const META = {
   description:
     "Clinica Stomatologică Tandem Dent oferă servicii stomatologice complete în Chișinău. Implantologie, ortodonție, estetică dentară cu echipamente moderne.",
   keywords:
-    "stomatologie Chișinău, dentist Chișinău, implant dentar, ortodonție, Tandem Dent, clinică dentară, urgențe stomatologice",
+    "stomatologie Chișinău, dentist Chișinău, implant dentar, ortodonție, Tandem Dent, clinică dentară",
   author: "Tandem Dent",
   locale: "ro_MD",
   type: "website",

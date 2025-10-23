@@ -212,11 +212,4 @@ export const serviceCategories = [
     services: ["estetica-dentara", "albire", "fatete"],
     icon: "sparkles",
   },
-  {
-    id: "urgente",
-    name: "URGENȚE",
-    description: "Tratament rapid când ai nevoie cel mai mult.",
-    services: ["chirurgie-orala", "tratament-canal"],
-    icon: "alert",
-  },
 ];

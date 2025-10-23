@@ -25,6 +25,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Image from "next/image";
+import { SectionHeader } from "@/components/common";
 
 interface Achievement {
   icon: React.ReactNode;
@@ -176,35 +177,12 @@ const DoctorSection: React.FC = () => {
       />
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Premium Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={isInView ? { scale: 1 } : {}}
-            transition={{ delay: 0.2, type: "spring" }}
-            className="inline-flex items-center gap-2 px-6 py-3 mb-8 rounded-full bg-gradient-to-r from-gold-100 to-yellow-100 border border-gold-200 shadow-lg shadow-gold-100/50"
-          >
-            <Sparkles className="w-4 h-4 text-gold-500" />
-            <span className="text-sm font-semibold text-gold-700 tracking-wide uppercase">
-              Medicul Nostru Principal
-            </span>
-            <Sparkles className="w-4 h-4 text-gold-500" />
-          </motion.div>
-
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-gold-500 to-gold-600 bg-clip-text text-transparent">
-              Cunoaște-ți Medicul
-            </span>
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Experiență, profesionalism și grijă pentru fiecare pacient
-          </p>
-        </motion.div>
+        {/* Section Header */}
+        <SectionHeader
+          badge={{ icon: Sparkles, text: "Medicul Nostru Principal", color: "gold" }}
+          title="Cunoaște-ți Medicul"
+          description="Experiență, profesionalism și grijă pentru fiecare pacient"
+        />
 
         {/* Main Content - Premium Split Layout */}
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
@@ -246,53 +224,9 @@ const DoctorSection: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                   </div>
 
-                  {/* Premium Floating Badge */}
-                  <motion.div
-                    animate={{
-                      rotate: [0, 5, 0, -5, 0],
-                      y: [0, -5, 0],
-                    }}
-                    transition={{ duration: 6, repeat: Infinity }}
-                    className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-5 shadow-2xl border-2 border-gold-100"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-gold-400 to-gold-500 rounded-xl flex items-center justify-center shadow-lg">
-                        <Trophy className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold bg-gradient-to-r from-gold-500 to-gold-600 bg-clip-text text-transparent">
-                          <AnimatedCounter from={0} to={3000} suffix="+" />
-                        </div>
-                        <div className="text-xs text-gray-500 font-medium">
-                          Implanturi
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
+ 
 
-                  {/* Premium Experience Badge */}
-                  <motion.div
-                    animate={{
-                      rotate: [0, -5, 0, 5, 0],
-                      y: [0, 5, 0],
-                    }}
-                    transition={{ duration: 7, repeat: Infinity }}
-                    className="absolute -top-6 -left-6 bg-white rounded-2xl p-4 shadow-2xl border-2 border-gold-100"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                        <Calendar className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-xl font-bold text-emerald-600">
-                          15+
-                        </div>
-                        <div className="text-xs text-gray-500 font-medium">
-                          Ani Experiență
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
+   
                 </motion.div>
               </div>
             </motion.div>

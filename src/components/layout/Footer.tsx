@@ -22,6 +22,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useClinicInfo } from "@/hooks";
+import { validateEmail } from "@/lib/validations";
+import { ErrorMessage } from "@/components/common";
 
 // Types
 interface FooterLink {
@@ -45,6 +48,8 @@ interface ContactInfo {
 }
 
 const Footer: React.FC = () => {
+  const clinicInfo = useClinicInfo();
+
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,49 +89,49 @@ const Footer: React.FC = () => {
   const socialLinks: SocialLink[] = [
     {
       name: "Facebook",
-      href: "https://facebook.com/tandemdent",
+      href: clinicInfo.social.facebook,
       icon: <Facebook size={20} />,
       color: "hover:bg-blue-600 hover:text-white",
     },
     {
       name: "Instagram",
-      href: "https://instagram.com/tandemdent",
+      href: clinicInfo.social.instagram,
       icon: <Instagram size={20} />,
       color:
         "hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-600 hover:text-white",
     },
     {
       name: "YouTube",
-      href: "https://youtube.com/@tandemdent",
+      href: clinicInfo.social.youtube,
       icon: <Youtube size={20} />,
       color: "hover:bg-red-600 hover:text-white",
     },
   ];
 
   // Contact Information
-  const contactInfo: ContactInfo[] = [
+  const contactInfoItems: ContactInfo[] = [
     {
       icon: <MapPin size={18} />,
       label: "Adresă",
-      value: "Strada Nicolae Zelinski 5/8, MD-2032, Chișinău",
-      href: "https://maps.google.com/?q=Tandem+Dent+Chisinau",
+      value: clinicInfo.address.full,
+      href: clinicInfo.address.googleMapsUrl,
     },
     {
       icon: <Phone size={18} />,
       label: "Telefon",
-      value: "+373 61 234 555",
-      href: "tel:+37361234555",
+      value: clinicInfo.phone.main,
+      href: clinicInfo.phone.href,
     },
     {
       icon: <Mail size={18} />,
       label: "Email",
-      value: "tandemdent22@gmail.com",
-      href: "mailto:tandemdent22@gmail.com",
+      value: clinicInfo.email.address,
+      href: clinicInfo.email.href,
     },
     {
       icon: <Clock size={18} />,
       label: "Program",
-      value: "Luni - Vineri: 09:00 - 18:00",
+      value: clinicInfo.schedule.display,
     },
   ];
 
@@ -155,8 +160,7 @@ const Footer: React.FC = () => {
     setEmailError("");
 
     // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!validateEmail(email)) {
       setEmailError("Vă rugăm introduceți o adresă de email validă");
       return;
     }
@@ -319,7 +323,7 @@ const Footer: React.FC = () => {
                 Contact
               </h4>
               <div className="space-y-4">
-                {contactInfo.map((info) => (
+                {contactInfoItems.map((info) => (
                   <div key={info.label} className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-yellow-600">{info.icon}</span>
@@ -350,19 +354,6 @@ const Footer: React.FC = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* Emergency Notice */}
-              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600 font-medium mb-1">
-                  Urgențe 24/7
-                </p>
-                <a
-                  href="tel:+37361234555"
-                  className="text-gray-900 font-bold hover:text-red-600 transition-colors"
-                >
-                  +373 61 234 555
-                </a>
               </div>
             </div>
 
@@ -403,9 +394,7 @@ const Footer: React.FC = () => {
                   )}
                 </div>
 
-                {emailError && (
-                  <p className="text-red-600 text-xs">{emailError}</p>
-                )}
+                <ErrorMessage message={emailError} />
 
                 <button
                   onClick={handleNewsletterSubmit}

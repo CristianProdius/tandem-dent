@@ -4,17 +4,14 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  X,
   Phone,
   ChevronDown,
   Calendar,
-  Globe,
-  MapPin,
-  Clock,
-  Mail,
-  ArrowRight,
   Sparkles,
 } from "lucide-react";
+import { useClinicInfo } from "@/hooks";
+import { MobileMenu } from "./MobileMenu";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 // Types
 interface NavItem {
@@ -31,13 +28,9 @@ interface SubNavItem {
   icon?: React.ReactNode;
 }
 
-interface Language {
-  code: string;
-  label: string;
-  flag?: string;
-}
-
 const NavigationHeader: React.FC = () => {
+  const clinicInfo = useClinicInfo();
+
   // Track if we're on the client and ready for animations
   const [mounted, setMounted] = useState(false);
 
@@ -46,14 +39,10 @@ const NavigationHeader: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState("RO");
-  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(false);
-  const [mobileMenuStage, setMobileMenuStage] = useState(0);
 
   // Refs
   const navRef = useRef<HTMLElement>(null);
-  const languageRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
   // Navigation Items with enhanced descriptions
@@ -67,9 +56,15 @@ const NavigationHeader: React.FC = () => {
         href: "#servicii",
         subItems: [
           {
-            label: "Implantologie",
-            href: "#implantologie",
-            description: "Soluții permanente pentru dinți lipsă",
+            label: "Terapie Dentară",
+            href: "#terapie-dentara",
+            description: "Tratamente complete pentru sănătatea dinților",
+            icon: <Sparkles size={16} className="text-gold-500" />,
+          },
+          {
+            label: "Ortopedie Dentară",
+            href: "#ortopedie-dentara",
+            description: "Restaurări complete și funcționale",
             icon: <Sparkles size={16} className="text-gold-500" />,
           },
           {
@@ -79,27 +74,15 @@ const NavigationHeader: React.FC = () => {
             icon: <Sparkles size={16} className="text-gold-500" />,
           },
           {
-            label: "Estetică Dentară",
-            href: "#estetica",
-            description: "Pentru un zâmbet perfect",
+            label: "Implantologie",
+            href: "#implantologie",
+            description: "Soluții permanente pentru dinți lipsă",
             icon: <Sparkles size={16} className="text-gold-500" />,
           },
           {
             label: "Chirurgie Orală",
-            href: "#chirurgie",
+            href: "#chirurgie-orala",
             description: "Intervenții sigure și moderne",
-            icon: <Sparkles size={16} className="text-gold-500" />,
-          },
-          {
-            label: "Terapie Dentară",
-            href: "#terapie",
-            description: "Tratamente complete pentru sănătatea dinților",
-            icon: <Sparkles size={16} className="text-gold-500" />,
-          },
-          {
-            label: "Endodonție",
-            href: "#endodontie",
-            description: "Salvarea dinților prin tratamente de canal",
             icon: <Sparkles size={16} className="text-gold-500" />,
           },
         ],
@@ -111,39 +94,12 @@ const NavigationHeader: React.FC = () => {
     []
   );
 
-  // Languages
-  const languages: Language[] = [
-    { code: "RO", label: "Română", flag: "🇷🇴" },
-    { code: "RU", label: "Русский", flag: "🇷🇺" },
-    { code: "EN", label: "English", flag: "🇬🇧" },
-  ];
-
-  // Contact info for mobile
-  const contactInfo = {
-    phone: "+373 61 234 555",
-    email: "tandemdent22@gmail.com",
-    address: "Strada Nicolae Zelinski 5/8, Chișinău",
-    schedule: "Luni-Vineri: 9:00-18:00",
-  };
-
   // Mount effect - enable animations after hydration
   useEffect(() => {
     setMounted(true);
     // Trigger header animation after mount
     setTimeout(() => setHeaderVisible(true), 100);
   }, []);
-
-  // Handle mobile menu animation stages
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      // Stagger the animation stages
-      setTimeout(() => setMobileMenuStage(1), 50);
-      setTimeout(() => setMobileMenuStage(2), 150);
-      setTimeout(() => setMobileMenuStage(3), 250);
-    } else {
-      setMobileMenuStage(0);
-    }
-  }, [isMobileMenuOpen]);
 
   // Handle scroll effects
   useEffect(() => {
@@ -152,12 +108,20 @@ const NavigationHeader: React.FC = () => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
 
-      // Set scrolled state with premium threshold
-      setIsScrolled(scrollPosition > 50);
+      // Set scrolled state - switch to solid white after scrolling past hero section
+      // Hero sections are typically viewport height, check after ~70% of viewport
+      const heroThreshold = window.innerHeight * 0.7;
+      setIsScrolled(scrollPosition > heroThreshold);
 
       // Update active section
       const offset = 100;
       const sections = navItems.map((item) => item.id);
+
+      // If we're at the top of the page (first 100px), always set to home
+      if (scrollPosition < 100) {
+        setActiveSection("home");
+        return;
+      }
 
       const currentSection = sections.find((section) => {
         const element = document.getElementById(section);
@@ -199,23 +163,6 @@ const NavigationHeader: React.FC = () => {
     };
   }, [isMobileMenuOpen, mounted]);
 
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    if (!mounted) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        languageRef.current &&
-        !languageRef.current.contains(event.target as Node)
-      ) {
-        setShowLanguageDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [mounted]);
-
   // Handle smooth scroll to section
   const handleScrollToSection = (href: string) => {
     const targetId = href.replace("#", "");
@@ -256,18 +203,16 @@ const NavigationHeader: React.FC = () => {
           ref={navRef}
           className={`relative transition-all duration-500 ${
             isScrolled
-              ? "bg-white/90 backdrop-blur-2xl shadow-2xl border-b border-gray-100"
-              : "bg-gradient-to-b from-black/40 to-transparent backdrop-blur-sm"
+              ? "bg-white shadow-lg border-b border-gray-100"
+              : "bg-gradient-to-b from-black/30 to-transparent"
           }`}
           role="navigation"
           aria-label="Main navigation"
         >
-          {/* Premium gradient overlay */}
-          <div
-            className={`absolute inset-0 bg-gradient-to-r from-gold-500/5 via-transparent to-gold-500/5 opacity-50 pointer-events-none transition-opacity duration-500 ${
-              isScrolled ? "opacity-100" : "opacity-0"
-            }`}
-          />
+          {/* Premium gradient overlay - only show when scrolled */}
+          {isScrolled && (
+            <div className="absolute inset-0 bg-gradient-to-r from-gold-500/5 via-transparent to-gold-500/5 pointer-events-none" />
+          )}
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20 sm:h-24">
@@ -389,74 +334,23 @@ const NavigationHeader: React.FC = () => {
                   ))}
                 </ul>
 
-                {/* Premium Language Switcher */}
-                <div className="relative" ref={languageRef}>
-                  <button
-                    onClick={() =>
-                      setShowLanguageDropdown(!showLanguageDropdown)
-                    }
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 ${
-                      isScrolled
-                        ? "hover:bg-gray-100 text-gray-700"
-                        : "hover:bg-white/10 text-white backdrop-blur-sm"
-                    }`}
-                    aria-label="Schimbă limba"
-                    aria-expanded={showLanguageDropdown}
-                  >
-                    <Globe size={20} />
-                    <span className="text-sm font-medium">
-                      {selectedLanguage}
-                    </span>
-                    <ChevronDown
-                      size={16}
-                      className={`transition-transform duration-300 ${
-                        showLanguageDropdown ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
-                  {/* Premium Language Dropdown */}
-                  {showLanguageDropdown && (
-                    <div
-                      className={`absolute top-full right-0 mt-3 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-100 py-2 min-w-[180px] transition-all duration-300 ${
-                        mounted ? "opacity-100 scale-100" : "opacity-0 scale-95"
-                      }`}
-                    >
-                      {languages.map((lang) => (
-                        <button
-                          key={lang.code}
-                          onClick={() => {
-                            setSelectedLanguage(lang.code);
-                            setShowLanguageDropdown(false);
-                          }}
-                          className={`w-full text-left px-5 py-3 hover:bg-gradient-to-r hover:from-gold-50 hover:to-transparent transition-all duration-300 flex items-center gap-3 ${
-                            selectedLanguage === lang.code ? "bg-gold-50" : ""
-                          }`}
-                        >
-                          <span className="text-lg">{lang.flag}</span>
-                          <span className="text-sm font-medium">
-                            {lang.label}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {/* Language Switcher */}
+                <LanguageSwitcher isScrolled={isScrolled} />
 
                 {/* Premium Desktop CTA Buttons */}
                 <div className="flex items-center gap-4">
                   <a
-                    href={`tel:${contactInfo.phone.replace(/\s/g, "")}`}
+                    href={clinicInfo.phone.href}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-300 ${
                       isScrolled
                         ? "hover:bg-gray-100 text-gray-700"
-                        : "hover:bg-white/10 text-white backdrop-blur-sm"
+                        : "hover:bg-white/10 text-white"
                     }`}
                     aria-label="Sună acum"
                   >
                     <Phone size={20} />
                     <span className="hidden lg:inline">
-                      {contactInfo.phone}
+                      {clinicInfo.phone.main}
                     </span>
                   </a>
 
@@ -480,7 +374,7 @@ const NavigationHeader: React.FC = () => {
                 className={`xl:hidden relative p-3 rounded-xl transition-all duration-300 ${
                   isScrolled
                     ? "text-gray-700 hover:bg-gray-100"
-                    : "text-white hover:bg-white/10 backdrop-blur-sm"
+                    : "text-white hover:bg-white/10"
                 }`}
                 aria-label={
                   isMobileMenuOpen ? "Închide meniul" : "Deschide meniul"
@@ -516,257 +410,14 @@ const NavigationHeader: React.FC = () => {
         </nav>
       </header>
 
-      {/* Premium Mobile Menu */}
-      {isMobileMenuOpen && (
-        <>
-          {/* Premium Backdrop with Blur */}
-          <div
-            className={`fixed inset-0 bg-black/60 backdrop-blur-md z-40 xl:hidden transition-all duration-500 ${
-              mobileMenuStage >= 1 ? "opacity-100" : "opacity-0"
-            }`}
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-
-          {/* Premium Mobile Menu Panel */}
-          <div
-            className={`fixed right-0 top-0 bottom-0 w-full sm:w-96 md:w-[420px] bg-white z-50 xl:hidden overflow-hidden transition-all duration-500 ease-out ${
-              mobileMenuStage >= 2 ? "translate-x-0" : "translate-x-full"
-            }`}
-            style={{
-              boxShadow:
-                mobileMenuStage >= 2 ? "-10px 0 40px rgba(0,0,0,0.1)" : "none",
-            }}
-          >
-            <div className="flex flex-col h-full bg-gradient-to-br from-white via-gray-50/30 to-gold-50/20">
-              {/* Premium Mobile Menu Header */}
-              <div
-                className={`flex items-center justify-between p-6 border-b border-gray-100 bg-white/80 backdrop-blur-sm transition-all duration-500 delay-100 ${
-                  mobileMenuStage >= 3
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 -translate-y-4"
-                }`}
-              >
-                <Link
-                  href="/"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="transform hover:scale-105 transition-transform"
-                >
-                  <Image
-                    src="/images/logo/logo.png"
-                    alt="Tandem Dent Logo"
-                    width={100}
-                    height={70}
-                    className="object-contain"
-                  />
-                </Link>
-                <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-3 rounded-xl hover:bg-gray-100 transition-all duration-300 group"
-                  aria-label="Închide meniul"
-                >
-                  <X
-                    size={24}
-                    className="text-gray-700 group-hover:rotate-90 transition-transform duration-300"
-                  />
-                </button>
-              </div>
-
-              {/* Premium Mobile Nav Items with Staggered Animation */}
-              <nav className="flex-1 overflow-y-auto px-6 py-8">
-                <ul className="space-y-3">
-                  {navItems.map((item, itemIndex) => (
-                    <li
-                      key={item.id}
-                      className={`transition-all duration-500 ${
-                        mobileMenuStage >= 3
-                          ? `opacity-100 translate-x-0`
-                          : "opacity-0 translate-x-8"
-                      }`}
-                      style={{
-                        transitionDelay:
-                          mobileMenuStage >= 3
-                            ? `${200 + itemIndex * 60}ms`
-                            : "0ms",
-                      }}
-                    >
-                      <button
-                        onClick={() => handleScrollToSection(item.href)}
-                        className={`w-full text-left px-5 py-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-between group ${
-                          activeSection === item.id
-                            ? "bg-gradient-to-r from-gold-100 to-gold-50 text-gold-700 shadow-lg"
-                            : "text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        <span className="text-base">{item.label}</span>
-                        <ArrowRight
-                          size={18}
-                          className={`transition-all duration-300 ${
-                            activeSection === item.id
-                              ? "translate-x-1 text-gold-600"
-                              : "text-gray-400 group-hover:translate-x-1"
-                          }`}
-                        />
-                      </button>
-
-                      {/* Premium Mobile Subitems */}
-                      {item.subItems && (
-                        <ul className="ml-4 mt-2 space-y-1">
-                          {item.subItems.map((subItem, index) => (
-                            <li key={index}>
-                              <button
-                                onClick={() =>
-                                  handleScrollToSection(subItem.href)
-                                }
-                                className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:text-gold-600 hover:bg-gold-50/50 rounded-lg transition-all duration-300 flex items-center gap-2"
-                              >
-                                <span className="w-1.5 h-1.5 bg-gold-400 rounded-full" />
-                                {subItem.label}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Premium Mobile Contact Info */}
-                <div
-                  className={`mt-10 space-y-6 transition-all duration-500 ${
-                    mobileMenuStage >= 3
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-4"
-                  }`}
-                  style={{
-                    transitionDelay: mobileMenuStage >= 3 ? "600ms" : "0ms",
-                  }}
-                >
-                  <div className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Sparkles size={16} className="text-gold-500" />
-                    Contact Rapid
-                  </div>
-
-                  <div className="space-y-4">
-                    <a
-                      href={`tel:${contactInfo.phone.replace(/\s/g, "")}`}
-                      className="flex items-start gap-4 text-gray-700 hover:text-gold-600 transition-all duration-300 p-3 rounded-xl hover:bg-gold-50/50"
-                    >
-                      <div className="p-2 bg-gold-100 rounded-lg">
-                        <Phone size={20} className="text-gold-600" />
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 uppercase tracking-wider">
-                          Telefon
-                        </div>
-                        <div className="text-base font-semibold mt-1">
-                          {contactInfo.phone}
-                        </div>
-                      </div>
-                    </a>
-
-                    <a
-                      href={`mailto:${contactInfo.email}`}
-                      className="flex items-start gap-4 text-gray-700 hover:text-gold-600 transition-all duration-300 p-3 rounded-xl hover:bg-gold-50/50"
-                    >
-                      <div className="p-2 bg-gold-100 rounded-lg">
-                        <Mail size={20} className="text-gold-600" />
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 uppercase tracking-wider">
-                          Email
-                        </div>
-                        <div className="text-base mt-1">
-                          {contactInfo.email}
-                        </div>
-                      </div>
-                    </a>
-
-                    <div className="flex items-start gap-4 text-gray-700 p-3">
-                      <div className="p-2 bg-gold-100 rounded-lg">
-                        <MapPin size={20} className="text-gold-600" />
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 uppercase tracking-wider">
-                          Adresă
-                        </div>
-                        <div className="text-base mt-1">
-                          {contactInfo.address}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-4 text-gray-700 p-3">
-                      <div className="p-2 bg-gold-100 rounded-lg">
-                        <Clock size={20} className="text-gold-600" />
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 uppercase tracking-wider">
-                          Program
-                        </div>
-                        <div className="text-base mt-1">
-                          {contactInfo.schedule}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Premium Mobile Language Switcher */}
-                  <div className="mt-8">
-                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">
-                      Selectează Limba
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      {languages.map((lang) => (
-                        <button
-                          key={lang.code}
-                          onClick={() => setSelectedLanguage(lang.code)}
-                          className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
-                            selectedLanguage === lang.code
-                              ? "bg-gradient-to-r from-gold-100 to-gold-50 text-gold-700 shadow-md"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
-                        >
-                          <span className="text-lg">{lang.flag}</span>
-                          <span className="block mt-1 text-xs">
-                            {lang.code}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </nav>
-
-              {/* Premium Mobile CTA */}
-              <div
-                className={`p-6 border-t border-gray-100 bg-white/80 backdrop-blur-sm transition-all duration-500 ${
-                  mobileMenuStage >= 3
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4"
-                }`}
-                style={{
-                  transitionDelay: mobileMenuStage >= 3 ? "700ms" : "0ms",
-                }}
-              >
-                <button
-                  onClick={() => handleScrollToSection("#contact")}
-                  className="w-full py-4 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 group"
-                >
-                  <Calendar
-                    size={20}
-                    className="group-hover:rotate-12 transition-transform duration-300"
-                  />
-                  <span>Programează Consultație</span>
-                  <ArrowRight
-                    size={18}
-                    className="group-hover:translate-x-1 transition-transform duration-300"
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      {/* Mobile Menu */}
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        navItems={navItems}
+        activeSection={activeSection}
+        onNavigate={handleScrollToSection}
+      />
     </>
   );
 };

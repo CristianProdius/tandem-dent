@@ -7,13 +7,11 @@ import {
   Search,
   HelpCircle,
   DollarSign,
-  AlertCircle,
   Activity,
   MessageCircle,
   ThumbsUp,
   ThumbsDown,
   ChevronRight,
-  Clock,
   Phone,
   FileText,
   Info,
@@ -21,6 +19,7 @@ import {
   BookOpen,
   LucideIcon,
 } from "lucide-react";
+import { SectionHeader } from "@/components/common";
 
 // Type Definitions
 interface FAQ {
@@ -38,16 +37,7 @@ interface Category {
   count: number;
 }
 
-interface EmergencyGuideItem {
-  title: string;
-  action: string;
-  urgency: string;
-  time: string;
-  color: string;
-  bgColor: string;
-}
-
-type FAQCategory = "general" | "treatments" | "costs" | "emergency";
+type FAQCategory = "general" | "treatments" | "costs";
 
 type FAQData = {
   [K in FAQCategory]: FAQ[];
@@ -77,7 +67,6 @@ const FAQSection: React.FC = () => {
     { id: "general", name: "Generale", icon: Info, count: 3 },
     { id: "treatments", name: "Tratamente", icon: Activity, count: 3 },
     { id: "costs", name: "Costuri și Plăți", icon: DollarSign, count: 3 },
-    { id: "emergency", name: "Urgențe", icon: AlertCircle, count: 1 },
   ];
 
   // FAQ Data from your PDF content
@@ -187,53 +176,7 @@ const FAQSection: React.FC = () => {
         ],
       },
     ],
-    emergency: [
-      {
-        id: 10,
-        question: "Ce fac în caz de urgență dentară?",
-        answer:
-          "Sunați la +373 61 234 555 - răspundem 24/7. Pentru urgențe majore în afara programului, avem medic de gardă.",
-        popularity: 96,
-        relatedArticles: ["Ghid urgențe dentare", "Când să suni imediat"],
-      },
-    ],
   };
-
-  // Emergency Guide Data from PDF
-  const emergencyGuide: EmergencyGuideItem[] = [
-    {
-      title: "Dinte căzut",
-      action: "Pune-l în lapte, vino urgent",
-      urgency: "Maximă",
-      time: "30 minute",
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-    },
-    {
-      title: "Durere severă",
-      action: "Ia un calmant, aplică frig",
-      urgency: "Înaltă",
-      time: "Programare urgentă",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-    },
-    {
-      title: "Umflătură facială",
-      action: "Nu aplica căldură, vino urgent",
-      urgency: "Înaltă",
-      time: "Posibilă infecție",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-    },
-    {
-      title: "Sângerare gingie",
-      action: "Clătește cu apă sărată",
-      urgency: "Medie",
-      time: "24-48 ore",
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50",
-    },
-  ];
 
   // Get current FAQs based on category and search
   const getCurrentFAQs = (): FAQ[] => {
@@ -291,14 +234,11 @@ const FAQSection: React.FC = () => {
     <section className="relative py-20 bg-gradient-to-b from-white to-gray-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="text-gradient-premium">Întrebări Frecvente</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Răspunsuri la cele mai comune întrebări ale pacienților noștri
-          </p>
-        </div>
+        <SectionHeader
+          badge={{ icon: HelpCircle, text: "Părerile Pacienților", color: "gold" }}
+          title="Întrebări Frecvente"
+          description="Răspunsuri la cele mai comune întrebări ale pacienților noștri"
+        />
 
         <div className="grid lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
           {/* Main FAQ Content */}
@@ -405,55 +345,9 @@ const FAQSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Emergency Guide Sidebar (Desktop) */}
+          {/* Resources Sidebar (Desktop) */}
           <div className="hidden lg:block">
             <div className="sticky top-8">
-              <div className="bg-white rounded-xl shadow-soft-lg p-6 border-2 border-red-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <AlertCircle className="text-red-600" size={24} />
-                  <h3 className="text-lg font-bold text-gray-900">
-                    Ghid Urgențe
-                  </h3>
-                </div>
-
-                <div className="space-y-3">
-                  {emergencyGuide.map((item, index) => (
-                    <div
-                      key={index}
-                      className={`p-3 rounded-lg ${item.bgColor}`}
-                    >
-                      <div className="flex items-start justify-between mb-1">
-                        <h4 className={`font-semibold ${item.color}`}>
-                          {item.title}
-                        </h4>
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full ${item.bgColor} ${item.color} font-medium`}
-                        >
-                          {item.urgency}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-1">
-                        {item.action}
-                      </p>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Clock size={12} />
-                        <span>{item.time}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <a
-                    href="tel:+37361234555"
-                    className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:from-red-600 hover:to-red-700 transition-all"
-                  >
-                    <Phone size={18} />
-                    <span>Urgențe 24/7</span>
-                  </a>
-                </div>
-              </div>
-
               {/* Additional Resources */}
               <div className="mt-6 bg-gradient-to-br from-gold-50 to-white rounded-xl p-6 border border-gold-200">
                 <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
