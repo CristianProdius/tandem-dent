@@ -199,7 +199,7 @@ export const TEAM = [
       "15+ ani experiență în stomatologie",
       "Membru al Asociației Stomatologilor din Moldova",
     ],
-    image: "/images/team/dr-capatina.jpg",
+    image: "/images/docs/vitalie.jpg",
   },
   {
     id: "iliev-olesea",
@@ -215,7 +215,7 @@ export const TEAM = [
       "Gold Invisalign Provider",
       "Specialist în aparate dentare pentru copii și adulți",
     ],
-    image: "/images/team/dr-iliev.jpg",
+    image: "/images/docs/olesea.jpg",
   },
   {
     id: "stoica-cristina",

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   ChevronDown,
   Award,
@@ -44,6 +45,7 @@ const TeamSection = () => {
       ],
       yearsExperience: 15,
       color: "gold",
+      image: "/images/docs/vitalie.jpg",
     },
     {
       id: "iliev-olesea",
@@ -64,6 +66,7 @@ const TeamSection = () => {
       ],
       yearsExperience: 10,
       color: "teal",
+      image: "/images/docs/olesea.jpg",
     },
     {
       id: "stoica-cristina",
@@ -207,6 +210,7 @@ interface TeamMember {
   achievements: Achievement[];
   yearsExperience: number;
   color: string;
+  image?: string;
 }
 
 interface TeamMemberCardProps {
@@ -235,21 +239,31 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
       style={{ animationDelay: `${index * 0.1}s` }}
     >
       <div className="relative">
-        {/* Photo Placeholder with Hover Effect */}
+        {/* Photo with Hover Effect */}
         <div className="relative h-80 bg-gradient-to-br from-gray-100 to-gray-200 group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-          {/* Placeholder Image */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div
-              className={`w-32 h-32 rounded-full ${accentColor} opacity-20 blur-3xl animate-pulse`}
-            ></div>
-            <div className="absolute">
-              <div className="w-24 h-24 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                <Stethoscope size={40} className="text-gray-400" />
+          {/* Team Member Image or Placeholder */}
+          {member.image ? (
+            <Image
+              src={member.image}
+              alt={member.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className={`w-32 h-32 rounded-full ${accentColor} opacity-20 blur-3xl animate-pulse`}
+              ></div>
+              <div className="absolute">
+                <div className="w-24 h-24 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                  <Stethoscope size={40} className="text-gray-400" />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Experience Badge */}
           <div className="absolute top-4 right-4 z-10">
