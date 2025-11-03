@@ -4,6 +4,7 @@ import NavigationHeader from "@/components/layout/NavigationHeader";
 import "./globals.css";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -109,6 +110,9 @@ export default function RootLayout({
           {/* Footer */}
           <Footer />
         </ThemeProvider>
+
+        {/* Vercel Analytics */}
+        <Analytics />
       </body>
     </html>
   );
