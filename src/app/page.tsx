@@ -5,35 +5,29 @@ import {
   TestimonialsSection,
   TeamSection,
   ContactSection,
-  DoctorSection,
-  CTASection,
   FAQSection,
 } from "@/components/sections/home";
 
 export default function Home() {
   return (
     <main className="min-h-screen">
-      {/* Hero Section - Premium Landing */}
+      {/* Hero - First impression & primary CTA */}
       <HeroSection />
 
-      {/* Services Section */}
+      {/* Services - What we offer */}
       <ServicesSection />
 
-      {/* Testimonials Section */}
-      <TestimonialsSection />
-
-      {/* Doctor Section */}
-      <DoctorSection />
-
-      {/* Team Section */}
+      {/* Team - Who will treat you (builds trust) */}
       <TeamSection />
 
-      {/* Contact Section */}
-      <ContactSection />
+      {/* Testimonials - Social proof (validates trust) */}
+      <TestimonialsSection />
 
-      <CTASection />
-
+      {/* FAQ - Answer objections before booking */}
       <FAQSection />
+
+      {/* Contact - Final conversion point */}
+      <ContactSection />
     </main>
   );
 }

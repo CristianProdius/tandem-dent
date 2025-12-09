@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export const BentoGrid = ({
   className,
@@ -23,30 +24,42 @@ export const BentoGridItem = ({
   className,
   title,
   description,
-  header,
-  icon,
+  image,
 }: {
   className?: string;
   title?: string | React.ReactNode;
   description?: string | React.ReactNode;
-  header?: React.ReactNode;
-  icon?: React.ReactNode;
+  image?: string;
 }) => {
   return (
     <div
       className={cn(
-        "group/bento shadow-input row-span-1 flex flex-col justify-between space-y-4 rounded-xl border border-neutral-200 bg-white p-4 transition duration-200 hover:shadow-xl",
+        "group/bento relative row-span-1 overflow-hidden rounded-xl transition duration-300 hover:shadow-xl",
         className,
       )}
     >
-      {header}
-      <div className="transition duration-200 group-hover/bento:translate-x-2">
-        {icon}
-        <div className="mt-2 mb-2 font-sans font-bold text-neutral-600">
-          {title}
-        </div>
-        <div className="font-sans text-xs font-normal text-neutral-600">
-          {description}
+      {/* Background Image */}
+      {image && (
+        <Image
+          src={image}
+          alt={typeof title === "string" ? title : "Service"}
+          fill
+          className="object-cover transition-transform duration-500 group-hover/bento:scale-105"
+        />
+      )}
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+      {/* Content */}
+      <div className="absolute inset-0 flex flex-col justify-end p-5">
+        <div className="transition duration-300 group-hover/bento:translate-y-[-4px]">
+          <h3 className="mb-1 font-serif text-xl font-bold text-white">
+            {title}
+          </h3>
+          <p className="text-sm text-white/80">
+            {description}
+          </p>
         </div>
       </div>
     </div>

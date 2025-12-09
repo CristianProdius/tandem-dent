@@ -1,12 +1,30 @@
 // src/data/team.ts
 
+import type { LucideIcon } from "lucide-react";
+import {
+  Award,
+  Baby,
+  Brain,
+  Calendar,
+  Heart,
+  Shield,
+  Sparkles,
+  Stethoscope,
+  Users,
+} from "lucide-react";
+
+export interface Achievement {
+  icon: LucideIcon;
+  text: string;
+}
+
 export interface TeamMember {
   id: string;
   name: string;
   role: string;
   specializations: string[];
   education: string[];
-  achievements: string[];
+  achievements: Achievement[];
   experience: number; // years
   image?: string;
   featured?: boolean;
@@ -18,6 +36,7 @@ export interface TeamMember {
   certifications?: string[];
   languages?: string[];
   bio?: string;
+  color: "gold" | "teal";
 }
 
 export const mainDoctor: TeamMember = {
@@ -32,14 +51,13 @@ export const mainDoctor: TeamMember = {
     "Certificări internaționale în implantologie modernă",
   ],
   achievements: [
-    "Peste 3000 de implanturi plasate cu succes",
-    "15+ ani experiență în stomatologie",
-    "Membru al Asociației Stomatologilor din Moldova",
-    "Speaker la conferințe internaționale de implantologie",
-    "Trainer certificat pentru sisteme de implanturi premium",
+    { icon: Brain, text: "Peste 3000 de implanturi plasate cu succes" },
+    { icon: Calendar, text: "15+ ani experiență în stomatologie" },
+    { icon: Award, text: "Membru al Asociației Stomatologilor din Moldova" },
+    { icon: Users, text: "Speaker la conferințe internaționale" },
   ],
   experience: 15,
-  image: "/images/team/dr-capatina.jpg",
+  image: "/images/docs/vitalie.jpg",
   featured: true,
   stats: {
     implants: 3000,
@@ -54,6 +72,7 @@ export const mainDoctor: TeamMember = {
   ],
   languages: ["Română", "Русский", "English"],
   bio: "Cu o pasiune pentru excelența în stomatologie și o dedicare față de bunăstarea pacienților, Dr. Căpățină Vitalie aduce peste 15 ani de experiență în tratamente dentare complexe și implanturi de ultimă generație.",
+  color: "gold",
 };
 
 export const teamMembers: TeamMember[] = [
@@ -69,19 +88,20 @@ export const teamMembers: TeamMember[] = [
       "Curs avansat Invisalign",
     ],
     achievements: [
-      "10 ani experiență în ortodonție",
-      "Gold Invisalign Provider",
-      "Specialist în aparate dentare pentru copii și adulți",
-      "Peste 500 cazuri Invisalign tratate cu succes",
+      { icon: Calendar, text: "10 ani experiență în ortodonție" },
+      { icon: Award, text: "Gold Invisalign Provider" },
+      { icon: Users, text: "Specialist în aparate dentare pentru copii și adulți" },
+      { icon: Sparkles, text: "Peste 500 cazuri Invisalign tratate cu succes" },
     ],
     experience: 10,
-    image: "/images/team/dr-iliev.jpg",
+    image: "/images/docs/olesea.jpg",
     featured: true,
     stats: {
       patients: 2000,
       procedures: 3000,
     },
     languages: ["Română", "Русский", "English"],
+    color: "teal",
   },
   {
     id: "stoica-cristina",
@@ -98,15 +118,16 @@ export const teamMembers: TeamMember[] = [
       "Curs de endodonție microscopică",
     ],
     achievements: [
-      "Abordare specială față de copii",
-      "Specialist în tratamente minim invazive",
-      "Experiență în sedare conștientă pentru copii",
-      "7 ani experiență în stomatologie pediatrică",
+      { icon: Baby, text: "Abordare specială față de copii" },
+      { icon: Heart, text: "Specialist în tratamente minim invazive" },
+      { icon: Sparkles, text: "Experiență în sedare conștientă pentru copii" },
+      { icon: Calendar, text: "7 ani experiență în stomatologie pediatrică" },
     ],
     experience: 7,
     image: "/images/team/dr-stoica.jpg",
     featured: false,
     languages: ["Română", "Русский"],
+    color: "gold",
   },
   {
     id: "ambrosi-liudmila",
@@ -123,16 +144,27 @@ export const teamMembers: TeamMember[] = [
       "Curs de prim ajutor avansat",
     ],
     achievements: [
-      "Cu noi din 2020",
-      "Certificat în managementul sterilizării",
-      "Specialist în asistență chirurgicală",
-      "Coordonator al echipei de asistenți",
+      { icon: Calendar, text: "Cu noi din 2020" },
+      { icon: Shield, text: "Certificat în managementul sterilizării" },
+      { icon: Stethoscope, text: "Specialist în asistență chirurgicală" },
+      { icon: Users, text: "Coordonator al echipei de asistenți" },
     ],
     experience: 8,
     image: "/images/team/ambrosi.jpg",
     featured: false,
     languages: ["Română", "Русский"],
+    color: "teal",
   },
+];
+
+// Floating icons configuration for background animation
+export const floatingIconsConfig = [
+  { left: "10%", top: "15%", delay: 0, icon: Stethoscope },
+  { left: "85%", top: "20%", delay: 0.5, icon: Heart },
+  { left: "20%", top: "70%", delay: 1, icon: Shield },
+  { left: "75%", top: "60%", delay: 1.5, icon: Stethoscope },
+  { left: "40%", top: "30%", delay: 2, icon: Heart },
+  { left: "60%", top: "85%", delay: 2.5, icon: Shield },
 ];
 
 // Team statistics

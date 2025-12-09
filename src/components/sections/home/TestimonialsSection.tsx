@@ -1,26 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useTransform,
-  PanInfo,
-} from "motion/react";
-import {
-  Star,
-  Quote,
-  ChevronLeft,
-  ChevronRight,
-  MessageSquare,
-  ThumbsUp,
-  Award,
-  Heart,
-} from "lucide-react";
+import { motion, AnimatePresence, PanInfo } from "motion/react";
+import { Star, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import { SectionHeader } from "@/components/common";
 
-// Google Icon Component
 const GoogleIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
@@ -49,322 +33,174 @@ const GoogleIcon = ({ className }: { className?: string }) => (
 interface Testimonial {
   id: number;
   name: string;
-  role: string;
   content: string;
   rating: number;
-  date?: string;
-  verified?: boolean;
+  date: string;
 }
 
 const testimonials: Testimonial[] = [
   {
     id: 1,
     name: "Diana S.",
-    role: "Pacientă",
     content:
       "O echipă de profesioniști! Servicii excelente, atmosferă prietenoasă și rezultate foarte bune. Recomand cu drag!",
     rating: 5,
     date: "2024",
-    verified: true,
   },
   {
     id: 2,
     name: "Irina Jeman",
-    role: "Pacientă",
     content:
-      "Oameni minunați, răbdători, care dau dovadă de profesionalism! O echipă care oferă servicii de calitate cu o experiență de apreciat! Vă mulțumesc pentru tot ce ați făcut și faceți pentru mine! Baftă în continuare și o să vă recomand și în continuare cu mare drag!",
+      "Oameni minunați, răbdători, care dau dovadă de profesionalism! O echipă care oferă servicii de calitate cu o experiență de apreciat! Vă mulțumesc pentru tot ce ați făcut și faceți pentru mine!",
     rating: 5,
     date: "2024",
-    verified: true,
   },
   {
     id: 3,
     name: "Andrei Minzarari",
-    role: "Pacient",
     content:
       "Un colectiv și un grup de profesioniști fenomenali! Vă consiliez această stomatologie de super calitate!",
     rating: 5,
     date: "2024",
-    verified: true,
   },
-];
-
-// Additional testimonials for the full carousel
-const additionalTestimonials: Testimonial[] = [
   {
     id: 4,
-    name: "Ina Braguta",
-    role: "Pacientă",
-    content: "Cei mai buni!",
-    rating: 5,
-    date: "2024",
-    verified: true,
-  },
-  {
-    id: 5,
     name: "Maxim Stricaci",
-    role: "Pacient",
     content:
       "Stomatologie bună, muncă de calitate. Operația a fost făcută cât mai confortabil, plus că setarea psihologică a fost corectă. Vă recomand!",
     rating: 5,
     date: "2024",
-    verified: true,
   },
   {
-    id: 6,
+    id: 5,
     name: "Dasha Sk",
-    role: "Pacientă",
     content:
       "Super clinică. Îl cunosc pe ortodont și chirurgul din 2016 ca pacient. Chirurgul a scos măseaua de minte, astfel încât să nu simt nimic.",
     rating: 5,
     date: "2024",
-    verified: true,
   },
 ];
-
-const allTestimonials = [...testimonials, ...additionalTestimonials];
-
-interface TestimonialCardProps {
-  testimonial: Testimonial;
-  isActive: boolean;
-}
-
-const TestimonialCard: React.FC<TestimonialCardProps> = ({
-  testimonial,
-  isActive,
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{
-        opacity: isActive ? 1 : 0,
-        scale: isActive ? 1 : 0.9,
-      }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
-      className="w-full"
-    >
-      <div className="relative max-w-3xl mx-auto">
-        {/* Quote Background Decoration */}
-        <div className="absolute -top-6 -left-6 text-gold-500/10">
-          <Quote className="w-24 h-24 fill-current" />
-        </div>
-
-        {/* Light themed card with subtle shadow instead of glass effect */}
-        <div className="relative bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gold-500/20 hover:shadow-2xl transition-shadow duration-300">
-          {/* Rating Stars */}
-          <div className="flex items-center gap-1 mb-6">
-            {[...Array(5)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, rotate: -180 }}
-                animate={{ opacity: 1, rotate: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Star className="w-5 h-5 fill-gold-400 text-gold-400" />
-              </motion.div>
-            ))}
-            {testimonial.verified && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.6, type: "spring" }}
-                className="ml-2 flex items-center gap-1 px-2 py-1 bg-teal-50 rounded-full"
-              >
-                <ThumbsUp className="w-3 h-3 text-teal-600" />
-                <span className="text-xs text-teal-700 font-medium">
-                  Verificat
-                </span>
-              </motion.div>
-            )}
-          </div>
-
-          {/* Testimonial Content */}
-          <blockquote className="relative">
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-700 leading-relaxed italic mb-6">
-              &quot;{testimonial.content}&quot;
-            </p>
-          </blockquote>
-
-          {/* Author Info */}
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-semibold text-lg text-gray-900">
-                {testimonial.name}
-              </div>
-              <div className="text-sm text-gray-600">
-                {testimonial.role} • {testimonial.date}
-              </div>
-            </div>
-
-            {/* Heart Icon */}
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="text-red-400"
-            >
-              <Heart className="w-6 h-6 fill-current" />
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Quote End Decoration */}
-        <div className="absolute -bottom-6 -right-6 text-gold-500/10 rotate-180">
-          <Quote className="w-24 h-24 fill-current" />
-        </div>
-      </div>
-    </motion.div>
-  );
-};
 
 const TestimonialsSection: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const x = useMotionValue(0);
-  const opacity = useTransform(x, [-100, 0, 100], [0.5, 1, 0.5]);
-  const scale = useTransform(x, [-100, 0, 100], [0.95, 1, 0.95]);
 
   const nextTestimonial = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % allTestimonials.length);
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
   }, []);
 
   const prevTestimonial = useCallback(() => {
     setCurrentIndex(
-      (prev) => (prev - 1 + allTestimonials.length) % allTestimonials.length
+      (prev) => (prev - 1 + testimonials.length) % testimonials.length
     );
   }, []);
 
-  const goToTestimonial = useCallback((index: number) => {
-    setCurrentIndex(index);
-  }, []);
-
-  // Auto-play functionality
   useEffect(() => {
     if (!isPaused) {
-      intervalRef.current = setInterval(() => {
-        nextTestimonial();
-      }, 5000);
+      intervalRef.current = setInterval(nextTestimonial, 6000);
     }
-
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [currentIndex, isPaused, nextTestimonial]);
+  }, [isPaused, nextTestimonial]);
 
-  // Handle swipe gestures
   const handleDragEnd = (
-    event: MouseEvent | TouchEvent | PointerEvent,
+    _event: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo
   ) => {
-    const threshold = 50;
-    if (info.offset.x > threshold) {
-      prevTestimonial();
-    } else if (info.offset.x < -threshold) {
-      nextTestimonial();
-    }
+    if (info.offset.x > 50) prevTestimonial();
+    else if (info.offset.x < -50) nextTestimonial();
   };
+
+  const current = testimonials[currentIndex];
 
   return (
     <section
-      className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-white via-gray-50 to-gold-50/20"
+      className="py-20 lg:py-28 bg-gradient-to-b from-white via-gray-50/50 to-white"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      id="testimonials"
     >
-      {/* Light Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(212, 175, 55, 0.1) 1px, transparent 1px)`,
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
-
-      {/* Floating Elements with lighter colors */}
-      <motion.div
-        animate={{
-          y: [0, -20, 0],
-          x: [0, 10, 0],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-gold-200/20 to-gold-300/20 rounded-full blur-3xl"
-      />
-
-      <motion.div
-        animate={{
-          y: [0, 20, 0],
-          x: [0, -10, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="absolute bottom-10 right-10 w-40 h-40 bg-gradient-to-br from-teal-200/20 to-teal-300/20 rounded-full blur-3xl"
-      />
-
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Section Header */}
+      <div className="container mx-auto px-4">
         <SectionHeader
-          badge={{ icon: MessageSquare, text: "Părerile Pacienților", color: "gold" }}
+          badge={{ icon: MessageSquare, text: "Recenzii", color: "gold" }}
           title="Ce Spun Pacienții Noștri"
-          description="Încrederea și satisfacția pacienților noștri sunt cele mai importante mărturii ale muncii noastre"
+          description="Feedback-ul pacienților noștri ne motivează să oferim servicii de cea mai înaltă calitate"
         />
 
-        {/* Testimonials Carousel */}
-        <motion.div className="relative" style={{ opacity, scale }}>
+        {/* Testimonial Card */}
+        <div className="relative max-w-2xl mx-auto">
           <motion.div
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
+            dragElastic={0.1}
             onDragEnd={handleDragEnd}
-            style={{ x }}
             className="cursor-grab active:cursor-grabbing"
           >
             <AnimatePresence mode="wait">
-              <TestimonialCard
+              <motion.div
                 key={currentIndex}
-                testimonial={allTestimonials[currentIndex]}
-                isActive={true}
-              />
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100"
+              >
+                {/* Stars */}
+                <div className="flex gap-1 mb-4">
+                  {[...Array(current.rating)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                    />
+                  ))}
+                </div>
+
+                {/* Quote */}
+                <p className="text-gray-700 text-lg leading-relaxed mb-6">
+                  &quot;{current.content}&quot;
+                </p>
+
+                {/* Author */}
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium text-gray-900">
+                    {current.name}
+                  </span>
+                  <span className="mx-2">•</span>
+                  <span>{current.date}</span>
+                </div>
+              </motion.div>
             </AnimatePresence>
           </motion.div>
 
-          {/* Navigation Arrows - Light theme */}
+          {/* Navigation Arrows */}
           <button
             onClick={prevTestimonial}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg border border-gold-200 flex items-center justify-center hover:bg-gold-50 transition-colors group"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 w-10 h-10 rounded-full bg-white shadow border border-gray-100 items-center justify-center hover:bg-gray-50 transition-colors hidden md:flex"
             aria-label="Previous testimonial"
           >
-            <ChevronLeft className="w-6 h-6 text-gray-700 group-hover:text-gold-600 transition-colors" />
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
           </button>
 
           <button
             onClick={nextTestimonial}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg border border-gold-200 flex items-center justify-center hover:bg-gold-50 transition-colors group"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 w-10 h-10 rounded-full bg-white shadow border border-gray-100 items-center justify-center hover:bg-gray-50 transition-colors hidden md:flex"
             aria-label="Next testimonial"
           >
-            <ChevronRight className="w-6 h-6 text-gray-700 group-hover:text-gold-600 transition-colors" />
+            <ChevronRight className="w-5 h-5 text-gray-600" />
           </button>
-        </motion.div>
+        </div>
 
-        {/* Navigation Dots */}
-        <div className="flex justify-center gap-2 mt-8">
-          {allTestimonials.map((_, index) => (
+        {/* Dots */}
+        <div className="flex justify-center gap-2 mt-6">
+          {testimonials.map((_, index) => (
             <button
               key={index}
-              onClick={() => goToTestimonial(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              onClick={() => setCurrentIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
                 index === currentIndex
-                  ? "w-8 bg-gradient-to-r from-gold-400 to-gold-600"
+                  ? "w-6 bg-yellow-500"
                   : "bg-gray-300 hover:bg-gray-400"
               }`}
               aria-label={`Go to testimonial ${index + 1}`}
@@ -372,59 +208,26 @@ const TestimonialsSection: React.FC = () => {
           ))}
         </div>
 
-        {/* Google Reviews Badge - Light theme */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="mt-12 text-center"
-        >
+        {/* Google Reviews Link */}
+        <div className="mt-8 text-center">
           <a
-            href="https://www.google.com/search?q=tandem+dent+chisinau"
+            href="https://www.google.com/search?q=tandem+dent+chisinau+reviews"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-6 py-3 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow group border border-gray-100"
+            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
           >
-            <GoogleIcon className="w-6 h-6" />
-            <div className="flex items-center gap-2">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className="w-4 h-4 fill-gold-400 text-gold-400"
-                  />
-                ))}
-              </div>
-              <span className="text-sm font-medium text-gray-700">
-                5.0 pe Google Reviews
-              </span>
+            <GoogleIcon className="w-4 h-4" />
+            <span>5.0 pe Google Reviews</span>
+            <div className="flex gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className="w-3 h-3 fill-yellow-400 text-yellow-400"
+                />
+              ))}
             </div>
-            <Award className="w-5 h-5 text-gold-500 group-hover:rotate-12 transition-transform" />
           </a>
-        </motion.div>
-
-        {/* Stats - Light theme cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6 }}
-          className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mt-12"
-        >
-          <div className="text-center bg-white rounded-xl p-4 shadow-md border border-gold-100">
-            <div className="text-3xl font-bold text-gradient-gold">98%</div>
-            <div className="text-sm text-gray-600">Pacienți Mulțumiți</div>
-          </div>
-          <div className="text-center bg-white rounded-xl p-4 shadow-md border border-gold-100">
-            <div className="text-3xl font-bold text-gradient-gold">3000+</div>
-            <div className="text-sm text-gray-600">Recenzii Pozitive</div>
-          </div>
-          <div className="text-center bg-white rounded-xl p-4 shadow-md border border-gold-100">
-            <div className="text-3xl font-bold text-gradient-gold">5.0</div>
-            <div className="text-sm text-gray-600">Rating Mediu</div>
-          </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -19,6 +19,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://tandemdent.md"),
   title: "Tandem Dent - Clinică Stomatologică Premium în Chișinău",
   description:
     "Clinica Stomatologică Tandem Dent oferă servicii stomatologice complete în Chișinău. Implantologie, ortodonție, estetică dentară cu echipamente moderne.",
