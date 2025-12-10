@@ -269,8 +269,11 @@
       "submitting": "Sending..."
     },
     "success": {
-      "title": "Appointment Sent!",
-      "message": "We will contact you soon for confirmation."
+      "title": "Thank you, {name}!",
+      "message": "Your request for {service} has been received. We will contact you as soon as possible to schedule your appointment.",
+      "alreadySent": "You have already sent a request recently",
+      "alreadySentMessage": "We have received your request and will contact you soon.",
+      "sendAnother": "Send another request"
     }
   },
   "footer": {

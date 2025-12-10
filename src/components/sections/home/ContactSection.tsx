@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   Phone,
@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Loader2,
   CheckCircle,
+  RefreshCw,
 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons";
 import {
@@ -45,6 +46,14 @@ interface FormErrors {
   service?: string;
 }
 
+interface SubmissionData {
+  name: string;
+  service: string;
+  timestamp: number;
+}
+
+const STORAGE_KEY = "tandemdent_last_submission";
+
 // Get service names from constants
 const services = SERVICES.main.map((s) => s.name);
 
@@ -65,6 +74,25 @@ const ContactSection: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [submittedData, setSubmittedData] = useState<SubmissionData | null>(null);
+  const [hasRecentSubmission, setHasRecentSubmission] = useState(false);
+
+  // Check for recent submission in localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const data: SubmissionData = JSON.parse(stored);
+      setSubmittedData(data);
+      setHasRecentSubmission(true);
+    }
+  }, []);
+
+  const resetForm = useCallback(() => {
+    setHasRecentSubmission(false);
+    setIsSuccess(false);
+    setSubmittedData(null);
+    setFormData({ name: "", phone: "", email: "", service: "", message: "" });
+  }, []);
 
   // Check if clinic is open
   useEffect(() => {
@@ -120,14 +148,36 @@ const ContactSection: React.FC = () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    setIsSuccess(true);
 
-    setTimeout(() => {
-      setFormData({ name: "", phone: "", email: "", service: "", message: "" });
-      setIsSuccess(false);
-    }, 3000);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit form");
+      }
+
+      // Save to localStorage
+      const submission: SubmissionData = {
+        name: formData.name,
+        service: formData.service,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(submission));
+      setSubmittedData(submission);
+      setIsSuccess(true);
+      setHasRecentSubmission(true);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      alert("A apărut o eroare. Vă rugăm încercați din nou sau contactați-ne telefonic.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -153,7 +203,46 @@ const ContactSection: React.FC = () => {
               {t("formTitle")}
             </h3>
 
-            {!isSuccess ? (
+            {/* Show success/already submitted state */}
+            {(isSuccess || hasRecentSubmission) && submittedData ? (
+              <div className="text-center py-8">
+                {/* Animated checkmark */}
+                <div className="relative w-20 h-20 mx-auto mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-pulse opacity-20" />
+                  <div className="absolute inset-2 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                    <CheckCircle className="w-10 h-10 text-white" />
+                  </div>
+                </div>
+
+                {/* Personalized message */}
+                <h4 className="text-2xl font-bold text-gray-900 mb-3">
+                  {t("success.title", { name: submittedData.name })}
+                </h4>
+                <p className="text-gray-600 mb-6 max-w-sm mx-auto leading-relaxed">
+                  {isSuccess
+                    ? t("success.message", { service: submittedData.service })
+                    : t("success.alreadySentMessage")}
+                </p>
+
+                {/* Already sent notice */}
+                {hasRecentSubmission && !isSuccess && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                    <p className="text-amber-800 text-sm font-medium">
+                      {t("success.alreadySent")}
+                    </p>
+                  </div>
+                )}
+
+                {/* Send another request button */}
+                <button
+                  onClick={resetForm}
+                  className="inline-flex items-center gap-2 px-6 py-3 text-gold-700 bg-gold-50 hover:bg-gold-100 rounded-xl transition-all duration-300 font-medium"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  {t("success.sendAnother")}
+                </button>
+              </div>
+            ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <FloatingLabelInput
@@ -243,16 +332,6 @@ const ContactSection: React.FC = () => {
                   )}
                 </button>
               </form>
-            ) : (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-white" />
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">
-                  {t("success.title")}
-                </h4>
-                <p className="text-gray-600">{t("success.message")}</p>
-              </div>
             )}
           </div>
 

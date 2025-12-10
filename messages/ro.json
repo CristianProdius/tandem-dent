@@ -269,8 +269,11 @@
       "submitting": "Se trimite..."
     },
     "success": {
-      "title": "Programare Trimisă!",
-      "message": "Vă vom contacta în curând pentru confirmare."
+      "title": "Mulțumim, {name}!",
+      "message": "Cererea dumneavoastră pentru {service} a fost primită. Vă vom contacta în cel mai scurt timp pentru a stabili programarea.",
+      "alreadySent": "Ați trimis deja o cerere recent",
+      "alreadySentMessage": "Am primit cererea dumneavoastră și vă vom contacta în curând.",
+      "sendAnother": "Trimite o nouă cerere"
     }
   },
   "footer": {
