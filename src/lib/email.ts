@@ -28,19 +28,6 @@ export async function sendContactNotification(data: ContactEmailData) {
     minute: "2-digit",
   });
 
-  // Brand colors from globals.css
-  const colors = {
-    gold500: "#d4af37",
-    gold600: "#b89229",
-    gold700: "#8b6e20",
-    gold50: "#fbf8ec",
-    gold100: "#f6f0d4",
-    darkBg: "#0f172a",
-    gray900: "#0f172a",
-    gray600: "#475569",
-    gray400: "#94a3b8",
-  };
-
   const htmlContent = `
     <!DOCTYPE html>
     <html>
