@@ -1,0 +1,356 @@
+{
+  "meta": {
+    "title": "Tandem Dent - Clinică Stomatologică Premium în Chișinău",
+    "description": "Clinica Stomatologică Tandem Dent oferă servicii stomatologice complete în Chișinău. Implantologie, ortodonție, estetică dentară cu echipamente moderne.",
+    "keywords": "stomatologie Chișinău, dentist Chișinău, implant dentar, ortodonție, Tandem Dent, clinică dentară",
+    "ogTitle": "Tandem Dent - Zâmbete Sănătoase în Chișinău",
+    "ogDescription": "Pentru noi eficacitatea tratamentului și siguranța pacienților este prioritară!"
+  },
+  "common": {
+    "clinicName": "Tandem Dent",
+    "clinicFullName": "Clinica Stomatologică Tandem Dent",
+    "tagline": "Zâmbete Sănătoase în Chișinău",
+    "motto": "Pentru noi eficacitatea tratamentului și siguranța pacienților este prioritară!",
+    "phone": "Telefon",
+    "email": "Email",
+    "address": "Adresă",
+    "schedule": "Program",
+    "scheduleDisplay": "Luni-Vineri: 9:00-18:00",
+    "scheduleShort": "L-V: 9-18",
+    "closed": "Închis",
+    "open": "Deschis",
+    "whatsapp": "WhatsApp",
+    "writeUs": "Scrie-ne",
+    "send": "Trimite",
+    "loading": "Se încarcă...",
+    "sending": "Se trimite...",
+    "success": "Succes!",
+    "error": "Eroare",
+    "required": "obligatoriu",
+    "optional": "opțional",
+    "years": "ani",
+    "yearsExperience": "ani experiență",
+    "patients": "pacienți",
+    "satisfiedPatients": "pacienți mulțumiți",
+    "procedures": "proceduri",
+    "readMore": "Citește mai mult",
+    "learnMore": "Află mai mult",
+    "viewAll": "Vezi toate",
+    "backToTop": "Înapoi sus",
+    "openInMaps": "Deschide în Maps",
+    "freeParking": "Parcare gratuită în fața clinicii",
+    "paymentMethods": "Metode de plată"
+  },
+  "nav": {
+    "home": "Acasă",
+    "about": "Despre Noi",
+    "services": "Servicii",
+    "team": "Echipa",
+    "testimonials": "Testimoniale",
+    "faq": "Întrebări Frecvente",
+    "contact": "Contact",
+    "appointment": "Programează",
+    "callNow": "Sună Acum",
+    "openMenu": "Deschide meniul",
+    "closeMenu": "Închide meniul",
+    "changeLanguage": "Schimbă limba",
+    "selectLanguage": "Selectează Limba",
+    "quickContact": "Contact Rapid"
+  },
+  "hero": {
+    "badge": "Clinică Premium în Chișinău",
+    "title1": "Zâmbete Sănătoase",
+    "title2": "în Chișinău",
+    "subtitle": "Pentru noi eficacitatea tratamentului și siguranța pacienților este prioritară!",
+    "ctaPrimary": "Programează-te Acum",
+    "ctaSecondary": "Sună Acum",
+    "scheduleLabel": "Program",
+    "scheduleValue": "Luni-Vineri: 9:00-18:00",
+    "locationLabel": "Locație",
+    "locationValue": "Str. N. Zelinski 5/8",
+    "phoneLabel": "Telefon",
+    "phoneValue": "061 234 555",
+    "scrollIndicator": "Descoperă Mai Mult"
+  },
+  "services": {
+    "badge": "Servicii Premium",
+    "title": "Serviciile Noastre",
+    "description": "Clinica Stomatologică Tandem Dent îți pune la dispoziție un spectru larg de servicii stomatologice, la cel mai înalt nivel",
+    "yearsExperience": "ani experiență",
+    "satisfiedPatients": "pacienți mulțumiți",
+    "cta": "Programează o Consultație",
+    "items": {
+      "terapieDentara": {
+        "name": "Terapie dentară",
+        "description": "Tratamente complete pentru sănătatea dinților"
+      },
+      "ortopedieDentara": {
+        "name": "Ortopedie dentară",
+        "description": "Restaurări complete și funcționale"
+      },
+      "ortodontie": {
+        "name": "Ortodonție",
+        "description": "Aliniere perfectă cu tehnologii moderne"
+      },
+      "implantologie": {
+        "name": "Implantologie",
+        "description": "Soluții permanente pentru dinți lipsă"
+      },
+      "chirurgieOrala": {
+        "name": "Chirurgie orală",
+        "description": "Intervenții sigure și minim invazive"
+      },
+      "esteticaDentara": {
+        "name": "Estetică dentară",
+        "description": "Pentru un zâmbet perfect și strălucitor"
+      },
+      "proteticaDentara": {
+        "name": "Protetică dentară",
+        "description": "Restaurări complete și estetice"
+      },
+      "endodontie": {
+        "name": "Endodonție",
+        "description": "Salvarea dinților prin tratamente de canal"
+      },
+      "tratamentCanal": {
+        "name": "Tratament de Canal",
+        "description": "Tratamente complete pentru sănătatea dinților"
+      },
+      "ortodontieInvisalign": {
+        "name": "Ortodonție Invisalign",
+        "description": "Aliniere perfectă cu Invisalign"
+      }
+    },
+    "navDescriptions": {
+      "terapieDentara": "Tratamente complete pentru sănătatea dinților",
+      "ortopedieDentara": "Restaurări complete și funcționale",
+      "ortodontie": "Aliniere perfectă cu Invisalign",
+      "implantologie": "Soluții permanente pentru dinți lipsă",
+      "chirurgieOrala": "Intervenții sigure și moderne"
+    }
+  },
+  "team": {
+    "badge": "Echipa Noastră",
+    "title": "Cunoaște Echipa",
+    "description": "Profesioniști dedicați pentru sănătatea ta dentară",
+    "yearsExperience": "ani experiență în",
+    "bookAppointment": "Programează",
+    "members": {
+      "capatinaVitalie": {
+        "name": "Dr. Căpățină Vitalie",
+        "role": "Medic Stomatolog Principal",
+        "specializations": ["Implantologie", "Chirurgie Orală", "Ortopedie Dentară"]
+      },
+      "ilievOlesea": {
+        "name": "Dr. Iliev Olesea",
+        "role": "Medic Ortodont",
+        "specializations": ["Ortodonție", "Ortodonție pentru copii", "Invisalign"]
+      },
+      "stoicaCristina": {
+        "name": "Dr. Stoica Cristina",
+        "role": "Medic Stomatolog",
+        "specializations": ["Stomatologie Pediatrică", "Terapie Dentară", "Endodonție"]
+      },
+      "ambrosiLiudmila": {
+        "name": "Ambrosi Liudmila",
+        "role": "Asistent Medical Principal",
+        "specializations": ["Asistență Medicală", "Sterilizare", "Management cabinet"]
+      }
+    }
+  },
+  "testimonials": {
+    "badge": "Recenzii",
+    "title": "Ce Spun Pacienții Noștri",
+    "description": "Feedback-ul pacienților noștri ne motivează să oferim servicii de cea mai înaltă calitate",
+    "googleReviews": "5.0 pe Google Reviews",
+    "previousPage": "Pagina anterioară",
+    "nextPage": "Pagina următoare",
+    "goToPage": "Mergi la pagina {page}",
+    "items": {
+      "1": {
+        "name": "Diana S.",
+        "content": "O echipă de profesioniști! Servicii excelente, atmosferă prietenoasă și rezultate foarte bune. Recomand cu drag!"
+      },
+      "2": {
+        "name": "Irina Jeman",
+        "content": "Oameni minunați, răbdători, care dau dovadă de profesionalism! O echipă care oferă servicii de calitate cu o experiență de apreciat!"
+      },
+      "3": {
+        "name": "Andrei Minzarari",
+        "content": "Un colectiv și un grup de profesioniști fenomenali! Vă consiliez această stomatologie de super calitate!"
+      },
+      "4": {
+        "name": "Maxim Stricaci",
+        "content": "Stomatologie bună, muncă de calitate. Operația a fost făcută cât mai confortabil, plus că setarea psihologică a fost corectă."
+      },
+      "5": {
+        "name": "Dasha Sk",
+        "content": "Super clinică. Îl cunosc pe ortodont și chirurgul din 2016 ca pacient. Chirurgul a scos măseaua de minte fără durere."
+      },
+      "6": {
+        "name": "Elena M.",
+        "content": "Medici profesioniști și atenți. Am fost foarte mulțumită de servicii și de atmosfera din clinică. Recomand!"
+      }
+    }
+  },
+  "faq": {
+    "badge": "FAQ",
+    "title": "Întrebări Frecvente",
+    "description": "Răspunsuri la cele mai comune întrebări ale pacienților noștri",
+    "searchPlaceholder": "Caută în întrebări...",
+    "resultsFor": "{count} rezultate pentru \"{term}\"",
+    "noResults": "Nu am găsit întrebări pentru căutarea ta.",
+    "resetSearch": "Resetează căutarea",
+    "notFoundTitle": "Nu ai găsit răspunsul?",
+    "notFoundDescription": "Completează formularul de contact și te vom ajuta cu orice întrebare",
+    "contactUs": "Contactează-ne",
+    "categories": {
+      "general": "Generale",
+      "treatments": "Tratamente",
+      "costs": "Costuri și Plăți"
+    },
+    "questions": {
+      "general": {
+        "1": {
+          "question": "Cât de des trebuie să merg la control?",
+          "answer": "Recomandăm control la fiecare 6 luni. Aceasta ajută la depistarea timpurie a problemelor, când tratamentul este mai simplu și mai ieftin."
+        },
+        "2": {
+          "question": "De la ce vârstă pot aduce copilul?",
+          "answer": "Recomandăm prima vizită la 2-3 ani sau când apar toți dinții de lapte. Facem vizita distractivă pentru cei mici!"
+        },
+        "3": {
+          "question": "Cât timp durează vindecarea după extracție?",
+          "answer": "Vindecarea inițială durează 1-2 săptămâni. Vindecarea completă a osului durează 3-6 luni."
+        }
+      },
+      "treatments": {
+        "1": {
+          "question": "Tratamentele dor?",
+          "answer": "Folosim cele mai moderne metode de anestezie. Majoritatea pacienților nu simt durere în timpul tratamentului. Confortul tău este prioritatea noastră."
+        },
+        "2": {
+          "question": "Albirea dentară îmi strică smalțul?",
+          "answer": "Nu, albirea profesională făcută corect este sigură. Folosim produse certificate care protejează smalțul."
+        },
+        "3": {
+          "question": "Cât durează un implant dentar?",
+          "answer": "Procesul complet durează 3-6 luni. Prima etapă (plasarea implantului) durează aproximativ 1 oră."
+        }
+      },
+      "costs": {
+        "1": {
+          "question": "Cât costă o consultație?",
+          "answer": "Prima consultație pentru pacienți noi este GRATUITĂ. Include examinarea completă și plan de tratament."
+        },
+        "2": {
+          "question": "Acceptați asigurarea CNAM?",
+          "answer": "Da, acceptăm asigurarea CNAM pentru serviciile acoperite. Echipa noastră te va ajuta cu documentele necesare."
+        },
+        "3": {
+          "question": "Pot plăti în rate?",
+          "answer": "Da! Oferim rate fără dobândă pentru tratamente peste 3.000 MDL. Aprobarea se face pe loc."
+        }
+      }
+    }
+  },
+  "contact": {
+    "badge": "Contact & Locație",
+    "title": "Programează o Vizită",
+    "description": "Suntem aici pentru a-ți oferi cel mai bun tratament. Contactează-ne pentru o programare.",
+    "formTitle": "Formular de Programare",
+    "form": {
+      "name": "Nume complet",
+      "phone": "Telefon",
+      "email": "Email (opțional)",
+      "service": "Selectați serviciul dorit",
+      "message": "Mesaj (opțional)",
+      "submit": "Trimite Programarea",
+      "submitting": "Se trimite..."
+    },
+    "success": {
+      "title": "Programare Trimisă!",
+      "message": "Vă vom contacta în curând pentru confirmare."
+    }
+  },
+  "footer": {
+    "tagline": "Pentru noi eficacitatea tratamentului și siguranța pacienților este prioritară.",
+    "sections": {
+      "services": "Servicii",
+      "information": "Informații",
+      "contact": "Contact",
+      "newsletter": "Newsletter"
+    },
+    "links": {
+      "implantologie": "Implantologie",
+      "ortodontieInvisalign": "Ortodonție Invisalign",
+      "esteticaDentara": "Estetică Dentară",
+      "chirurgieOrala": "Chirurgie Orală",
+      "tratamentCanal": "Tratament de Canal",
+      "aboutUs": "Despre Noi",
+      "ourTeam": "Echipa Noastră",
+      "faq": "Întrebări Frecvente",
+      "contact": "Contact"
+    },
+    "legal": {
+      "privacy": "Politica de Confidențialitate",
+      "terms": "Termeni și Condiții",
+      "cookies": "Politica Cookie",
+      "gdpr": "GDPR"
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Primește sfaturi pentru sănătatea orală",
+      "placeholder": "Email-ul tău",
+      "subscribe": "Abonează-te",
+      "subscribed": "Înscris!",
+      "noSpam": "* Nu trimitem spam.",
+      "invalidEmail": "Vă rugăm introduceți o adresă de email validă"
+    },
+    "copyright": "© {year} Tandem Dent. Toate drepturile rezervate.",
+    "madeWith": "Realizat cu ❤️ în Chișinău"
+  },
+  "errors": {
+    "pageTitle": "Oops! Ceva nu a mers bine",
+    "pageMessage": "Ne pare rău, a apărut o eroare neașteptată.",
+    "tryAgain": "Încearcă din nou",
+    "notFound": {
+      "code": "404",
+      "title": "Pagină Negăsită",
+      "sorry": "Ne pare rău!",
+      "message": "Pagina pe care o căutați nu există sau a fost mutată. Vă rugăm să verificați adresa URL sau să navigați către una dintre paginile noastre principale.",
+      "links": {
+        "home": "Pagina Principală",
+        "homeSubtitle": "Înapoi acasă",
+        "services": "Servicii",
+        "servicesSubtitle": "Vezi tratamentele",
+        "contact": "Contact",
+        "contactSubtitle": "Contactează-ne",
+        "appointment": "Programare",
+        "appointmentSubtitle": "Fă o programare"
+      },
+      "backHome": "Înapoi la Pagina Principală",
+      "previousPage": "Pagina Anterioară",
+      "needHelp": "Aveți nevoie de ajutor? Sunați-ne la"
+    }
+  },
+  "validation": {
+    "email": {
+      "required": "Email-ul este obligatoriu",
+      "invalid": "Email invalid"
+    },
+    "phone": {
+      "required": "Telefonul este obligatoriu",
+      "invalid": "Număr de telefon invalid"
+    },
+    "name": {
+      "required": "Numele este obligatoriu",
+      "minLength": "Numele trebuie să aibă cel puțin 2 caractere"
+    },
+    "service": {
+      "required": "Selectați un serviciu"
+    },
+    "required": "Acest câmp este obligatoriu",
+    "fieldRequired": "{field} este obligatoriu"
+  }
+}

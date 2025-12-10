@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import {
   Phone,
@@ -12,6 +11,8 @@ import {
 import { useClinicInfo } from "@/hooks";
 import { MobileMenu } from "./MobileMenu";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
 // Types
 interface NavItem {
@@ -30,6 +31,8 @@ interface SubNavItem {
 
 const NavigationHeader: React.FC = () => {
   const clinicInfo = useClinicInfo();
+  const t = useTranslations("nav");
+  const tServices = useTranslations("services");
 
   // Track if we're on the client and ready for animations
   const [mounted, setMounted] = useState(false);
@@ -48,50 +51,50 @@ const NavigationHeader: React.FC = () => {
   // Navigation Items with enhanced descriptions
   const navItems = useMemo<NavItem[]>(
     () => [
-      { id: "home", label: "Acasă", href: "#home" },
-      { id: "despre-noi", label: "Despre Noi", href: "#despre-noi" },
+      { id: "home", label: t("home"), href: "#home" },
+      { id: "despre-noi", label: t("about"), href: "#despre-noi" },
       {
         id: "servicii",
-        label: "Servicii",
+        label: t("services"),
         href: "#servicii",
         subItems: [
           {
-            label: "Terapie Dentară",
+            label: tServices("items.terapieDentara.name"),
             href: "#terapie-dentara",
-            description: "Tratamente complete pentru sănătatea dinților",
+            description: tServices("navDescriptions.terapieDentara"),
             icon: <Sparkles size={16} className="text-gold-500" />,
           },
           {
-            label: "Ortopedie Dentară",
+            label: tServices("items.ortopedieDentara.name"),
             href: "#ortopedie-dentara",
-            description: "Restaurări complete și funcționale",
+            description: tServices("navDescriptions.ortopedieDentara"),
             icon: <Sparkles size={16} className="text-gold-500" />,
           },
           {
-            label: "Ortodonție",
+            label: tServices("items.ortodontie.name"),
             href: "#ortodontie",
-            description: "Aliniere perfectă cu Invisalign",
+            description: tServices("navDescriptions.ortodontie"),
             icon: <Sparkles size={16} className="text-gold-500" />,
           },
           {
-            label: "Implantologie",
+            label: tServices("items.implantologie.name"),
             href: "#implantologie",
-            description: "Soluții permanente pentru dinți lipsă",
+            description: tServices("navDescriptions.implantologie"),
             icon: <Sparkles size={16} className="text-gold-500" />,
           },
           {
-            label: "Chirurgie Orală",
+            label: tServices("items.chirurgieOrala.name"),
             href: "#chirurgie-orala",
-            description: "Intervenții sigure și moderne",
+            description: tServices("navDescriptions.chirurgieOrala"),
             icon: <Sparkles size={16} className="text-gold-500" />,
           },
         ],
       },
-      { id: "echipa", label: "Echipa", href: "#echipa" },
-      { id: "testimoniale", label: "Testimoniale", href: "#testimoniale" },
-      { id: "contact", label: "Contact", href: "#contact" },
+      { id: "echipa", label: t("team"), href: "#echipa" },
+      { id: "testimoniale", label: t("testimonials"), href: "#testimoniale" },
+      { id: "contact", label: t("contact"), href: "#contact" },
     ],
-    []
+    [t, tServices]
   );
 
   // Mount effect - enable animations after hydration
@@ -224,7 +227,7 @@ const NavigationHeader: React.FC = () => {
               >
                 <Link
                   href="/"
-                  aria-label="Tandem Dent - Acasă"
+                  aria-label="Tandem Dent - Home"
                   className="relative group"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-gold-400/20 to-gold-600/20 blur-xl group-hover:blur-2xl transition-all duration-500 rounded-full" />
@@ -346,7 +349,7 @@ const NavigationHeader: React.FC = () => {
                         ? "hover:bg-gray-100 text-gray-700"
                         : "hover:bg-white/10 text-white"
                     }`}
-                    aria-label="Sună acum"
+                    aria-label={t("callNow")}
                   >
                     <Phone size={20} />
                     <span className="hidden lg:inline">
@@ -362,7 +365,7 @@ const NavigationHeader: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-gold-600 to-gold-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <span className="relative flex items-center gap-2">
                       <Calendar size={20} />
-                      <span>Programează</span>
+                      <span>{t("appointment")}</span>
                     </span>
                   </button>
                 </div>
@@ -377,7 +380,7 @@ const NavigationHeader: React.FC = () => {
                     : "text-white hover:bg-white/10"
                 }`}
                 aria-label={
-                  isMobileMenuOpen ? "Închide meniul" : "Deschide meniul"
+                  isMobileMenuOpen ? t("closeMenu") : t("openMenu")
                 }
                 aria-expanded={isMobileMenuOpen}
               >

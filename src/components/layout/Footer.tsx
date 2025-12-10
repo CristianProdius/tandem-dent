@@ -16,14 +16,17 @@ import {
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { BsCashCoin, BsCreditCard2Front } from "react-icons/bs";
 import { TbCreditCardPay } from "react-icons/tb";
-import Link from "next/link";
 import Image from "next/image";
+import { Link } from "@/i18n/routing";
 import { useClinicInfo } from "@/hooks";
 import { validateEmail } from "@/lib/validations";
 import { ErrorMessage } from "@/components/common";
+import { useTranslations } from "next-intl";
 
 const Footer: React.FC = () => {
   const clinicInfo = useClinicInfo();
+  const t = useTranslations("footer");
+  const tCommon = useTranslations("common");
 
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -32,25 +35,25 @@ const Footer: React.FC = () => {
   const [emailError, setEmailError] = useState("");
 
   const servicesLinks = [
-    { label: "Implantologie", href: "#services" },
-    { label: "Ortodonție Invisalign", href: "#services" },
-    { label: "Estetică Dentară", href: "#services" },
-    { label: "Chirurgie Orală", href: "#services" },
-    { label: "Tratament de Canal", href: "#services" },
+    { label: t("links.implantologie"), href: "#services" },
+    { label: t("links.ortodontieInvisalign"), href: "#services" },
+    { label: t("links.esteticaDentara"), href: "#services" },
+    { label: t("links.chirurgieOrala"), href: "#services" },
+    { label: t("links.tratamentCanal"), href: "#services" },
   ];
 
   const usefulLinks = [
-    { label: "Despre Noi", href: "#team" },
-    { label: "Echipa Noastră", href: "#team" },
-    { label: "Întrebări Frecvente", href: "#faq" },
-    { label: "Contact", href: "#contact" },
+    { label: t("links.aboutUs"), href: "#team" },
+    { label: t("links.ourTeam"), href: "#team" },
+    { label: t("links.faq"), href: "#faq" },
+    { label: t("links.contact"), href: "#contact" },
   ];
 
   const legalLinks = [
-    { label: "Politica de Confidențialitate", href: "/politica-confidentialitate" },
-    { label: "Termeni și Condiții", href: "/termeni-conditii" },
-    { label: "Politica Cookie", href: "/politica-cookie" },
-    { label: "GDPR", href: "/gdpr" },
+    { label: t("legal.privacy"), href: "/politica-confidentialitate" },
+    { label: t("legal.terms"), href: "/termeni-conditii" },
+    { label: t("legal.cookies"), href: "/politica-cookie" },
+    { label: t("legal.gdpr"), href: "/gdpr" },
   ];
 
   const socialLinks = [
@@ -87,7 +90,7 @@ const Footer: React.FC = () => {
     setEmailError("");
 
     if (!validateEmail(email)) {
-      setEmailError("Vă rugăm introduceți o adresă de email validă");
+      setEmailError(t("newsletter.invalidEmail"));
       return;
     }
 
@@ -103,6 +106,8 @@ const Footer: React.FC = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const currentYear = new Date().getFullYear();
 
   return (
     <>
@@ -139,7 +144,7 @@ const Footer: React.FC = () => {
               </Link>
 
               <p className="text-gray-600 mb-5 text-sm leading-relaxed">
-                Pentru noi eficacitatea tratamentului și siguranța pacienților este prioritară.
+                {t("tagline")}
               </p>
 
               {/* Social Media Icons */}
@@ -162,7 +167,7 @@ const Footer: React.FC = () => {
             {/* Links Section */}
             <div>
               <h4 className="text-sm font-bold mb-4 text-gray-900 uppercase tracking-wide">
-                Servicii
+                {t("sections.services")}
               </h4>
               <ul className="space-y-2">
                 {servicesLinks.map((link) => (
@@ -179,7 +184,7 @@ const Footer: React.FC = () => {
               </ul>
 
               <h4 className="text-sm font-bold mt-6 mb-3 text-gray-900 uppercase tracking-wide">
-                Informații
+                {t("sections.information")}
               </h4>
               <ul className="space-y-2">
                 {usefulLinks.map((link) => (
@@ -199,7 +204,7 @@ const Footer: React.FC = () => {
             {/* Contact Section - Simplified */}
             <div>
               <h4 className="text-sm font-bold mb-4 text-gray-900 uppercase tracking-wide">
-                Contact
+                {t("sections.contact")}
               </h4>
               <div className="space-y-3 text-sm">
                 <a
@@ -233,11 +238,11 @@ const Footer: React.FC = () => {
 
               {/* Payment Methods - Simplified */}
               <div className="mt-6">
-                <p className="text-xs text-gray-500 mb-2">Metode de plată:</p>
+                <p className="text-xs text-gray-500 mb-2">{tCommon("paymentMethods")}:</p>
                 <div className="flex items-center gap-3">
-                  <BsCashCoin size={22} className="text-gray-400" title="Numerar" />
-                  <BsCreditCard2Front size={22} className="text-gray-400" title="Card Bancar" />
-                  <TbCreditCardPay size={24} className="text-gray-400" title="Rate 0%" />
+                  <BsCashCoin size={22} className="text-gray-400" title="Cash" />
+                  <BsCreditCard2Front size={22} className="text-gray-400" title="Card" />
+                  <TbCreditCardPay size={24} className="text-gray-400" title="Installments" />
                 </div>
               </div>
             </div>
@@ -245,10 +250,10 @@ const Footer: React.FC = () => {
             {/* Newsletter Section */}
             <div>
               <h4 className="text-sm font-bold mb-4 text-gray-900 uppercase tracking-wide">
-                Newsletter
+                {t("newsletter.title")}
               </h4>
               <p className="text-gray-600 mb-3 text-sm">
-                Primește sfaturi pentru sănătatea orală
+                {t("newsletter.description")}
               </p>
 
               <div className="space-y-2">
@@ -261,7 +266,7 @@ const Footer: React.FC = () => {
                       setEmailError("");
                     }}
                     onKeyPress={(e) => e.key === "Enter" && handleNewsletterSubmit(e)}
-                    placeholder="Email-ul tău"
+                    placeholder={t("newsletter.placeholder")}
                     className={`w-full px-3 py-2.5 bg-white border ${
                       emailError ? "border-red-500" : "border-gray-300"
                     } rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gold-500 transition-colors`}
@@ -288,19 +293,19 @@ const Footer: React.FC = () => {
                   ) : isSubscribed ? (
                     <>
                       <Check size={16} />
-                      <span>Înscris!</span>
+                      <span>{t("newsletter.subscribed")}</span>
                     </>
                   ) : (
                     <>
                       <Send size={16} />
-                      <span>Abonează-te</span>
+                      <span>{t("newsletter.subscribe")}</span>
                     </>
                   )}
                 </button>
               </div>
 
               <p className="text-xs text-gray-500 mt-2">
-                * Nu trimitem spam.
+                {t("newsletter.noSpam")}
               </p>
             </div>
           </div>
@@ -312,10 +317,10 @@ const Footer: React.FC = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-center md:text-left">
               <p className="text-gray-600 text-sm">
-                © {new Date().getFullYear()} Tandem Dent. Toate drepturile rezervate.
+                {t("copyright", { year: currentYear })}
               </p>
               <p className="text-xs text-gray-500 mt-1 flex items-center justify-center md:justify-start gap-1">
-                Realizat cu <Heart size={12} className="text-red-500" /> în Chișinău
+                {t("madeWith").replace("❤️", "")} <Heart size={12} className="text-red-500" />
               </p>
             </div>
 
@@ -340,7 +345,7 @@ const Footer: React.FC = () => {
         <button
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 z-40 w-10 h-10 bg-gold-600 text-white rounded-full shadow-lg hover:bg-gold-700 flex items-center justify-center transition-all hover:scale-110"
-          aria-label="Înapoi sus"
+          aria-label={tCommon("backToTop")}
         >
           <ArrowUp size={18} />
         </button>

@@ -1,0 +1,356 @@
+{
+  "meta": {
+    "title": "Tandem Dent - Premium Dental Clinic in Chisinau",
+    "description": "Tandem Dent Dental Clinic offers comprehensive dental services in Chisinau. Implantology, orthodontics, aesthetic dentistry with modern equipment.",
+    "keywords": "dentistry Chisinau, dentist Chisinau, dental implant, orthodontics, Tandem Dent, dental clinic",
+    "ogTitle": "Tandem Dent - Healthy Smiles in Chisinau",
+    "ogDescription": "For us, treatment effectiveness and patient safety is a priority!"
+  },
+  "common": {
+    "clinicName": "Tandem Dent",
+    "clinicFullName": "Tandem Dent Dental Clinic",
+    "tagline": "Healthy Smiles in Chisinau",
+    "motto": "For us, treatment effectiveness and patient safety is a priority!",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "schedule": "Schedule",
+    "scheduleDisplay": "Mon-Fri: 9:00-18:00",
+    "scheduleShort": "Mon-Fri: 9-18",
+    "closed": "Closed",
+    "open": "Open",
+    "whatsapp": "WhatsApp",
+    "writeUs": "Write to us",
+    "send": "Send",
+    "loading": "Loading...",
+    "sending": "Sending...",
+    "success": "Success!",
+    "error": "Error",
+    "required": "required",
+    "optional": "optional",
+    "years": "years",
+    "yearsExperience": "years of experience",
+    "patients": "patients",
+    "satisfiedPatients": "satisfied patients",
+    "procedures": "procedures",
+    "readMore": "Read more",
+    "learnMore": "Learn more",
+    "viewAll": "View all",
+    "backToTop": "Back to top",
+    "openInMaps": "Open in Maps",
+    "freeParking": "Free parking in front of the clinic",
+    "paymentMethods": "Payment methods"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "services": "Services",
+    "team": "Team",
+    "testimonials": "Testimonials",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "appointment": "Book Now",
+    "callNow": "Call Now",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "changeLanguage": "Change language",
+    "selectLanguage": "Select Language",
+    "quickContact": "Quick Contact"
+  },
+  "hero": {
+    "badge": "Premium Clinic in Chisinau",
+    "title1": "Healthy Smiles",
+    "title2": "in Chisinau",
+    "subtitle": "For us, treatment effectiveness and patient safety is a priority!",
+    "ctaPrimary": "Book Now",
+    "ctaSecondary": "Call Now",
+    "scheduleLabel": "Schedule",
+    "scheduleValue": "Mon-Fri: 9:00-18:00",
+    "locationLabel": "Location",
+    "locationValue": "N. Zelinski St. 5/8",
+    "phoneLabel": "Phone",
+    "phoneValue": "061 234 555",
+    "scrollIndicator": "Discover More"
+  },
+  "services": {
+    "badge": "Premium Services",
+    "title": "Our Services",
+    "description": "Tandem Dent Dental Clinic offers you a wide range of dental services at the highest level",
+    "yearsExperience": "years of experience",
+    "satisfiedPatients": "satisfied patients",
+    "cta": "Book a Consultation",
+    "items": {
+      "terapieDentara": {
+        "name": "Dental Therapy",
+        "description": "Complete treatments for healthy teeth"
+      },
+      "ortopedieDentara": {
+        "name": "Dental Orthopedics",
+        "description": "Complete and functional restorations"
+      },
+      "ortodontie": {
+        "name": "Orthodontics",
+        "description": "Perfect alignment with modern technologies"
+      },
+      "implantologie": {
+        "name": "Implantology",
+        "description": "Permanent solutions for missing teeth"
+      },
+      "chirurgieOrala": {
+        "name": "Oral Surgery",
+        "description": "Safe and minimally invasive procedures"
+      },
+      "esteticaDentara": {
+        "name": "Aesthetic Dentistry",
+        "description": "For a perfect and radiant smile"
+      },
+      "proteticaDentara": {
+        "name": "Dental Prosthetics",
+        "description": "Complete and aesthetic restorations"
+      },
+      "endodontie": {
+        "name": "Endodontics",
+        "description": "Saving teeth through root canal treatment"
+      },
+      "tratamentCanal": {
+        "name": "Root Canal Treatment",
+        "description": "Complete treatments for healthy teeth"
+      },
+      "ortodontieInvisalign": {
+        "name": "Invisalign Orthodontics",
+        "description": "Perfect alignment with Invisalign"
+      }
+    },
+    "navDescriptions": {
+      "terapieDentara": "Complete treatments for healthy teeth",
+      "ortopedieDentara": "Complete and functional restorations",
+      "ortodontie": "Perfect alignment with Invisalign",
+      "implantologie": "Permanent solutions for missing teeth",
+      "chirurgieOrala": "Safe and modern procedures"
+    }
+  },
+  "team": {
+    "badge": "Our Team",
+    "title": "Meet the Team",
+    "description": "Dedicated professionals for your dental health",
+    "yearsExperience": "years of experience in",
+    "bookAppointment": "Book",
+    "members": {
+      "capatinaVitalie": {
+        "name": "Dr. Capatina Vitalie",
+        "role": "Lead Dentist",
+        "specializations": ["Implantology", "Oral Surgery", "Dental Orthopedics"]
+      },
+      "ilievOlesea": {
+        "name": "Dr. Iliev Olesea",
+        "role": "Orthodontist",
+        "specializations": ["Orthodontics", "Pediatric Orthodontics", "Invisalign"]
+      },
+      "stoicaCristina": {
+        "name": "Dr. Stoica Cristina",
+        "role": "Dentist",
+        "specializations": ["Pediatric Dentistry", "Dental Therapy", "Endodontics"]
+      },
+      "ambrosiLiudmila": {
+        "name": "Ambrosi Liudmila",
+        "role": "Head Medical Assistant",
+        "specializations": ["Medical Assistance", "Sterilization", "Office Management"]
+      }
+    }
+  },
+  "testimonials": {
+    "badge": "Reviews",
+    "title": "What Our Patients Say",
+    "description": "Our patients' feedback motivates us to provide the highest quality services",
+    "googleReviews": "5.0 on Google Reviews",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "goToPage": "Go to page {page}",
+    "items": {
+      "1": {
+        "name": "Diana S.",
+        "content": "A team of professionals! Excellent services, friendly atmosphere and very good results. I recommend with pleasure!"
+      },
+      "2": {
+        "name": "Irina Jeman",
+        "content": "Wonderful people, patient, who demonstrate professionalism! A team that provides quality services with commendable experience!"
+      },
+      "3": {
+        "name": "Andrei Minzarari",
+        "content": "A phenomenal team and group of professionals! I highly recommend this super quality dentistry!"
+      },
+      "4": {
+        "name": "Maxim Stricaci",
+        "content": "Good dentistry, quality work. The operation was done as comfortably as possible, plus the psychological preparation was correct."
+      },
+      "5": {
+        "name": "Dasha Sk",
+        "content": "Super clinic. I've known the orthodontist and surgeon since 2016 as a patient. The surgeon removed the wisdom tooth without pain."
+      },
+      "6": {
+        "name": "Elena M.",
+        "content": "Professional and attentive doctors. I was very satisfied with the services and the atmosphere in the clinic. I recommend!"
+      }
+    }
+  },
+  "faq": {
+    "badge": "FAQ",
+    "title": "Frequently Asked Questions",
+    "description": "Answers to the most common questions from our patients",
+    "searchPlaceholder": "Search questions...",
+    "resultsFor": "{count} results for \"{term}\"",
+    "noResults": "We couldn't find any questions for your search.",
+    "resetSearch": "Reset search",
+    "notFoundTitle": "Didn't find the answer?",
+    "notFoundDescription": "Fill out the contact form and we'll help you with any question",
+    "contactUs": "Contact Us",
+    "categories": {
+      "general": "General",
+      "treatments": "Treatments",
+      "costs": "Costs & Payments"
+    },
+    "questions": {
+      "general": {
+        "1": {
+          "question": "How often should I come for a check-up?",
+          "answer": "We recommend a check-up every 6 months. This helps early detection of problems, when treatment is simpler and cheaper."
+        },
+        "2": {
+          "question": "From what age can I bring my child?",
+          "answer": "We recommend the first visit at 2-3 years old or when all baby teeth appear. We make the visit fun for the little ones!"
+        },
+        "3": {
+          "question": "How long does healing take after extraction?",
+          "answer": "Initial healing takes 1-2 weeks. Complete bone healing takes 3-6 months."
+        }
+      },
+      "treatments": {
+        "1": {
+          "question": "Are treatments painful?",
+          "answer": "We use the most modern anesthesia methods. Most patients don't feel pain during treatment. Your comfort is our priority."
+        },
+        "2": {
+          "question": "Does teeth whitening damage enamel?",
+          "answer": "No, professional whitening done correctly is safe. We use certified products that protect enamel."
+        },
+        "3": {
+          "question": "How long does a dental implant take?",
+          "answer": "The complete process takes 3-6 months. The first stage (implant placement) takes about 1 hour."
+        }
+      },
+      "costs": {
+        "1": {
+          "question": "How much does a consultation cost?",
+          "answer": "The first consultation for new patients is FREE. Includes complete examination and treatment plan."
+        },
+        "2": {
+          "question": "Do you accept CNAM insurance?",
+          "answer": "Yes, we accept CNAM insurance for covered services. Our team will help you with the necessary documents."
+        },
+        "3": {
+          "question": "Can I pay in installments?",
+          "answer": "Yes! We offer interest-free installments for treatments over 3,000 MDL. Approval is on the spot."
+        }
+      }
+    }
+  },
+  "contact": {
+    "badge": "Contact & Location",
+    "title": "Schedule a Visit",
+    "description": "We're here to provide you with the best treatment. Contact us to book an appointment.",
+    "formTitle": "Appointment Form",
+    "form": {
+      "name": "Full name",
+      "phone": "Phone",
+      "email": "Email (optional)",
+      "service": "Select desired service",
+      "message": "Message (optional)",
+      "submit": "Send Appointment",
+      "submitting": "Sending..."
+    },
+    "success": {
+      "title": "Appointment Sent!",
+      "message": "We will contact you soon for confirmation."
+    }
+  },
+  "footer": {
+    "tagline": "For us, treatment effectiveness and patient safety is a priority.",
+    "sections": {
+      "services": "Services",
+      "information": "Information",
+      "contact": "Contact",
+      "newsletter": "Newsletter"
+    },
+    "links": {
+      "implantologie": "Implantology",
+      "ortodontieInvisalign": "Invisalign Orthodontics",
+      "esteticaDentara": "Aesthetic Dentistry",
+      "chirurgieOrala": "Oral Surgery",
+      "tratamentCanal": "Root Canal Treatment",
+      "aboutUs": "About Us",
+      "ourTeam": "Our Team",
+      "faq": "FAQ",
+      "contact": "Contact"
+    },
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions",
+      "cookies": "Cookie Policy",
+      "gdpr": "GDPR"
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Receive tips for oral health",
+      "placeholder": "Your email",
+      "subscribe": "Subscribe",
+      "subscribed": "Subscribed!",
+      "noSpam": "* We don't send spam.",
+      "invalidEmail": "Please enter a valid email address"
+    },
+    "copyright": "© {year} Tandem Dent. All rights reserved.",
+    "madeWith": "Made with ❤️ in Chisinau"
+  },
+  "errors": {
+    "pageTitle": "Oops! Something went wrong",
+    "pageMessage": "Sorry, an unexpected error has occurred.",
+    "tryAgain": "Try again",
+    "notFound": {
+      "code": "404",
+      "title": "Page Not Found",
+      "sorry": "Sorry!",
+      "message": "The page you're looking for doesn't exist or has been moved. Please check the URL or navigate to one of our main pages.",
+      "links": {
+        "home": "Home Page",
+        "homeSubtitle": "Go back home",
+        "services": "Services",
+        "servicesSubtitle": "View treatments",
+        "contact": "Contact",
+        "contactSubtitle": "Contact us",
+        "appointment": "Appointment",
+        "appointmentSubtitle": "Book an appointment"
+      },
+      "backHome": "Back to Home",
+      "previousPage": "Previous Page",
+      "needHelp": "Need help? Call us at"
+    }
+  },
+  "validation": {
+    "email": {
+      "required": "Email is required",
+      "invalid": "Invalid email"
+    },
+    "phone": {
+      "required": "Phone is required",
+      "invalid": "Invalid phone number"
+    },
+    "name": {
+      "required": "Name is required",
+      "minLength": "Name must have at least 2 characters"
+    },
+    "service": {
+      "required": "Please select a service"
+    },
+    "required": "This field is required",
+    "fieldRequired": "{field} is required"
+  }
+}

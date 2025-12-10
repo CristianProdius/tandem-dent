@@ -14,6 +14,7 @@ import {
   LucideIcon,
 } from "lucide-react";
 import { SectionHeader } from "@/components/common";
+import { useTranslations } from "next-intl";
 
 interface FAQ {
   id: number;
@@ -23,79 +24,35 @@ interface FAQ {
 
 type FAQCategory = "general" | "treatments" | "costs";
 
-const categories: { id: FAQCategory; name: string; icon: LucideIcon }[] = [
-  { id: "general", name: "Generale", icon: Info },
-  { id: "treatments", name: "Tratamente", icon: Activity },
-  { id: "costs", name: "Costuri și Plăți", icon: DollarSign },
-];
-
-const faqData: Record<FAQCategory, FAQ[]> = {
-  general: [
-    {
-      id: 1,
-      question: "Cât de des trebuie să merg la control?",
-      answer:
-        "Recomandăm control la fiecare 6 luni. Aceasta ajută la depistarea timpurie a problemelor, când tratamentul este mai simplu și mai ieftin.",
-    },
-    {
-      id: 2,
-      question: "De la ce vârstă pot aduce copilul?",
-      answer:
-        "Recomandăm prima vizită la 2-3 ani sau când apar toți dinții de lapte. Facem vizita distractivă pentru cei mici!",
-    },
-    {
-      id: 3,
-      question: "Cât timp durează vindecarea după extracție?",
-      answer:
-        "Vindecarea inițială durează 1-2 săptămâni. Vindecarea completă a osului durează 3-6 luni.",
-    },
-  ],
-  treatments: [
-    {
-      id: 4,
-      question: "Tratamentele dor?",
-      answer:
-        "Folosim cele mai moderne metode de anestezie. Majoritatea pacienților nu simt durere în timpul tratamentului. Confortul tău este prioritatea noastră.",
-    },
-    {
-      id: 5,
-      question: "Albirea dentară îmi strică smalțul?",
-      answer:
-        "Nu, albirea profesională făcută corect este sigură. Folosim produse certificate care protejează smalțul.",
-    },
-    {
-      id: 6,
-      question: "Cât durează un implant dentar?",
-      answer:
-        "Procesul complet durează 3-6 luni. Prima etapă (plasarea implantului) durează aproximativ 1 oră.",
-    },
-  ],
-  costs: [
-    {
-      id: 7,
-      question: "Cât costă o consultație?",
-      answer:
-        "Prima consultație pentru pacienți noi este GRATUITĂ. Include examinarea completă și plan de tratament.",
-    },
-    {
-      id: 8,
-      question: "Acceptați asigurarea CNAM?",
-      answer:
-        "Da, acceptăm asigurarea CNAM pentru serviciile acoperite. Echipa noastră te va ajuta cu documentele necesare.",
-    },
-    {
-      id: 9,
-      question: "Pot plăti în rate?",
-      answer:
-        "Da! Oferim rate fără dobândă pentru tratamente peste 3.000 MDL. Aprobarea se face pe loc.",
-    },
-  ],
-};
-
 const FAQSection: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<FAQCategory>("general");
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const t = useTranslations("faq");
+
+  const categories: { id: FAQCategory; name: string; icon: LucideIcon }[] = [
+    { id: "general", name: t("categories.general"), icon: Info },
+    { id: "treatments", name: t("categories.treatments"), icon: Activity },
+    { id: "costs", name: t("categories.costs"), icon: DollarSign },
+  ];
+
+  const faqData: Record<FAQCategory, FAQ[]> = {
+    general: [
+      { id: 1, question: t("questions.general.1.question"), answer: t("questions.general.1.answer") },
+      { id: 2, question: t("questions.general.2.question"), answer: t("questions.general.2.answer") },
+      { id: 3, question: t("questions.general.3.question"), answer: t("questions.general.3.answer") },
+    ],
+    treatments: [
+      { id: 4, question: t("questions.treatments.1.question"), answer: t("questions.treatments.1.answer") },
+      { id: 5, question: t("questions.treatments.2.question"), answer: t("questions.treatments.2.answer") },
+      { id: 6, question: t("questions.treatments.3.question"), answer: t("questions.treatments.3.answer") },
+    ],
+    costs: [
+      { id: 7, question: t("questions.costs.1.question"), answer: t("questions.costs.1.answer") },
+      { id: 8, question: t("questions.costs.2.question"), answer: t("questions.costs.2.answer") },
+      { id: 9, question: t("questions.costs.3.question"), answer: t("questions.costs.3.answer") },
+    ],
+  };
 
   const currentFAQs = searchTerm
     ? Object.values(faqData)
@@ -115,9 +72,9 @@ const FAQSection: React.FC = () => {
     <section id="faq" className="relative py-20 bg-gradient-to-b from-white via-gray-50/50 to-white">
       <div className="container mx-auto px-4">
         <SectionHeader
-          badge={{ icon: HelpCircle, text: "FAQ", color: "gold" }}
-          title="Întrebări Frecvente"
-          description="Răspunsuri la cele mai comune întrebări ale pacienților noștri"
+          badge={{ icon: HelpCircle, text: t("badge"), color: "gold" }}
+          title={t("title")}
+          description={t("description")}
         />
 
         <div className="max-w-3xl mx-auto">
@@ -127,7 +84,7 @@ const FAQSection: React.FC = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Caută în întrebări..."
+                placeholder={t("searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 outline-none transition-all"
@@ -143,7 +100,7 @@ const FAQSection: React.FC = () => {
             </div>
             {searchTerm && (
               <p className="mt-2 text-sm text-gray-500">
-                {currentFAQs.length} rezultate pentru &quot;{searchTerm}&quot;
+                {t("resultsFor", { count: currentFAQs.length, term: searchTerm })}
               </p>
             )}
           </div>
@@ -185,14 +142,12 @@ const FAQSection: React.FC = () => {
             ) : (
               <div className="text-center py-12">
                 <HelpCircle className="mx-auto text-gray-300 mb-4 w-12 h-12" />
-                <p className="text-gray-500">
-                  Nu am găsit întrebări pentru căutarea ta.
-                </p>
+                <p className="text-gray-500">{t("noResults")}</p>
                 <button
                   onClick={() => setSearchTerm("")}
                   className="mt-4 text-gold-600 hover:text-gold-700 font-medium"
                 >
-                  Resetează căutarea
+                  {t("resetSearch")}
                 </button>
               </div>
             )}
@@ -203,17 +158,15 @@ const FAQSection: React.FC = () => {
         <div className="mt-16 text-center">
           <div className="bg-gradient-to-r from-gold-50 to-teal-50 rounded-2xl p-8 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold mb-2 text-gray-900">
-              Nu ai găsit răspunsul?
+              {t("notFoundTitle")}
             </h3>
-            <p className="text-gray-600 mb-6">
-              Completează formularul de contact și te vom ajuta cu orice întrebare
-            </p>
+            <p className="text-gray-600 mb-6">{t("notFoundDescription")}</p>
             <Link
               href="#contact"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gold-600 text-white rounded-xl font-semibold hover:bg-gold-700 transition-colors"
             >
               <ArrowDown size={20} />
-              <span>Contactează-ne</span>
+              <span>{t("contactUs")}</span>
             </Link>
           </div>
         </div>

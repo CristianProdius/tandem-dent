@@ -1,7 +1,5 @@
-// app/not-found.tsx
 "use client";
 
-import Link from "next/link";
 import { motion } from "motion/react";
 import {
   Home,
@@ -12,8 +10,12 @@ import {
   Stethoscope,
   AlertCircle,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 
 export default function NotFound() {
+  const t = useTranslations("errors.notFound");
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gold-50/20 flex items-center justify-center px-4 py-16">
       {/* Background Pattern */}
@@ -48,7 +50,7 @@ export default function NotFound() {
               transition={{ delay: 0.3 }}
               className="text-6xl font-bold mb-2"
             >
-              404
+              {t("code")}
             </motion.h1>
 
             <motion.p
@@ -57,7 +59,7 @@ export default function NotFound() {
               transition={{ delay: 0.4 }}
               className="text-xl font-medium text-white/90"
             >
-              Pagină Negăsită
+              {t("title")}
             </motion.p>
           </div>
 
@@ -70,13 +72,9 @@ export default function NotFound() {
               className="text-center mb-8"
             >
               <h2 className="text-2xl font-semibold text-gray-800 mb-3">
-                Ne pare rău!
+                {t("sorry")}
               </h2>
-              <p className="text-gray-600 leading-relaxed">
-                Pagina pe care o căutați nu există sau a fost mutată. Vă rugăm
-                să verificați adresa URL sau să navigați către una dintre
-                paginile noastre principale.
-              </p>
+              <p className="text-gray-600 leading-relaxed">{t("message")}</p>
             </motion.div>
 
             {/* Quick Links */}
@@ -94,34 +92,44 @@ export default function NotFound() {
                   <Home size={20} className="text-gold-600" />
                 </div>
                 <div className="text-left">
-                  <p className="font-medium text-gray-800">Pagina Principală</p>
-                  <p className="text-sm text-gray-500">Înapoi acasă</p>
+                  <p className="font-medium text-gray-800">{t("links.home")}</p>
+                  <p className="text-sm text-gray-500">
+                    {t("links.homeSubtitle")}
+                  </p>
                 </div>
               </Link>
 
               <Link
-                href="/servicii"
+                href="/#services"
                 className="group flex items-center gap-3 p-4 bg-gray-50 hover:bg-teal-50 rounded-xl transition-all duration-300 hover:shadow-md"
               >
                 <div className="w-10 h-10 bg-teal-100 group-hover:bg-teal-200 rounded-lg flex items-center justify-center transition-colors">
                   <Stethoscope size={20} className="text-teal-600" />
                 </div>
                 <div className="text-left">
-                  <p className="font-medium text-gray-800">Servicii</p>
-                  <p className="text-sm text-gray-500">Vezi tratamentele</p>
+                  <p className="font-medium text-gray-800">
+                    {t("links.services")}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {t("links.servicesSubtitle")}
+                  </p>
                 </div>
               </Link>
 
               <Link
-                href="/contact"
+                href="/#contact"
                 className="group flex items-center gap-3 p-4 bg-gray-50 hover:bg-gold-50 rounded-xl transition-all duration-300 hover:shadow-md"
               >
                 <div className="w-10 h-10 bg-gold-100 group-hover:bg-gold-200 rounded-lg flex items-center justify-center transition-colors">
                   <Phone size={20} className="text-gold-600" />
                 </div>
                 <div className="text-left">
-                  <p className="font-medium text-gray-800">Contact</p>
-                  <p className="text-sm text-gray-500">Contactează-ne</p>
+                  <p className="font-medium text-gray-800">
+                    {t("links.contact")}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {t("links.contactSubtitle")}
+                  </p>
                 </div>
               </Link>
 
@@ -133,8 +141,12 @@ export default function NotFound() {
                   <Calendar size={20} className="text-teal-600" />
                 </div>
                 <div className="text-left">
-                  <p className="font-medium text-gray-800">Programare</p>
-                  <p className="text-sm text-gray-500">Fă o programare</p>
+                  <p className="font-medium text-gray-800">
+                    {t("links.appointment")}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {t("links.appointmentSubtitle")}
+                  </p>
                 </div>
               </Link>
             </motion.div>
@@ -151,7 +163,7 @@ export default function NotFound() {
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300"
               >
                 <ArrowLeft size={20} />
-                <span>Înapoi la Pagina Principală</span>
+                <span>{t("backHome")}</span>
               </Link>
 
               <button
@@ -159,7 +171,7 @@ export default function NotFound() {
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300"
               >
                 <Search size={20} />
-                <span>Pagina Anterioară</span>
+                <span>{t("previousPage")}</span>
               </button>
             </motion.div>
 
@@ -171,7 +183,7 @@ export default function NotFound() {
               className="mt-8 pt-6 border-t border-gray-200 text-center"
             >
               <p className="text-sm text-gray-500">
-                Aveți nevoie de ajutor? Sunați-ne la{" "}
+                {t("needHelp")}{" "}
                 <a
                   href="tel:+37361234555"
                   className="text-gold-600 hover:text-gold-700 font-medium transition-colors"

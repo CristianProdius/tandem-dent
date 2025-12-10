@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Star, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import { SectionHeader } from "@/components/common";
+import { useTranslations } from "next-intl";
 
 const GoogleIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -33,57 +34,6 @@ interface Testimonial {
   date: string;
 }
 
-const testimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: "Diana S.",
-    content:
-      "O echipă de profesioniști! Servicii excelente, atmosferă prietenoasă și rezultate foarte bune. Recomand cu drag!",
-    rating: 5,
-    date: "2024",
-  },
-  {
-    id: 2,
-    name: "Irina Jeman",
-    content:
-      "Oameni minunați, răbdători, care dau dovadă de profesionalism! O echipă care oferă servicii de calitate cu o experiență de apreciat!",
-    rating: 5,
-    date: "2024",
-  },
-  {
-    id: 3,
-    name: "Andrei Minzarari",
-    content:
-      "Un colectiv și un grup de profesioniști fenomenali! Vă consiliez această stomatologie de super calitate!",
-    rating: 5,
-    date: "2024",
-  },
-  {
-    id: 4,
-    name: "Maxim Stricaci",
-    content:
-      "Stomatologie bună, muncă de calitate. Operația a fost făcută cât mai confortabil, plus că setarea psihologică a fost corectă.",
-    rating: 5,
-    date: "2024",
-  },
-  {
-    id: 5,
-    name: "Dasha Sk",
-    content:
-      "Super clinică. Îl cunosc pe ortodont și chirurgul din 2016 ca pacient. Chirurgul a scos măseaua de minte fără durere.",
-    rating: 5,
-    date: "2024",
-  },
-  {
-    id: 6,
-    name: "Elena M.",
-    content:
-      "Medici profesioniști și atenți. Am fost foarte mulțumită de servicii și de atmosfera din clinică. Recomand!",
-    rating: 5,
-    date: "2024",
-  },
-];
-
 const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
   <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-full flex flex-col">
     <div className="flex gap-0.5 mb-3">
@@ -104,6 +54,17 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
 
 const TestimonialsSection: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
+  const t = useTranslations("testimonials");
+
+  // Build testimonials from translations
+  const testimonials: Testimonial[] = [
+    { id: 1, name: t("items.1.name"), content: t("items.1.content"), rating: 5, date: "2024" },
+    { id: 2, name: t("items.2.name"), content: t("items.2.content"), rating: 5, date: "2024" },
+    { id: 3, name: t("items.3.name"), content: t("items.3.content"), rating: 5, date: "2024" },
+    { id: 4, name: t("items.4.name"), content: t("items.4.content"), rating: 5, date: "2024" },
+    { id: 5, name: t("items.5.name"), content: t("items.5.content"), rating: 5, date: "2024" },
+    { id: 6, name: t("items.6.name"), content: t("items.6.content"), rating: 5, date: "2024" },
+  ];
 
   // 3 per page on desktop, 1 on mobile
   const itemsPerPageDesktop = 3;
@@ -128,9 +89,9 @@ const TestimonialsSection: React.FC = () => {
     >
       <div className="container mx-auto px-4">
         <SectionHeader
-          badge={{ icon: MessageSquare, text: "Recenzii", color: "gold" }}
-          title="Ce Spun Pacienții Noștri"
-          description="Feedback-ul pacienților noștri ne motivează să oferim servicii de cea mai înaltă calitate"
+          badge={{ icon: MessageSquare, text: t("badge"), color: "gold" }}
+          title={t("title")}
+          description={t("description")}
         />
 
         {/* Testimonials with Navigation */}
@@ -185,7 +146,7 @@ const TestimonialsSection: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
           >
             <GoogleIcon className="w-4 h-4" />
-            <span>5.0 pe Google Reviews</span>
+            <span>{t("googleReviews")}</span>
             <div className="flex gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Star

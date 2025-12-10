@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export default function Error({
   error,
@@ -9,6 +10,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("errors");
+
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error);
@@ -18,16 +21,14 @@ export default function Error({
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          Oops! Ceva nu a mers bine
+          {t("pageTitle")}
         </h2>
-        <p className="text-gray-600 mb-8">
-          Ne pare rău, a apărut o eroare neașteptată.
-        </p>
+        <p className="text-gray-600 mb-8">{t("pageMessage")}</p>
         <button
           onClick={reset}
           className="px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-600 text-white rounded-lg font-medium hover:from-gold-600 hover:to-gold-700 transition-colors"
         >
-          Încearcă din nou
+          {t("tryAgain")}
         </button>
       </div>
     </div>

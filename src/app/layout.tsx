@@ -1,10 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
-import NavigationHeader from "@/components/layout/NavigationHeader";
-import "./globals.css";
-import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
+import "./globals.css";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -20,59 +18,10 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tandemdent.md"),
-  title: "Tandem Dent - Clinică Stomatologică Premium în Chișinău",
-  description:
-    "Clinica Stomatologică Tandem Dent oferă servicii stomatologice complete în Chișinău. Implantologie, ortodonție, estetică dentară cu echipamente moderne.",
-  keywords:
-    "stomatologie Chișinău, dentist Chișinău, implant dentar, ortodonție, Tandem Dent",
-  authors: [{ name: "Tandem Dent" }],
-  openGraph: {
-    title: "Tandem Dent - Zâmbete Sănătoase în Chișinău",
-    description:
-      "Pentru noi eficacitatea tratamentului și siguranța pacienților este prioritară!",
-    url: "https://tandemdent.md",
-    siteName: "Tandem Dent",
-    locale: "ro_MD",
-    type: "website",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Tandem Dent - Clinică Stomatologică Premium",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Tandem Dent - Clinică Stomatologică Premium",
-    description: "Servicii stomatologice complete în Chișinău",
-    images: ["/og-image.jpg"],
-  },
-  icons: {
-    icon: [
-      { url: "/favicon.ico" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-    ],
-    apple: [{ url: "/apple-touch-icon.png" }],
-  },
-  manifest: "/site.webmanifest",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  // viewport removed from here
+  title: "Tandem Dent - Premium Dental Clinic in Chisinau",
+  description: "Tandem Dent Dental Clinic offers comprehensive dental services in Chisinau.",
 };
 
-// Viewport is now a separate export
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -86,33 +35,20 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="ro" className="scroll-smooth" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${playfair.variable} font-sans antialiased`}
-      >
+    <html className="scroll-smooth" suppressHydrationWarning>
+      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          {/* Navigation Header */}
-          <NavigationHeader />
-
-          {/* Main Content */}
-          <main id="main-content" className="min-h-screen">
-            {children}
-          </main>
-
-          {/* Footer */}
-          <Footer />
+          {children}
         </ThemeProvider>
-
-        {/* Vercel Analytics */}
         <Analytics />
       </body>
     </html>

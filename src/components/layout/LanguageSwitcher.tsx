@@ -2,33 +2,28 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Globe, ChevronDown } from "lucide-react";
-
-interface Language {
-  code: string;
-  label: string;
-  flag: string;
-}
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter, usePathname } from "@/i18n/routing";
+import { locales, localeNames, localeFlags, type Locale } from "@/i18n/config";
 
 interface LanguageSwitcherProps {
   isScrolled?: boolean;
   className?: string;
 }
 
-const languages: Language[] = [
-  { code: "RO", label: "Română", flag: "🇷🇴" },
-  { code: "RU", label: "Русский", flag: "🇷🇺" },
-  { code: "EN", label: "English", flag: "🇬🇧" },
-];
-
 /**
  * Reusable language switcher component
- * Extracted from NavigationHeader to reduce complexity
+ * Uses next-intl for locale switching
  */
 export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   isScrolled = false,
   className = "",
 }) => {
-  const [selectedLanguage, setSelectedLanguage] = useState("RO");
+  const currentLocale = useLocale() as Locale;
+  const router = useRouter();
+  const pathname = usePathname();
+  const t = useTranslations("nav");
+
   const [showDropdown, setShowDropdown] = useState(false);
   const [mounted, setMounted] = useState(false);
   const languageRef = useRef<HTMLDivElement>(null);
@@ -54,6 +49,11 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mounted]);
 
+  const handleLocaleChange = (newLocale: Locale) => {
+    setShowDropdown(false);
+    router.replace(pathname, { locale: newLocale });
+  };
+
   return (
     <div className={`relative ${className}`} ref={languageRef}>
       <button
@@ -63,11 +63,11 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             ? "hover:bg-gray-100 text-gray-700"
             : "hover:bg-white/10 text-white backdrop-blur-sm"
         }`}
-        aria-label="Schimbă limba"
+        aria-label={t("changeLanguage")}
         aria-expanded={showDropdown}
       >
         <Globe size={20} />
-        <span className="text-sm font-medium">{selectedLanguage}</span>
+        <span className="text-sm font-medium">{currentLocale.toUpperCase()}</span>
         <ChevronDown
           size={16}
           className={`transition-transform duration-300 ${
@@ -79,23 +79,20 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
       {/* Dropdown */}
       {showDropdown && (
         <div
-          className={`absolute top-full right-0 mt-3 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-100 py-2 min-w-[180px] transition-all duration-300 ${
+          className={`absolute top-full right-0 mt-3 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-100 py-2 min-w-[180px] transition-all duration-300 z-50 ${
             mounted ? "opacity-100 scale-100" : "opacity-0 scale-95"
           }`}
         >
-          {languages.map((lang) => (
+          {locales.map((locale) => (
             <button
-              key={lang.code}
-              onClick={() => {
-                setSelectedLanguage(lang.code);
-                setShowDropdown(false);
-              }}
+              key={locale}
+              onClick={() => handleLocaleChange(locale)}
               className={`w-full text-left px-5 py-3 hover:bg-gradient-to-r hover:from-gold-50 hover:to-transparent transition-all duration-300 flex items-center gap-3 ${
-                selectedLanguage === lang.code ? "bg-gold-50" : ""
+                currentLocale === locale ? "bg-gold-50" : ""
               }`}
             >
-              <span className="text-lg">{lang.flag}</span>
-              <span className="text-sm font-medium">{lang.label}</span>
+              <span className="text-lg">{localeFlags[locale]}</span>
+              <span className="text-sm font-medium">{localeNames[locale]}</span>
             </button>
           ))}
         </div>

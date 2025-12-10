@@ -28,6 +28,7 @@ import {
   getNameError,
   getRequiredError,
 } from "@/lib/validations";
+import { useTranslations } from "next-intl";
 
 interface FormData {
   name: string;
@@ -49,6 +50,8 @@ const services = SERVICES.main.map((s) => s.name);
 
 const ContactSection: React.FC = () => {
   const clinicInfo = useClinicInfo();
+  const t = useTranslations("contact");
+  const tCommon = useTranslations("common");
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -138,16 +141,16 @@ const ContactSection: React.FC = () => {
     <section id="contact" className="relative py-20 lg:py-32 bg-gradient-to-b from-white via-gray-50/50 to-white">
       <div className="container mx-auto px-4">
         <SectionHeader
-          badge={{ icon: MapPin, text: "Contact & Locație", color: "gold" }}
-          title="Programează o Vizită"
-          description="Suntem aici pentru a-ți oferi cel mai bun tratament. Contactează-ne pentru o programare."
+          badge={{ icon: MapPin, text: t("badge"), color: "gold" }}
+          title={t("title")}
+          description={t("description")}
         />
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Contact Form */}
           <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-sm h-fit">
             <h3 className="text-xl font-bold mb-6 text-gray-900">
-              Formular de Programare
+              {t("formTitle")}
             </h3>
 
             {!isSuccess ? (
@@ -156,7 +159,7 @@ const ContactSection: React.FC = () => {
                   <FloatingLabelInput
                     id="name"
                     type="text"
-                    label="Nume complet"
+                    label={t("form.name")}
                     value={formData.name}
                     onChange={(value) => handleInputChange("name", value)}
                     error={errors.name}
@@ -169,7 +172,7 @@ const ContactSection: React.FC = () => {
                   <FloatingLabelInput
                     id="phone"
                     type="tel"
-                    label="Telefon"
+                    label={t("form.phone")}
                     value={formData.phone}
                     onChange={(value) => handleInputChange("phone", value)}
                     error={errors.phone}
@@ -182,7 +185,7 @@ const ContactSection: React.FC = () => {
                   <FloatingLabelInput
                     id="email"
                     type="email"
-                    label="Email (opțional)"
+                    label={t("form.email")}
                     value={formData.email}
                     onChange={(value) => handleInputChange("email", value)}
                     error={errors.email}
@@ -202,7 +205,7 @@ const ContactSection: React.FC = () => {
                         errors.service ? "border-red-500" : "border-gray-300"
                       }`}
                     >
-                      <option value="">Selectați serviciul dorit</option>
+                      <option value="">{t("form.service")}</option>
                       {services.map((service) => (
                         <option key={service} value={service}>
                           {service}
@@ -216,7 +219,7 @@ const ContactSection: React.FC = () => {
 
                 <FloatingLabelTextarea
                   id="message"
-                  label="Mesaj (opțional)"
+                  label={t("form.message")}
                   value={formData.message}
                   onChange={(value) => handleInputChange("message", value)}
                   rows={3}
@@ -230,12 +233,12 @@ const ContactSection: React.FC = () => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Se trimite...
+                      {t("form.submitting")}
                     </>
                   ) : (
                     <>
                       <Send className="w-5 h-5" />
-                      Trimite Programarea
+                      {t("form.submit")}
                     </>
                   )}
                 </button>
@@ -246,11 +249,9 @@ const ContactSection: React.FC = () => {
                   <CheckCircle className="w-8 h-8 text-white" />
                 </div>
                 <h4 className="text-xl font-bold text-gray-900 mb-2">
-                  Programare Trimisă!
+                  {t("success.title")}
                 </h4>
-                <p className="text-gray-600">
-                  Vă vom contacta în curând pentru confirmare.
-                </p>
+                <p className="text-gray-600">{t("success.message")}</p>
               </div>
             )}
           </div>
@@ -291,7 +292,7 @@ const ContactSection: React.FC = () => {
                   rel="noopener noreferrer"
                   className="text-sm text-gold-600 hover:text-gold-700 font-medium whitespace-nowrap"
                 >
-                  Deschide în Maps →
+                  {tCommon("openInMaps")} →
                 </Link>
               </div>
 
@@ -303,7 +304,7 @@ const ContactSection: React.FC = () => {
                 >
                   <Phone className="w-4 h-4 text-gold-600" />
                   <div className="min-w-0">
-                    <p className="text-xs text-gray-500">Telefon</p>
+                    <p className="text-xs text-gray-500">{tCommon("phone")}</p>
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {clinicInfo.phone.display}
                     </p>
@@ -318,9 +319,9 @@ const ContactSection: React.FC = () => {
                 >
                   <WhatsAppIcon className="w-4 h-4 text-green-600" />
                   <div className="min-w-0">
-                    <p className="text-xs text-gray-500">WhatsApp</p>
+                    <p className="text-xs text-gray-500">{tCommon("whatsapp")}</p>
                     <p className="text-sm font-medium text-gray-900 truncate">
-                      Scrie-ne
+                      {tCommon("writeUs")}
                     </p>
                   </div>
                 </Link>
@@ -331,9 +332,9 @@ const ContactSection: React.FC = () => {
                 >
                   <Mail className="w-4 h-4 text-blue-600" />
                   <div className="min-w-0">
-                    <p className="text-xs text-gray-500">Email</p>
+                    <p className="text-xs text-gray-500">{tCommon("email")}</p>
                     <p className="text-sm font-medium text-gray-900 truncate">
-                      Trimite
+                      {tCommon("send")}
                     </p>
                   </div>
                 </Link>
@@ -342,7 +343,7 @@ const ContactSection: React.FC = () => {
                   <Clock className="w-4 h-4 text-teal-600" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-xs text-gray-500">Program</p>
+                      <p className="text-xs text-gray-500">{tCommon("schedule")}</p>
                       <span
                         className={`w-1.5 h-1.5 rounded-full ${
                           isOpen ? "bg-green-500" : "bg-red-500"
@@ -350,7 +351,7 @@ const ContactSection: React.FC = () => {
                       />
                     </div>
                     <p className="text-sm font-medium text-gray-900 truncate">
-                      L-V: 9-18
+                      {tCommon("scheduleShort")}
                     </p>
                   </div>
                 </div>
@@ -359,7 +360,7 @@ const ContactSection: React.FC = () => {
               {/* Parking Badge */}
               <div className="mt-4 flex items-center gap-2 text-sm text-green-700">
                 <Car className="w-4 h-4" />
-                <span>Parcare gratuită în fața clinicii</span>
+                <span>{tCommon("freeParking")}</span>
               </div>
             </div>
           </div>

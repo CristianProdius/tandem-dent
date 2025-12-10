@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import {
   X,
@@ -14,6 +13,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useClinicInfo } from "@/hooks";
+import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import { useRouter, usePathname, Link } from "@/i18n/routing";
+import { locales, localeFlags, type Locale } from "@/i18n/config";
 
 interface NavItem {
   id: string;
@@ -27,12 +30,6 @@ interface SubNavItem {
   href: string;
 }
 
-interface Language {
-  code: string;
-  label: string;
-  flag: string;
-}
-
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,12 +37,6 @@ interface MobileMenuProps {
   activeSection: string;
   onNavigate: (href: string) => void;
 }
-
-const languages: Language[] = [
-  { code: "RO", label: "Română", flag: "🇷🇴" },
-  { code: "RU", label: "Русский", flag: "🇷🇺" },
-  { code: "EN", label: "English", flag: "🇬🇧" },
-];
 
 /**
  * Mobile menu component
@@ -59,8 +50,13 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
   onNavigate,
 }) => {
   const clinicInfo = useClinicInfo();
+  const t = useTranslations("nav");
+  const tCommon = useTranslations("common");
   const [mobileMenuStage, setMobileMenuStage] = useState(0);
-  const [selectedLanguage, setSelectedLanguage] = useState("RO");
+
+  const currentLocale = useLocale() as Locale;
+  const router = useRouter();
+  const pathname = usePathname();
 
   // Handle menu animation stages
   useEffect(() => {
@@ -72,6 +68,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
       setMobileMenuStage(0);
     }
   }, [isOpen]);
+
+  const handleLocaleChange = (newLocale: Locale) => {
+    router.replace(pathname, { locale: newLocale });
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -120,7 +121,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             <button
               onClick={onClose}
               className="p-3 rounded-xl hover:bg-gray-100 transition-all duration-300 group"
-              aria-label="Închide meniul"
+              aria-label={t("closeMenu")}
             >
               <X
                 size={24}
@@ -197,7 +198,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             >
               <div className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Sparkles size={16} className="text-gold-500" />
-                Contact Rapid
+                {t("quickContact")}
               </div>
 
               <div className="space-y-4">
@@ -210,7 +211,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider">
-                      Telefon
+                      {tCommon("phone")}
                     </div>
                     <div className="text-base font-semibold mt-1">
                       {clinicInfo.phone.main}
@@ -227,7 +228,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider">
-                      Email
+                      {tCommon("email")}
                     </div>
                     <div className="text-base mt-1">
                       {clinicInfo.email.address}
@@ -241,7 +242,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider">
-                      Adresă
+                      {tCommon("address")}
                     </div>
                     <div className="text-base mt-1">
                       {clinicInfo.address.full}
@@ -255,7 +256,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider">
-                      Program
+                      {tCommon("schedule")}
                     </div>
                     <div className="text-base mt-1">
                       {clinicInfo.schedule.display}
@@ -267,21 +268,21 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
               {/* Language Switcher */}
               <div className="mt-8">
                 <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">
-                  Selectează Limba
+                  {t("selectLanguage")}
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  {languages.map((lang) => (
+                  {locales.map((locale) => (
                     <button
-                      key={lang.code}
-                      onClick={() => setSelectedLanguage(lang.code)}
+                      key={locale}
+                      onClick={() => handleLocaleChange(locale)}
                       className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
-                        selectedLanguage === lang.code
+                        currentLocale === locale
                           ? "bg-gradient-to-r from-gold-100 to-gold-50 text-gold-700 shadow-md"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
-                      <span className="text-lg">{lang.flag}</span>
-                      <span className="block mt-1 text-xs">{lang.code}</span>
+                      <span className="text-lg">{localeFlags[locale]}</span>
+                      <span className="block mt-1 text-xs">{locale.toUpperCase()}</span>
                     </button>
                   ))}
                 </div>
@@ -308,7 +309,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                 size={20}
                 className="group-hover:rotate-12 transition-transform duration-300"
               />
-              <span>Programează Consultație</span>
+              <span>{t("appointment")}</span>
               <ArrowRight
                 size={18}
                 className="group-hover:translate-x-1 transition-transform duration-300"

@@ -3,12 +3,15 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Phone, MapPin, Clock, Star, ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const HeroSection: React.FC = () => {
+  const t = useTranslations("hero");
+
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Background Image with Parallax */}
-      <motion.div className="absolute inset-0 z-0">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
@@ -21,7 +24,7 @@ const HeroSection: React.FC = () => {
           {/* Premium Gold Accent Overlay */}
           <div className="absolute inset-0 bg-gradient-to-tr from-gold-500/10 via-transparent to-teal-500/10" />
         </div>
-      </motion.div>
+      </div>
 
       {/* CSS-only animated elements - Adjusted for mobile */}
       <div className="absolute top-10 sm:top-20 left-5 sm:left-10 md:left-20 opacity-20 pointer-events-none">
@@ -38,70 +41,62 @@ const HeroSection: React.FC = () => {
 
       {/* Main Content Container - Adjusted padding for mobile */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 pb-8 sm:pb-12 mt-6">
-        <motion.div className="w-full max-w-7xl">
+        <div className="w-full max-w-7xl">
           {/* Glass Morphism Card - Responsive padding */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="mx-auto max-w-7xl"
           >
             <div className="hero-glass-card backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 lg:p-16">
               {/* Premium Badge - Smaller on mobile */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3, duration: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
                 className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 rounded-full bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30"
               >
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-gold-400" />
                 <span className="text-xs sm:text-sm font-medium text-gold-300">
-                  Clinică Premium în Chișinău
+                  {t("badge")}
                 </span>
               </motion.div>
 
               {/* Main Headline - Responsive text sizing */}
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4, duration: 0.6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
                 className="mb-4 sm:mb-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight"
               >
-                <span className="text-gradient-gold block">
-                  Zâmbete Sănătoase
-                </span>
+                <span className="text-gradient-gold block">{t("title1")}</span>
                 <span className="text-white block mt-1 sm:mt-2">
-                  în Chișinău
+                  {t("title2")}
                 </span>
               </motion.h1>
 
               {/* Subtitle - Responsive text and spacing */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5, duration: 0.6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
                 className="mb-6 sm:mb-8 md:mb-10 text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 max-w-3xl"
               >
-                Pentru noi eficacitatea tratamentului și siguranța pacienților
-                este prioritară!
+                {t("subtitle")}
               </motion.p>
 
               {/* CTA Buttons Container - Stack on mobile */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.6, duration: 0.6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
                 className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-10 md:mb-12"
               >
                 {/* Primary CTA Button - Full width on mobile */}
-                <button className="hero-btn-primary group relative overflow-hidden  sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white rounded-xl sm:rounded-2xl transition-all duration-300 w-full sm:w-auto">
+                <button className="hero-btn-primary group relative overflow-hidden sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white rounded-xl sm:rounded-2xl transition-all duration-300 w-full sm:w-auto">
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Programează-te Acum
+                    {t("ctaPrimary")}
                     <span className="hero-arrow">→</span>
                   </span>
                 </button>
@@ -112,16 +107,15 @@ const HeroSection: React.FC = () => {
                   className="group flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white border-2 border-white/30 rounded-xl sm:rounded-2xl backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-gold-400/50 hero-btn-secondary w-full sm:w-auto"
                 >
                   <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span>Sună Acum</span>
+                  <span>{t("ctaSecondary")}</span>
                 </a>
               </motion.div>
 
               {/* Quick Info Cards - Stack on mobile */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.7, duration: 0.6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4"
               >
                 {/* Working Hours Card */}
@@ -130,10 +124,10 @@ const HeroSection: React.FC = () => {
                     <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-gold-400 mt-0.5 sm:mt-1 flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-xs sm:text-sm font-medium text-gold-400">
-                        Program
+                        {t("scheduleLabel")}
                       </p>
                       <p className="text-white text-sm sm:text-base">
-                        Luni-Vineri: 9:00-18:00
+                        {t("scheduleValue")}
                       </p>
                     </div>
                   </div>
@@ -145,10 +139,10 @@ const HeroSection: React.FC = () => {
                     <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-gold-400 mt-0.5 sm:mt-1 flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-xs sm:text-sm font-medium text-gold-400">
-                        Locație
+                        {t("locationLabel")}
                       </p>
                       <p className="text-white text-sm sm:text-base">
-                        Str. N. Zelinski 5/8
+                        {t("locationValue")}
                       </p>
                     </div>
                   </div>
@@ -160,10 +154,10 @@ const HeroSection: React.FC = () => {
                     <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-gold-400 mt-0.5 sm:mt-1 flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-xs sm:text-sm font-medium text-gold-400">
-                        Telefon
+                        {t("phoneLabel")}
                       </p>
                       <p className="text-white text-sm sm:text-base">
-                        061 234 555
+                        {t("phoneValue")}
                       </p>
                     </div>
                   </div>
@@ -173,15 +167,20 @@ const HeroSection: React.FC = () => {
           </motion.div>
 
           {/* Scroll Indicator - Smaller on mobile */}
-          <div className="hero-scroll-indicator">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+            className="hero-scroll-indicator"
+          >
             <div className="flex flex-col items-center gap-1 sm:gap-2 cursor-pointer">
               <span className="text-white/60 text-xs sm:text-sm">
-                Descoperă Mai Mult
+                {t("scrollIndicator")}
               </span>
               <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-gold-400" />
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Decorative Bottom Wave - Responsive height */}

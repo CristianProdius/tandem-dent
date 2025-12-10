@@ -5,50 +5,45 @@ import { motion, useInView } from "motion/react";
 import { ArrowRight, Award } from "lucide-react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { SectionHeader } from "@/components/common";
-
-interface Service {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-}
-
-const services: Service[] = [
-  {
-    id: "terapie-dentara",
-    name: "Terapie dentară",
-    description: "Tratamente complete pentru sănătatea dinților",
-    image: "/images/services/terapie-dentara.png",
-  },
-  {
-    id: "ortopedie-dentara",
-    name: "Ortopedie dentară",
-    description: "Restaurări complete și funcționale",
-    image: "/images/services/ortopedie-dentara.png",
-  },
-  {
-    id: "ortodontie",
-    name: "Ortodonție",
-    description: "Aliniere perfectă cu tehnologii moderne",
-    image: "/images/services/ortodontie.png",
-  },
-  {
-    id: "implantologie",
-    name: "Implantologie",
-    description: "Soluții permanente pentru dinți lipsă",
-    image: "/images/services/implantologie.png",
-  },
-  {
-    id: "chirurgie-orala",
-    name: "Chirurgie orală",
-    description: "Intervenții sigure și minim invazive",
-    image: "/images/services/chirurgie-orala.png",
-  },
-];
+import { useTranslations } from "next-intl";
 
 const ServicesSection: React.FC = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const t = useTranslations("services");
+
+  const services = [
+    {
+      id: "terapie-dentara",
+      name: t("items.terapieDentara.name"),
+      description: t("items.terapieDentara.description"),
+      image: "/images/services/terapie-dentara.png",
+    },
+    {
+      id: "ortopedie-dentara",
+      name: t("items.ortopedieDentara.name"),
+      description: t("items.ortopedieDentara.description"),
+      image: "/images/services/ortopedie-dentara.png",
+    },
+    {
+      id: "ortodontie",
+      name: t("items.ortodontie.name"),
+      description: t("items.ortodontie.description"),
+      image: "/images/services/ortodontie.png",
+    },
+    {
+      id: "implantologie",
+      name: t("items.implantologie.name"),
+      description: t("items.implantologie.description"),
+      image: "/images/services/implantologie.png",
+    },
+    {
+      id: "chirurgie-orala",
+      name: t("items.chirurgieOrala.name"),
+      description: t("items.chirurgieOrala.description"),
+      image: "/images/services/chirurgie-orala.png",
+    },
+  ];
 
   return (
     <section
@@ -96,9 +91,9 @@ const ServicesSection: React.FC = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <SectionHeader
-          badge={{ icon: Award, text: "Servicii Premium", color: "gold" }}
-          title="Serviciile Noastre"
-          description="Clinica Stomatologică Tandem Dent îți pune la dispoziție un spectru larg de servicii stomatologice, la cel mai înalt nivel"
+          badge={{ icon: Award, text: t("badge"), color: "gold" }}
+          title={t("title")}
+          description={t("description")}
         />
 
         {/* Inline Stats */}
@@ -109,11 +104,13 @@ const ServicesSection: React.FC = () => {
           className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mb-12"
         >
           <span className="text-sm text-gray-600">
-            <span className="font-semibold text-yellow-600">15+</span> ani experiență
+            <span className="font-semibold text-yellow-600">15+</span>{" "}
+            {t("yearsExperience")}
           </span>
           <span className="hidden sm:inline text-gray-300">•</span>
           <span className="text-sm text-gray-600">
-            <span className="font-semibold text-yellow-600">3000+</span> pacienți mulțumiți
+            <span className="font-semibold text-yellow-600">3000+</span>{" "}
+            {t("satisfiedPatients")}
           </span>
         </motion.div>
 
@@ -141,7 +138,7 @@ const ServicesSection: React.FC = () => {
             href="#contact"
             className="inline-flex items-center gap-2 px-6 py-3 font-semibold text-white bg-yellow-500 rounded-xl transition-all duration-200 hover:bg-yellow-600 hover:shadow-lg"
           >
-            Programează o Consultație
+            {t("cta")}
             <ArrowRight className="w-4 h-4" />
           </a>
         </motion.div>
