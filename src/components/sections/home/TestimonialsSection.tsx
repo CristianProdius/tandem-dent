@@ -1,16 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence, PanInfo } from "motion/react";
+import React, { useState } from "react";
 import { Star, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import { SectionHeader } from "@/components/common";
 
 const GoogleIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
       fill="#4285F4"
@@ -51,7 +46,7 @@ const testimonials: Testimonial[] = [
     id: 2,
     name: "Irina Jeman",
     content:
-      "Oameni minunați, răbdători, care dau dovadă de profesionalism! O echipă care oferă servicii de calitate cu o experiență de apreciat! Vă mulțumesc pentru tot ce ați făcut și faceți pentru mine!",
+      "Oameni minunați, răbdători, care dau dovadă de profesionalism! O echipă care oferă servicii de calitate cu o experiență de apreciat!",
     rating: 5,
     date: "2024",
   },
@@ -67,7 +62,7 @@ const testimonials: Testimonial[] = [
     id: 4,
     name: "Maxim Stricaci",
     content:
-      "Stomatologie bună, muncă de calitate. Operația a fost făcută cât mai confortabil, plus că setarea psihologică a fost corectă. Vă recomand!",
+      "Stomatologie bună, muncă de calitate. Operația a fost făcută cât mai confortabil, plus că setarea psihologică a fost corectă.",
     rating: 5,
     date: "2024",
   },
@@ -75,51 +70,60 @@ const testimonials: Testimonial[] = [
     id: 5,
     name: "Dasha Sk",
     content:
-      "Super clinică. Îl cunosc pe ortodont și chirurgul din 2016 ca pacient. Chirurgul a scos măseaua de minte, astfel încât să nu simt nimic.",
+      "Super clinică. Îl cunosc pe ortodont și chirurgul din 2016 ca pacient. Chirurgul a scos măseaua de minte fără durere.",
+    rating: 5,
+    date: "2024",
+  },
+  {
+    id: 6,
+    name: "Elena M.",
+    content:
+      "Medici profesioniști și atenți. Am fost foarte mulțumită de servicii și de atmosfera din clinică. Recomand!",
     rating: 5,
     date: "2024",
   },
 ];
 
+const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
+  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-full flex flex-col">
+    <div className="flex gap-0.5 mb-3">
+      {[...Array(testimonial.rating)].map((_, i) => (
+        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+      ))}
+    </div>
+    <p className="text-gray-700 leading-relaxed flex-1 mb-4">
+      &quot;{testimonial.content}&quot;
+    </p>
+    <div className="text-sm text-gray-600 pt-4 border-t border-gray-100">
+      <span className="font-medium text-gray-900">{testimonial.name}</span>
+      <span className="mx-2">•</span>
+      <span>{testimonial.date}</span>
+    </div>
+  </div>
+);
+
 const TestimonialsSection: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
 
-  const nextTestimonial = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-  }, []);
+  // 3 per page on desktop, 1 on mobile
+  const itemsPerPageDesktop = 3;
+  const totalPages = Math.ceil(testimonials.length / itemsPerPageDesktop);
 
-  const prevTestimonial = useCallback(() => {
-    setCurrentIndex(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length
-    );
-  }, []);
-
-  useEffect(() => {
-    if (!isPaused) {
-      intervalRef.current = setInterval(nextTestimonial, 6000);
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [isPaused, nextTestimonial]);
-
-  const handleDragEnd = (
-    _event: MouseEvent | TouchEvent | PointerEvent,
-    info: PanInfo
-  ) => {
-    if (info.offset.x > 50) prevTestimonial();
-    else if (info.offset.x < -50) nextTestimonial();
+  const nextPage = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
   };
 
-  const current = testimonials[currentIndex];
+  const prevPage = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  // Get current testimonials for desktop (3 at a time)
+  const startIndex = currentPage * itemsPerPageDesktop;
+  const currentTestimonials = testimonials.slice(startIndex, startIndex + itemsPerPageDesktop);
 
   return (
     <section
       className="py-20 lg:py-28 bg-gradient-to-b from-white via-gray-50/50 to-white"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
       id="testimonials"
     >
       <div className="container mx-auto px-4">
@@ -129,81 +133,45 @@ const TestimonialsSection: React.FC = () => {
           description="Feedback-ul pacienților noștri ne motivează să oferim servicii de cea mai înaltă calitate"
         />
 
-        {/* Testimonial Card */}
-        <div className="relative max-w-2xl mx-auto">
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.1}
-            onDragEnd={handleDragEnd}
-            className="cursor-grab active:cursor-grabbing"
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100"
-              >
-                {/* Stars */}
-                <div className="flex gap-1 mb-4">
-                  {[...Array(current.rating)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                    />
-                  ))}
-                </div>
-
-                {/* Quote */}
-                <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                  &quot;{current.content}&quot;
-                </p>
-
-                {/* Author */}
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium text-gray-900">
-                    {current.name}
-                  </span>
-                  <span className="mx-2">•</span>
-                  <span>{current.date}</span>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </motion.div>
+        {/* Testimonials with Navigation */}
+        <div className="relative max-w-6xl mx-auto">
+          {/* Grid - 1 on mobile, 2 on tablet, 3 on desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentTestimonials.map((testimonial) => (
+              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+            ))}
+          </div>
 
           {/* Navigation Arrows */}
           <button
-            onClick={prevTestimonial}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 w-10 h-10 rounded-full bg-white shadow border border-gray-100 items-center justify-center hover:bg-gray-50 transition-colors hidden md:flex"
-            aria-label="Previous testimonial"
+            onClick={prevPage}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-14 w-10 h-10 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
+            aria-label="Previous testimonials"
           >
             <ChevronLeft className="w-5 h-5 text-gray-600" />
           </button>
 
           <button
-            onClick={nextTestimonial}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 w-10 h-10 rounded-full bg-white shadow border border-gray-100 items-center justify-center hover:bg-gray-50 transition-colors hidden md:flex"
-            aria-label="Next testimonial"
+            onClick={nextPage}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-14 w-10 h-10 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
+            aria-label="Next testimonials"
           >
             <ChevronRight className="w-5 h-5 text-gray-600" />
           </button>
         </div>
 
         {/* Dots */}
-        <div className="flex justify-center gap-2 mt-6">
-          {testimonials.map((_, index) => (
+        <div className="flex justify-center gap-2 mt-8">
+          {[...Array(totalPages)].map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => setCurrentPage(index)}
               className={`w-2 h-2 rounded-full transition-all ${
-                index === currentIndex
-                  ? "w-6 bg-yellow-500"
+                index === currentPage
+                  ? "w-6 bg-gold-500"
                   : "bg-gray-300 hover:bg-gray-400"
               }`}
-              aria-label={`Go to testimonial ${index + 1}`}
+              aria-label={`Go to page ${index + 1}`}
             />
           ))}
         </div>
@@ -214,7 +182,7 @@ const TestimonialsSection: React.FC = () => {
             href="https://www.google.com/search?q=tandem+dent+chisinau+reviews"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
           >
             <GoogleIcon className="w-4 h-4" />
             <span>5.0 pe Google Reviews</span>

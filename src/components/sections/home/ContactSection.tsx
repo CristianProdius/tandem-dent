@@ -98,8 +98,11 @@ const ContactSection: React.FC = () => {
     const phoneError = getPhoneError(formData.phone);
     if (phoneError) newErrors.phone = phoneError;
 
-    const emailError = getEmailError(formData.email);
-    if (emailError) newErrors.email = emailError;
+    // Only validate email if provided
+    if (formData.email) {
+      const emailError = getEmailError(formData.email);
+      if (emailError) newErrors.email = emailError;
+    }
 
     const serviceError = getRequiredError(formData.service, "Serviciul");
     if (serviceError) newErrors.service = serviceError;
@@ -179,11 +182,10 @@ const ContactSection: React.FC = () => {
                   <FloatingLabelInput
                     id="email"
                     type="email"
-                    label="Email"
+                    label="Email (opțional)"
                     value={formData.email}
                     onChange={(value) => handleInputChange("email", value)}
                     error={errors.email}
-                    required
                   />
                   <ErrorMessage message={errors.email} />
                 </div>
