@@ -308,7 +308,8 @@
       "subscribe": "Subscribe",
       "subscribed": "Subscribed!",
       "noSpam": "* We don't send spam.",
-      "invalidEmail": "Please enter a valid email address"
+      "invalidEmail": "Please enter a valid email address",
+      "error": "An error occurred. Please try again."
     },
     "copyright": "© {year} Tandem Dent. All rights reserved.",
     "madeWith": "Made with ❤️ in Chisinau"

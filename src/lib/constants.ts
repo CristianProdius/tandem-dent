@@ -49,7 +49,7 @@ export const CLINIC_INFO = {
 
   // Social Media
   social: {
-    facebook: "https://facebook.com/tandemdent",
+    facebook: "https://www.facebook.com/profile.php?id=61554694011727",
     instagram: "https://instagram.com/tandemdent",
     youtube: "https://youtube.com/@tandemdent",
     linkedin: "https://linkedin.com/company/tandem-dent",

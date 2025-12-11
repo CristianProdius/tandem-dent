@@ -308,7 +308,8 @@
       "subscribe": "Abonează-te",
       "subscribed": "Înscris!",
       "noSpam": "* Nu trimitem spam.",
-      "invalidEmail": "Vă rugăm introduceți o adresă de email validă"
+      "invalidEmail": "Vă rugăm introduceți o adresă de email validă",
+      "error": "A apărut o eroare. Vă rugăm încercați din nou."
     },
     "copyright": "© {year} Tandem Dent. Toate drepturile rezervate.",
     "madeWith": "Realizat cu ❤️ în Chișinău"

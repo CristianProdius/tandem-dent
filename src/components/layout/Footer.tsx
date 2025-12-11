@@ -95,12 +95,26 @@ const Footer: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
+
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Subscription failed");
+      }
+
       setIsSubscribed(true);
-      setIsSubmitting(false);
       setEmail("");
       setTimeout(() => setIsSubscribed(false), 5000);
-    }, 1500);
+    } catch {
+      setEmailError(t("newsletter.error"));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const scrollToTop = () => {
