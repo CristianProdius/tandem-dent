@@ -356,5 +356,190 @@
     },
     "required": "This field is required",
     "fieldRequired": "{field} is required"
+  },
+  "legalPages": {
+    "backToHome": "Back to home page",
+    "lastUpdated": "Last updated",
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Information about how we collect and protect your personal data",
+      "intro": "Tandem Dent SRL (\"we\", \"our\" or \"the Clinic\") respects the confidentiality of your personal data. This policy describes how we collect, use, and protect your information.",
+      "sections": {
+        "dataCollected": {
+          "title": "1. Data We Collect",
+          "content": "We collect the following types of personal data:",
+          "items": [
+            "Contact information: name, phone number, email address",
+            "Appointment information: requested service, additional messages",
+            "Technical data: basic device information for website functionality (via Vercel Analytics)"
+          ]
+        },
+        "dataUsage": {
+          "title": "2. How We Use Your Data",
+          "content": "We use your data to:",
+          "items": [
+            "Process and confirm appointments",
+            "Communicate with you about our services",
+            "Send newsletters (only if you have subscribed)",
+            "Improve our services"
+          ]
+        },
+        "dataStorage": {
+          "title": "3. Data Storage",
+          "content": "Your data is stored securely on protected servers. We use trusted services like Neon (PostgreSQL database) and Vercel for hosting. All data is encrypted in transit and at rest."
+        },
+        "dataSharing": {
+          "title": "4. Data Sharing",
+          "content": "We do not sell, rent, or share your personal data with third parties, except when necessary to provide our services or when required by law."
+        },
+        "rights": {
+          "title": "5. Your Rights",
+          "content": "You have the right to:",
+          "items": [
+            "Access the personal data we hold about you",
+            "Request correction of inaccurate data",
+            "Request deletion of your data",
+            "Withdraw your consent for processing",
+            "Unsubscribe from the newsletter at any time"
+          ]
+        },
+        "contact": {
+          "title": "6. Contact",
+          "content": "For any questions about this policy or to exercise your rights, contact us at:"
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms and Conditions",
+      "description": "Terms and conditions for using our website and services",
+      "intro": "By accessing and using the tandemdent.md website, you agree to these terms and conditions.",
+      "sections": {
+        "general": {
+          "title": "1. General Information",
+          "content": "The tandemdent.md website is operated by Tandem Dent SRL, a dental clinic based in Chișinău, Republic of Moldova. The website provides information about our services and allows appointment scheduling."
+        },
+        "services": {
+          "title": "2. Services",
+          "content": "The information presented on the site is for informational purposes. Prices and service availability may vary. For updated information, please contact us directly."
+        },
+        "appointments": {
+          "title": "3. Appointments",
+          "content": "Appointments made through the site are requests that will be confirmed by our staff. We are not obligated to accept all requests. We will contact you to confirm the appointment."
+        },
+        "intellectualProperty": {
+          "title": "4. Intellectual Property",
+          "content": "The website content (texts, images, logos, design) is the property of Tandem Dent SRL and is protected by copyright laws. You may not copy, reproduce, or distribute the content without our written consent."
+        },
+        "liability": {
+          "title": "5. Limitation of Liability",
+          "content": "The information on the site does not replace professional medical consultation. We are not responsible for decisions made based on information from the site. For diagnosis and treatment, consult a doctor."
+        },
+        "modifications": {
+          "title": "6. Modifications",
+          "content": "We reserve the right to modify these terms at any time. Changes take effect upon publication on the site. Continued use of the site constitutes acceptance of the modified terms."
+        },
+        "law": {
+          "title": "7. Applicable Law",
+          "content": "These terms are governed by the laws of the Republic of Moldova. Any dispute will be resolved by the competent courts in Chișinău."
+        }
+      }
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "description": "Information about the use of cookies on our website",
+      "intro": "This policy explains what cookies are and how we use them on the tandemdent.md website.",
+      "sections": {
+        "whatAreCookies": {
+          "title": "1. What Are Cookies?",
+          "content": "Cookies are small text files stored on your device when you visit a website. They help the website function properly and provide a better experience."
+        },
+        "cookiesWeUse": {
+          "title": "2. Cookies We Use",
+          "content": "Currently, our website only uses essential cookies necessary for basic website functionality:",
+          "items": [
+            "Session cookies for navigation",
+            "Language preference cookies",
+            "Anonymous analytics cookies (Vercel Analytics)"
+          ]
+        },
+        "noCookies": {
+          "title": "3. Cookies We Do NOT Use",
+          "content": "We do not use:",
+          "items": [
+            "Marketing or advertising cookies",
+            "Third-party tracking cookies",
+            "Profiling cookies"
+          ]
+        },
+        "manageCookies": {
+          "title": "4. Managing Cookies",
+          "content": "You can control and delete cookies from your browser settings. Note that disabling essential cookies may affect website functionality."
+        },
+        "contact": {
+          "title": "5. Contact",
+          "content": "For questions about our cookie policy, contact us at the email address below."
+        }
+      }
+    },
+    "gdpr": {
+      "title": "GDPR Compliance",
+      "description": "Information about your rights under the General Data Protection Regulation",
+      "intro": "Tandem Dent SRL is committed to protecting your personal data in accordance with the General Data Protection Regulation (GDPR) and local data protection legislation.",
+      "sections": {
+        "dataController": {
+          "title": "1. Data Controller",
+          "content": "The personal data controller is:",
+          "details": [
+            "Tandem Dent SRL",
+            "Strada Nicolae Zelinski 5/8, MD-2032, Chișinău",
+            "Email: tandemdent22@gmail.com",
+            "Phone: +373 61 234 555"
+          ]
+        },
+        "legalBasis": {
+          "title": "2. Legal Basis for Processing",
+          "content": "We process your data based on the following legal grounds:",
+          "items": [
+            "Consent: for newsletter subscription",
+            "Contract execution: for processing appointments",
+            "Legitimate interest: for improving our services"
+          ]
+        },
+        "rights": {
+          "title": "3. Your GDPR Rights",
+          "content": "Under GDPR, you have the following rights:",
+          "items": [
+            "Right of access - you can request a copy of your data",
+            "Right to rectification - you can request correction of inaccurate data",
+            "Right to erasure - you can request deletion of data (\"right to be forgotten\")",
+            "Right to restriction of processing",
+            "Right to data portability",
+            "Right to object to processing",
+            "Right not to be subject to automated decision-making"
+          ]
+        },
+        "retention": {
+          "title": "4. Data Retention Period",
+          "content": "We keep your data only as long as necessary for the purposes for which it was collected:",
+          "items": [
+            "Appointment data: 5 years (according to medical regulations)",
+            "Newsletter subscriptions: until unsubscription",
+            "Analytics data: 26 months"
+          ]
+        },
+        "security": {
+          "title": "5. Data Security",
+          "content": "We implement appropriate technical and organizational measures to protect your data, including encryption, restricted access, and regular security audits."
+        },
+        "complaint": {
+          "title": "6. Right to Lodge a Complaint",
+          "content": "If you believe your rights have been violated, you have the right to lodge a complaint with the data protection supervisory authority in the Republic of Moldova (National Center for Personal Data Protection)."
+        },
+        "contact": {
+          "title": "7. GDPR Contact",
+          "content": "For any GDPR-related requests, please contact us:"
+        }
+      }
+    }
   }
 }

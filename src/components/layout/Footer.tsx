@@ -341,13 +341,13 @@ const Footer: React.FC = () => {
             {/* Legal Links - No dots */}
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
               {legalLinks.map((link) => (
-                <a
+                <Link
                   key={link.label}
                   href={link.href}
                   className="text-gray-500 hover:text-gold-600 transition-colors"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

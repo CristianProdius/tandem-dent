@@ -356,5 +356,190 @@
     },
     "required": "Acest câmp este obligatoriu",
     "fieldRequired": "{field} este obligatoriu"
+  },
+  "legalPages": {
+    "backToHome": "Înapoi la pagina principală",
+    "lastUpdated": "Ultima actualizare",
+    "privacy": {
+      "title": "Politica de Confidențialitate",
+      "description": "Informații despre cum colectăm și protejăm datele dumneavoastră personale",
+      "intro": "Tandem Dent SRL (\"noi\", \"nostru\" sau \"Clinica\") respectă confidențialitatea datelor dumneavoastră personale. Această politică descrie modul în care colectăm, utilizăm și protejăm informațiile dumneavoastră.",
+      "sections": {
+        "dataCollected": {
+          "title": "1. Datele pe care le colectăm",
+          "content": "Colectăm următoarele tipuri de date personale:",
+          "items": [
+            "Informații de contact: nume, număr de telefon, adresă de email",
+            "Informații despre programări: serviciul solicitat, mesaje adiționale",
+            "Date tehnice: informații de bază despre dispozitiv pentru funcționarea site-ului (prin Vercel Analytics)"
+          ]
+        },
+        "dataUsage": {
+          "title": "2. Cum folosim datele",
+          "content": "Folosim datele dumneavoastră pentru:",
+          "items": [
+            "Procesarea și confirmarea programărilor",
+            "Comunicarea cu dumneavoastră despre serviciile noastre",
+            "Trimiterea newsletter-ului (doar dacă v-ați abonat)",
+            "Îmbunătățirea serviciilor noastre"
+          ]
+        },
+        "dataStorage": {
+          "title": "3. Stocarea datelor",
+          "content": "Datele dumneavoastră sunt stocate în siguranță pe servere securizate. Utilizăm servicii de încredere precum Neon (bază de date PostgreSQL) și Vercel pentru găzduire. Toate datele sunt criptate în tranzit și în repaus."
+        },
+        "dataSharing": {
+          "title": "4. Partajarea datelor",
+          "content": "Nu vindem, nu închiriem și nu partajăm datele dumneavoastră personale cu terțe părți, cu excepția cazurilor în care este necesar pentru furnizarea serviciilor noastre sau când legea ne obligă."
+        },
+        "rights": {
+          "title": "5. Drepturile dumneavoastră",
+          "content": "Aveți dreptul să:",
+          "items": [
+            "Accesați datele personale pe care le deținem despre dumneavoastră",
+            "Solicitați corectarea datelor inexacte",
+            "Solicitați ștergerea datelor dumneavoastră",
+            "Vă retrageți consimțământul pentru procesare",
+            "Vă dezabonați de la newsletter în orice moment"
+          ]
+        },
+        "contact": {
+          "title": "6. Contact",
+          "content": "Pentru orice întrebări despre această politică sau pentru a vă exercita drepturile, contactați-ne la:"
+        }
+      }
+    },
+    "terms": {
+      "title": "Termeni și Condiții",
+      "description": "Termenii și condițiile de utilizare a site-ului și serviciilor noastre",
+      "intro": "Prin accesarea și utilizarea site-ului web tandemdent.md, sunteți de acord cu acești termeni și condiții.",
+      "sections": {
+        "general": {
+          "title": "1. Informații generale",
+          "content": "Site-ul tandemdent.md este operat de Tandem Dent SRL, o clinică stomatologică cu sediul în Chișinău, Republica Moldova. Site-ul oferă informații despre serviciile noastre și permite programarea consultațiilor."
+        },
+        "services": {
+          "title": "2. Servicii",
+          "content": "Informațiile prezentate pe site au caracter informativ. Prețurile și disponibilitatea serviciilor pot varia. Pentru informații actualizate, vă rugăm să ne contactați direct."
+        },
+        "appointments": {
+          "title": "3. Programări",
+          "content": "Programările făcute prin site sunt solicitări care vor fi confirmate de personalul nostru. Nu suntem obligați să acceptăm toate solicitările. Vă vom contacta pentru confirmarea programării."
+        },
+        "intellectualProperty": {
+          "title": "4. Proprietate intelectuală",
+          "content": "Conținutul site-ului (texte, imagini, logo-uri, design) este proprietatea Tandem Dent SRL și este protejat de legile dreptului de autor. Nu puteți copia, reproduce sau distribui conținutul fără acordul nostru scris."
+        },
+        "liability": {
+          "title": "5. Limitarea răspunderii",
+          "content": "Informațiile de pe site nu înlocuiesc consultația medicală profesională. Nu suntem răspunzători pentru deciziile luate pe baza informațiilor de pe site. Pentru diagnostic și tratament, consultați medicul."
+        },
+        "modifications": {
+          "title": "6. Modificări",
+          "content": "Ne rezervăm dreptul de a modifica acești termeni în orice moment. Modificările intră în vigoare la publicarea pe site. Utilizarea continuă a site-ului constituie acceptarea termenilor modificați."
+        },
+        "law": {
+          "title": "7. Legea aplicabilă",
+          "content": "Acești termeni sunt guvernați de legislația Republicii Moldova. Orice dispută va fi soluționată de instanțele competente din Chișinău."
+        }
+      }
+    },
+    "cookies": {
+      "title": "Politica Cookie",
+      "description": "Informații despre utilizarea cookie-urilor pe site-ul nostru",
+      "intro": "Această politică explică ce sunt cookie-urile și cum le folosim pe site-ul tandemdent.md.",
+      "sections": {
+        "whatAreCookies": {
+          "title": "1. Ce sunt cookie-urile?",
+          "content": "Cookie-urile sunt fișiere mici de text stocate pe dispozitivul dumneavoastră când vizitați un site web. Acestea ajută site-ul să funcționeze corect și să ofere o experiență mai bună."
+        },
+        "cookiesWeUse": {
+          "title": "2. Cookie-urile pe care le folosim",
+          "content": "În prezent, site-ul nostru folosește doar cookie-uri esențiale necesare pentru funcționarea de bază a site-ului:",
+          "items": [
+            "Cookie-uri de sesiune pentru navigare",
+            "Cookie-uri pentru preferința de limbă",
+            "Cookie-uri pentru analitice anonime (Vercel Analytics)"
+          ]
+        },
+        "noCookies": {
+          "title": "3. Cookie-uri pe care NU le folosim",
+          "content": "Nu folosim:",
+          "items": [
+            "Cookie-uri de marketing sau publicitate",
+            "Cookie-uri de urmărire de la terțe părți",
+            "Cookie-uri pentru profilare"
+          ]
+        },
+        "manageCookies": {
+          "title": "4. Gestionarea cookie-urilor",
+          "content": "Puteți controla și șterge cookie-urile din setările browser-ului dumneavoastră. Rețineți că dezactivarea cookie-urilor esențiale poate afecta funcționarea site-ului."
+        },
+        "contact": {
+          "title": "5. Contact",
+          "content": "Pentru întrebări despre politica noastră de cookie-uri, contactați-ne la adresa de email de mai jos."
+        }
+      }
+    },
+    "gdpr": {
+      "title": "Conformitate GDPR",
+      "description": "Informații despre drepturile dumneavoastră conform Regulamentului General privind Protecția Datelor",
+      "intro": "Tandem Dent SRL se angajează să protejeze datele dumneavoastră personale în conformitate cu Regulamentul General privind Protecția Datelor (GDPR) și legislația locală privind protecția datelor.",
+      "sections": {
+        "dataController": {
+          "title": "1. Operatorul de date",
+          "content": "Operatorul de date personale este:",
+          "details": [
+            "Tandem Dent SRL",
+            "Strada Nicolae Zelinski 5/8, MD-2032, Chișinău",
+            "Email: tandemdent22@gmail.com",
+            "Telefon: +373 61 234 555"
+          ]
+        },
+        "legalBasis": {
+          "title": "2. Temeiurile legale pentru procesare",
+          "content": "Procesăm datele dumneavoastră pe baza următoarelor temeiuri legale:",
+          "items": [
+            "Consimțământ: pentru abonarea la newsletter",
+            "Executarea contractului: pentru procesarea programărilor",
+            "Interes legitim: pentru îmbunătățirea serviciilor noastre"
+          ]
+        },
+        "rights": {
+          "title": "3. Drepturile dumneavoastră GDPR",
+          "content": "Conform GDPR, aveți următoarele drepturi:",
+          "items": [
+            "Dreptul de acces - puteți solicita o copie a datelor dumneavoastră",
+            "Dreptul la rectificare - puteți cere corectarea datelor inexacte",
+            "Dreptul la ștergere - puteți cere ștergerea datelor (\"dreptul de a fi uitat\")",
+            "Dreptul la restricționarea procesării",
+            "Dreptul la portabilitatea datelor",
+            "Dreptul de a vă opune procesării",
+            "Dreptul de a nu face obiectul unei decizii automate"
+          ]
+        },
+        "retention": {
+          "title": "4. Perioada de păstrare a datelor",
+          "content": "Păstrăm datele dumneavoastră doar atât timp cât este necesar pentru scopurile pentru care au fost colectate:",
+          "items": [
+            "Datele de programare: 5 ani (conform reglementărilor medicale)",
+            "Abonamente newsletter: până la dezabonare",
+            "Date analitice: 26 luni"
+          ]
+        },
+        "security": {
+          "title": "5. Securitatea datelor",
+          "content": "Implementăm măsuri tehnice și organizatorice adecvate pentru a proteja datele dumneavoastră, inclusiv criptare, acces restricționat și audituri regulate de securitate."
+        },
+        "complaint": {
+          "title": "6. Dreptul de a depune o plângere",
+          "content": "Dacă considerați că drepturile dumneavoastră au fost încălcate, aveți dreptul să depuneți o plângere la autoritatea de supraveghere a protecției datelor din Republica Moldova (Centrul Național pentru Protecția Datelor cu Caracter Personal)."
+        },
+        "contact": {
+          "title": "7. Contact pentru GDPR",
+          "content": "Pentru orice solicitări legate de GDPR, vă rugăm să ne contactați:"
+        }
+      }
+    }
   }
 }
