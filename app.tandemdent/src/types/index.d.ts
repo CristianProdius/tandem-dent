@@ -46,6 +46,7 @@ declare type CreateAppointmentParams = {
   schedule: Date;
   status: Status;
   note: string | undefined;
+  doctorId?: string;
 };
 
 declare type UpdateAppointmentParams = {
