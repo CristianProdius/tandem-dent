@@ -64,6 +64,7 @@ declare interface CreateDoctorParams {
   phone?: string;
   specialty?: string;
   image?: string;
+  googleCalendarConnected?: boolean;
 }
 
 declare interface UpdateDoctorParams extends Partial<CreateDoctorParams> {
