@@ -131,18 +131,18 @@ export function AppointmentCalendar({
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [appointmentsData, doctorsData] = await Promise.all([
+      const [appointmentsData, doctorsResult] = await Promise.all([
         getAppointmentsByDateRange(
           dateRange.start.toISOString(),
           dateRange.end.toISOString(),
           selectedDoctor !== "all" ? selectedDoctor : undefined
         ),
-        doctors.length === 0 ? getDoctors() : Promise.resolve(doctors),
+        doctors.length === 0 ? getDoctors() : Promise.resolve({ documents: doctors, total: doctors.length }),
       ]);
 
       setAppointments(appointmentsData);
       if (doctors.length === 0) {
-        setDoctors(doctorsData);
+        setDoctors(doctorsResult.documents);
       }
     } catch (error) {
       console.error("Error fetching calendar data:", error);

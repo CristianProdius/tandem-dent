@@ -51,14 +51,14 @@ export function PatientTabs({ patient, appointments }: PatientTabsProps) {
   // Load initial data
   useEffect(() => {
     const loadData = async () => {
-      const [conditions, allTreatments, doctorsList] = await Promise.all([
+      const [conditions, allTreatments, doctorsResult] = await Promise.all([
         getPatientToothConditions(patient.$id),
         getTreatmentsByPatient(patient.$id),
         getDoctors(),
       ]);
       setToothConditions(conditions);
       setTreatments(allTreatments);
-      setDoctors(doctorsList);
+      setDoctors(doctorsResult.documents);
     };
     loadData();
   }, [patient.$id]);
