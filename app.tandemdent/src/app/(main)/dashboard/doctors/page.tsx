@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDoctors } from "@/lib/actions/doctor.actions";
 
 export default async function DoctorsPage() {
-  const doctors = await getDoctors();
+  const { documents: doctors } = await getDoctors();
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
