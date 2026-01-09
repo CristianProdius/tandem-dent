@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { z } from "zod";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Minus, Plus, Search } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { AvailabilityCalendar } from "@/components/dental/availability-calendar";
 import { cn } from "@/lib/utils";
 import { createAppointment } from "@/lib/actions/appointment.actions";
 import type { Doctor, Patient, Service } from "@/types/appwrite.types";
@@ -76,6 +84,9 @@ export function NewAppointmentForm({
 }: NewAppointmentFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [showAvailability, setShowAvailability] = useState(false);
+  const [selectedSlotDate, setSelectedSlotDate] = useState<Date | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -89,15 +100,47 @@ export function NewAppointmentForm({
     },
   });
 
+  const watchedDoctorId = form.watch("doctorId");
+  const watchedServiceId = form.watch("serviceId");
+
+  // Get selected doctor and service
+  const selectedDoctor = useMemo(() => {
+    return doctors.find((d) => d.$id === watchedDoctorId);
+  }, [doctors, watchedDoctorId]);
+
+  const selectedService = useMemo(() => {
+    return services.find((s) => s.$id === watchedServiceId);
+  }, [services, watchedServiceId]);
+
+  // Calculate total duration based on quantity
+  const totalDuration = useMemo(() => {
+    if (!selectedService) return 30;
+    return selectedService.duration * quantity;
+  }, [selectedService, quantity]);
+
+  // Handle slot selection from availability calendar
+  const handleSlotSelect = (slotDate: Date) => {
+    setSelectedSlotDate(slotDate);
+    form.setValue("date", slotDate);
+    const timeStr = slotDate.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    form.setValue("time", timeStr);
+    setShowAvailability(false);
+    toast.success("Interval selectat cu succes!");
+  };
+
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
 
     try {
       const selectedPatient = patients.find((p) => p.$id === values.patientId);
-      const selectedDoctor = doctors.find((d) => d.$id === values.doctorId);
-      const selectedService = services.find((s) => s.$id === values.serviceId);
+      const selectedDoc = doctors.find((d) => d.$id === values.doctorId);
+      const selectedSvc = services.find((s) => s.$id === values.serviceId);
 
-      if (!selectedPatient || !selectedDoctor) {
+      if (!selectedPatient || !selectedDoc) {
         toast.error("Pacient sau medic selectat invalid");
         return;
       }
@@ -107,15 +150,21 @@ export function NewAppointmentForm({
       const schedule = new Date(values.date);
       schedule.setHours(hours, minutes, 0, 0);
 
+      // Build reason with quantity if > 1
+      let reason = selectedSvc?.name || "Consultation";
+      if (quantity > 1) {
+        reason = `${reason} x${quantity}`;
+      }
+
       await createAppointment({
         patient: selectedPatient.$id,
         userId: selectedPatient.userId,
         schedule: schedule,
         status: values.status,
-        primaryPhysician: selectedDoctor.name,
-        reason: selectedService?.name || "Consultation",
+        primaryPhysician: selectedDoc.name,
+        reason: reason,
         note: values.note || "",
-        doctorId: selectedDoctor.$id,
+        doctorId: selectedDoc.$id,
       });
 
       toast.success("Programare creată cu succes!");
@@ -130,151 +179,33 @@ export function NewAppointmentForm({
   };
 
   return (
-    <Card className="max-w-2xl">
-      <CardHeader>
-        <CardTitle>Detalii programare</CardTitle>
-        <CardDescription>
-          Completați detaliile de mai jos pentru a programa o nouă consultație.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="patientId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pacient</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selectați un pacient" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {patients.map((patient) => (
-                        <SelectItem key={patient.$id} value={patient.$id}>
-                          {patient.name} ({patient.email})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="doctorId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Medic</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selectați un medic" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {doctors.map((doctor) => (
-                        <SelectItem key={doctor.$id} value={doctor.$id}>
-                          {doctor.name} - {doctor.specialty}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="serviceId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Serviciu</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selectați un serviciu" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {services.map((service) => (
-                        <SelectItem key={service.$id} value={service.$id}>
-                          {service.name} - {service.duration}min - {service.price} MDL
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid gap-4 sm:grid-cols-2">
+    <>
+      <Card className="max-w-2xl">
+        <CardHeader>
+          <CardTitle>Detalii programare</CardTitle>
+          <CardDescription>
+            Completați detaliile de mai jos pentru a programa o nouă consultație.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Data</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Alegeți o dată</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date < new Date(new Date().setHours(0, 0, 0, 0)) ||
-                            date.getDay() === 0
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="time"
+                name="patientId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ora</FormLabel>
+                    <FormLabel>Pacient</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selectați ora" />
+                          <SelectValue placeholder="Selectați un pacient" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {timeSlots.map((time) => (
-                          <SelectItem key={time} value={time}>
-                            {time}
+                        {patients.map((patient) => (
+                          <SelectItem key={patient.$id} value={patient.$id}>
+                            {patient.name} ({patient.email})
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -283,66 +214,260 @@ export function NewAppointmentForm({
                   </FormItem>
                 )}
               />
-            </div>
 
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormField
+                control={form.control}
+                name="doctorId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Medic</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selectați un medic" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {doctors.map((doctor) => (
+                          <SelectItem key={doctor.$id} value={doctor.$id}>
+                            {doctor.name} - {doctor.specialty}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="serviceId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Serviciu</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selectați un serviciu" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {services.map((service) => (
+                          <SelectItem key={service.$id} value={service.$id}>
+                            {service.name} - {service.duration}min - {service.price} MDL
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Quantity selector - only show when service is selected */}
+              {selectedService && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Cantitate</label>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                      disabled={quantity <= 1}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="w-8 text-center font-medium">{quantity}</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={() => setQuantity((q) => Math.min(5, q + 1))}
+                      disabled={quantity >= 5}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      Total: <span className="font-medium text-foreground">{totalDuration} minute</span>
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {quantity > 1
+                      ? `${quantity} ședințe de ${selectedService.duration} minute consecutive`
+                      : "O singură ședință"}
+                  </p>
+                </div>
+              )}
+
+              {/* Find Available Time button */}
+              {selectedDoctor && selectedService && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowAvailability(true)}
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  Găsește Timp Disponibil
+                </Button>
+              )}
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Data</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Alegeți o dată</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                              date.getDay() === 0
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ora</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selectați ora" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {timeSlots.map((time) => (
+                            <SelectItem key={time} value={time}>
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selectați status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="pending">În așteptare</SelectItem>
+                        <SelectItem value="scheduled">Programat</SelectItem>
+                        <SelectItem value="cancelled">Anulat</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Setați ca &quot;Programat&quot; pentru a confirma programarea imediat.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Note (Opțional)</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selectați status" />
-                      </SelectTrigger>
+                      <Textarea
+                        placeholder="Orice notă suplimentară despre această programare..."
+                        {...field}
+                      />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="pending">În așteptare</SelectItem>
-                      <SelectItem value="scheduled">Programat</SelectItem>
-                      <SelectItem value="cancelled">Anulat</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Setați ca &quot;Programat&quot; pentru a confirma programarea imediat.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Note (Opțional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Orice notă suplimentară despre această programare..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <div className="flex gap-4">
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Se creează..." : "Creează programare"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.back()}
+                >
+                  Anulează
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
 
-            <div className="flex gap-4">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Se creează..." : "Creează programare"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-              >
-                Anulează
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+      {/* Availability Calendar Sheet */}
+      <Sheet open={showAvailability} onOpenChange={setShowAvailability}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Găsește Timp Disponibil</SheetTitle>
+            <SheetDescription>
+              {selectedDoctor?.name} | {selectedService?.name}
+              {quantity > 1 && ` x${quantity}`} ({totalDuration} minute)
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            {selectedDoctor && (
+              <AvailabilityCalendar
+                doctorId={selectedDoctor.$id}
+                selectedDate={selectedSlotDate}
+                onSelectSlot={handleSlotSelect}
+                requiredDuration={totalDuration}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
