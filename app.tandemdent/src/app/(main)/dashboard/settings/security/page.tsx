@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getLoggedInUser } from "@/lib/actions/auth.actions";
 import { DeviceManagement } from "./_components/device-management";
+import { SetPassword } from "./_components/set-password";
 
 export default async function SecuritySettingsPage() {
   const loggedInUser = await getLoggedInUser();
@@ -10,8 +11,11 @@ export default async function SecuritySettingsPage() {
     redirect("/auth/v2/login");
   }
 
-  // Map userType for DeviceManagement component
+  // Map userType for components
   const userType = loggedInUser.type as "admin" | "doctor" | "patient";
+
+  // Check if user has password set
+  const hasPassword = !!(loggedInUser.user as any).passwordHash;
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
@@ -22,7 +26,15 @@ export default async function SecuritySettingsPage() {
         </p>
       </div>
 
-      <DeviceManagement userId={loggedInUser.user.$id} userType={userType} />
+      <div className="grid gap-6">
+        <SetPassword
+          userId={loggedInUser.user.$id}
+          userType={userType}
+          hasPassword={hasPassword}
+        />
+
+        <DeviceManagement userId={loggedInUser.user.$id} userType={userType} />
+      </div>
     </div>
   );
 }

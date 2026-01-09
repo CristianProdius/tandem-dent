@@ -1165,6 +1165,86 @@ export async function registerDoctor(data: RegisterDoctorParams): Promise<Regist
 }
 
 /**
+ * Create a doctor from admin dashboard (with optional password)
+ * This is for admin use - does not require OTP verification
+ */
+export async function createDoctorWithPassword(data: {
+  name: string;
+  email: string;
+  phone?: string;
+  specialty?: string;
+  password?: string;
+}): Promise<{ success: boolean; doctorId?: string; error?: string }> {
+  try {
+    if (!DOCTOR_COLLECTION_ID) {
+      return { success: false, error: "Configurație incompletă" };
+    }
+
+    // Check if email already exists
+    const existingDoctor = await databases.listDocuments(DATABASE_ID!, DOCTOR_COLLECTION_ID, [
+      Query.equal("email", data.email),
+    ]);
+
+    if (existingDoctor.documents.length > 0) {
+      return { success: false, error: "Această adresă de email este deja înregistrată" };
+    }
+
+    // Hash password if provided
+    let passwordHash: string | undefined;
+    if (data.password) {
+      const passwordValidation = validatePassword(data.password);
+      if (!passwordValidation.valid) {
+        return { success: false, error: passwordValidation.errors[0] };
+      }
+      passwordHash = await hashPassword(data.password);
+    }
+
+    // Create doctor in Appwrite
+    const newDoctor = await databases.createDocument(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID,
+      ID.unique(),
+      {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        specialty: data.specialty || null,
+        passwordHash: passwordHash || null,
+        googleCalendarConnected: false,
+      }
+    );
+
+    // Create Appwrite Auth user for future OTP/magic link
+    try {
+      const existingUsers = await users.list([Query.equal("email", data.email)]);
+      if (existingUsers.users.length === 0) {
+        const newUser = await users.create(
+          ID.unique(),
+          data.email,
+          undefined,
+          undefined,
+          data.name
+        );
+        await databases.updateDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID, newDoctor.$id, {
+          appwriteAuthId: newUser.$id,
+        });
+      } else {
+        await databases.updateDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID, newDoctor.$id, {
+          appwriteAuthId: existingUsers.users[0].$id,
+        });
+      }
+    } catch (e) {
+      console.error("Error creating Appwrite auth user for doctor:", e);
+    }
+
+    return { success: true, doctorId: newDoctor.$id };
+  } catch (error) {
+    console.error("Error creating doctor:", error);
+    return { success: false, error: "Eroare la crearea medicului" };
+  }
+}
+
+/**
  * Register a new patient with email and password
  */
 export async function registerPatientWithPassword(data: RegisterPatientParams): Promise<RegistrationResult> {
