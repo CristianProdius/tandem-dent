@@ -865,7 +865,7 @@ export async function logoutDoctor(): Promise<{ success: boolean }> {
 /**
  * Check if email belongs to admin or doctor
  */
-export async function checkUserTypeByEmail(email: string): Promise<{ type: UserRole | "patient" | null; exists: boolean }> {
+export async function checkUserTypeByEmail(email: string): Promise<{ type: UserRole | "patient" | null; exists: boolean; hasPassword: boolean }> {
   try {
     // Check if it's an admin
     if (ADMIN_COLLECTION_ID) {
@@ -873,7 +873,9 @@ export async function checkUserTypeByEmail(email: string): Promise<{ type: UserR
         Query.equal("email", email),
       ]);
       if (admins.documents.length > 0) {
-        return { type: "admin", exists: true };
+        const admin = admins.documents[0] as unknown as Admin;
+        const hasPassword = !!(admin as any).passwordHash;
+        return { type: "admin", exists: true, hasPassword };
       }
     }
 
@@ -883,7 +885,9 @@ export async function checkUserTypeByEmail(email: string): Promise<{ type: UserR
         Query.equal("email", email),
       ]);
       if (doctors.documents.length > 0) {
-        return { type: "doctor", exists: true };
+        const doctor = doctors.documents[0] as unknown as Doctor;
+        const hasPassword = !!(doctor as any).passwordHash;
+        return { type: "doctor", exists: true, hasPassword };
       }
     }
 
@@ -893,14 +897,16 @@ export async function checkUserTypeByEmail(email: string): Promise<{ type: UserR
         Query.equal("email", email),
       ]);
       if (patients.documents.length > 0) {
-        return { type: "patient", exists: true };
+        const patient = patients.documents[0] as unknown as Patient;
+        const hasPassword = !!(patient as any).passwordHash;
+        return { type: "patient", exists: true, hasPassword };
       }
     }
 
-    return { type: null, exists: false };
+    return { type: null, exists: false, hasPassword: false };
   } catch (error) {
     console.error("Error checking user type:", error);
-    return { type: null, exists: false };
+    return { type: null, exists: false, hasPassword: false };
   }
 }
 

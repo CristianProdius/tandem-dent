@@ -85,6 +85,18 @@ export function LoginForm() {
 
       setUserEmail(data.email);
       setUserType(result.type as "admin" | "doctor");
+
+      // If user doesn't have a password, skip directly to legacy auth (OTP/magic link)
+      if (!result.hasPassword) {
+        toast.info("Cont fără parolă", {
+          description: result.type === "admin"
+            ? "Vă trimitem un cod OTP pe email."
+            : "Vă trimitem un link magic pe email.",
+        });
+        await handleLegacyAuthForType(data.email, result.type as "admin" | "doctor");
+        return;
+      }
+
       setStep("password");
     } catch (error) {
       console.error("Email check error:", error);
@@ -93,6 +105,45 @@ export function LoginForm() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleLegacyAuthForType = async (email: string, type: "admin" | "doctor") => {
+    try {
+      if (type === "admin") {
+        const otpResult = await sendAdminEmailOTP(email);
+        if (otpResult.success && otpResult.adminId) {
+          setAdminId(otpResult.adminId);
+          if (otpResult.userId) {
+            setUserId(otpResult.userId);
+          }
+          setStep("otp");
+          toast.success("Cod OTP trimis", {
+            description: "Verificați emailul pentru codul de autentificare.",
+          });
+        } else {
+          toast.error("Eroare la trimiterea OTP", {
+            description: otpResult.error || "Vă rugăm încercați din nou.",
+          });
+        }
+      } else if (type === "doctor") {
+        const magicLinkResult = await sendDoctorMagicLink(email);
+        if (magicLinkResult.success) {
+          setStep("magic-link-sent");
+          toast.success("Link de autentificare trimis", {
+            description: "Verificați emailul pentru linkul de autentificare.",
+          });
+        } else {
+          toast.error("Eroare la trimiterea linkului", {
+            description: magicLinkResult.error || "Vă rugăm încercați din nou.",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Legacy auth error:", error);
+      toast.error("Eroare", {
+        description: "A apărut o eroare. Vă rugăm încercați din nou.",
+      });
     }
   };
 
