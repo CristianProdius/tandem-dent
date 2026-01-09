@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { ID, Query } from "node-appwrite";
 
 import {
@@ -16,6 +16,18 @@ import {
 } from "@/lib/appwrite/appwrite.config";
 import { resend, EMAIL_FROM } from "@/lib/resend/resend.config";
 import type { Patient, Admin, Doctor, UserRole } from "@/types/appwrite.types";
+import {
+  hashPassword,
+  verifyPassword,
+  generateDeviceId,
+  parseDevices,
+  stringifyDevices,
+  addOrUpdateDevice,
+  removeDevice as removeDeviceFromList,
+  isKnownDevice,
+  validatePassword,
+  type DeviceFingerprint,
+} from "@/lib/utils/password";
 
 const SESSION_COOKIE_NAME = "tandemdent_session";
 const ADMIN_SESSION_COOKIE_NAME = "tandemdent_admin_session";
@@ -889,5 +901,846 @@ export async function checkUserTypeByEmail(email: string): Promise<{ type: UserR
   } catch (error) {
     console.error("Error checking user type:", error);
     return { type: null, exists: false };
+  }
+}
+
+// ===========================================
+// Password-Based Authentication
+// ===========================================
+
+/**
+ * Get client IP and user agent from request headers
+ */
+async function getClientInfo(): Promise<{ ip: string; userAgent: string }> {
+  const headersList = await headers();
+  const ip =
+    headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    headersList.get("x-real-ip") ||
+    "unknown";
+  const userAgent = headersList.get("user-agent") || "unknown";
+  return { ip, userAgent };
+}
+
+/**
+ * OTP Email Template for new device verification
+ */
+const createOTPEmailHtml = (data: {
+  userName: string;
+  otpCode: string;
+  deviceInfo: string;
+}) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #d4af37, #b8860b); padding: 20px; text-align: center; color: white; border-radius: 8px 8px 0 0; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+    .otp-code { font-size: 32px; font-weight: bold; color: #d4af37; letter-spacing: 4px; text-align: center; padding: 20px; background: white; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    .warning { color: #666; font-size: 14px; margin-top: 20px; }
+    .device-info { background: #fff3cd; padding: 10px; border-radius: 4px; margin: 15px 0; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Verificare Dispozitiv Nou</h1>
+    </div>
+    <div class="content">
+      <p>Dragă ${data.userName},</p>
+      <p>Am detectat o încercare de autentificare de pe un dispozitiv nou:</p>
+      <div class="device-info">${data.deviceInfo}</div>
+      <p>Introduceți codul de mai jos pentru a confirma că sunteți dvs.:</p>
+      <div class="otp-code">${data.otpCode}</div>
+      <p class="warning">Acest cod expiră în 10 minute.</p>
+      <p class="warning">Dacă nu ați încercat să vă autentificați, vă rugăm să vă schimbați parola imediat.</p>
+    </div>
+    <div class="footer">
+      <p>Tandem Dent - ${BASE_URL}</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+/**
+ * Register a new admin with email and password
+ */
+export async function registerAdmin(data: RegisterAdminParams): Promise<RegistrationResult> {
+  try {
+    if (!ADMIN_COLLECTION_ID) {
+      return { success: false, requiresOTP: false, error: "Configurație incompletă" };
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(data.password);
+    if (!passwordValidation.valid) {
+      return { success: false, requiresOTP: false, error: passwordValidation.errors[0] };
+    }
+
+    // Check if email already exists
+    const existingAdmin = await databases.listDocuments(DATABASE_ID!, ADMIN_COLLECTION_ID, [
+      Query.equal("email", data.email),
+    ]);
+
+    if (existingAdmin.documents.length > 0) {
+      return { success: false, requiresOTP: false, error: "Această adresă de email este deja înregistrată" };
+    }
+
+    // Hash password
+    const passwordHash = await hashPassword(data.password);
+
+    // Get client info for device fingerprint
+    const { ip, userAgent } = await getClientInfo();
+    const deviceId = generateDeviceId(userAgent, ip);
+
+    // Create initial device
+    const devices = addOrUpdateDevice([], deviceId, userAgent, ip);
+
+    // Create admin in Appwrite
+    const newAdmin = await databases.createDocument(
+      DATABASE_ID!,
+      ADMIN_COLLECTION_ID,
+      ID.unique(),
+      {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        passwordHash,
+        devices: stringifyDevices(devices),
+      }
+    );
+
+    // Create Appwrite Auth user for OTP
+    let appwriteUserId: string;
+    try {
+      const existingUsers = await users.list([Query.equal("email", data.email)]);
+      if (existingUsers.users.length > 0) {
+        appwriteUserId = existingUsers.users[0].$id;
+      } else {
+        const newUser = await users.create(
+          ID.unique(),
+          data.email,
+          undefined,
+          undefined,
+          data.name
+        );
+        appwriteUserId = newUser.$id;
+      }
+
+      // Update admin with Appwrite user ID
+      await databases.updateDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, newAdmin.$id, {
+        appwriteAuthId: appwriteUserId,
+      });
+
+      // Send OTP for email verification
+      await account.createEmailToken(appwriteUserId, data.email);
+
+      return {
+        success: true,
+        requiresOTP: true,
+        userId: newAdmin.$id,
+        userType: "admin",
+      };
+    } catch (e) {
+      console.error("Error creating Appwrite auth user:", e);
+      // Admin was created, but OTP failed - they can still login
+      return {
+        success: true,
+        requiresOTP: true,
+        userId: newAdmin.$id,
+        userType: "admin",
+        error: "Cont creat, dar verificarea email-ului a eșuat. Încercați să vă autentificați.",
+      };
+    }
+  } catch (error) {
+    console.error("Error registering admin:", error);
+    return { success: false, requiresOTP: false, error: "Eroare la înregistrare" };
+  }
+}
+
+/**
+ * Register a new doctor with email and password
+ */
+export async function registerDoctor(data: RegisterDoctorParams): Promise<RegistrationResult> {
+  try {
+    if (!DOCTOR_COLLECTION_ID) {
+      return { success: false, requiresOTP: false, error: "Configurație incompletă" };
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(data.password);
+    if (!passwordValidation.valid) {
+      return { success: false, requiresOTP: false, error: passwordValidation.errors[0] };
+    }
+
+    // Check if email already exists
+    const existingDoctor = await databases.listDocuments(DATABASE_ID!, DOCTOR_COLLECTION_ID, [
+      Query.equal("email", data.email),
+    ]);
+
+    if (existingDoctor.documents.length > 0) {
+      return { success: false, requiresOTP: false, error: "Această adresă de email este deja înregistrată" };
+    }
+
+    // Hash password
+    const passwordHash = await hashPassword(data.password);
+
+    // Get client info for device fingerprint
+    const { ip, userAgent } = await getClientInfo();
+    const deviceId = generateDeviceId(userAgent, ip);
+
+    // Create initial device
+    const devices = addOrUpdateDevice([], deviceId, userAgent, ip);
+
+    // Create doctor in Appwrite
+    const newDoctor = await databases.createDocument(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID,
+      ID.unique(),
+      {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        specialty: data.specialty || null,
+        passwordHash,
+        devices: stringifyDevices(devices),
+        googleCalendarConnected: false,
+      }
+    );
+
+    // Create Appwrite Auth user for OTP
+    let appwriteUserId: string;
+    try {
+      const existingUsers = await users.list([Query.equal("email", data.email)]);
+      if (existingUsers.users.length > 0) {
+        appwriteUserId = existingUsers.users[0].$id;
+      } else {
+        const newUser = await users.create(
+          ID.unique(),
+          data.email,
+          undefined,
+          undefined,
+          data.name
+        );
+        appwriteUserId = newUser.$id;
+      }
+
+      // Update doctor with Appwrite user ID
+      await databases.updateDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID, newDoctor.$id, {
+        appwriteAuthId: appwriteUserId,
+      });
+
+      // Send OTP for email verification
+      await account.createEmailToken(appwriteUserId, data.email);
+
+      return {
+        success: true,
+        requiresOTP: true,
+        userId: newDoctor.$id,
+        userType: "doctor",
+      };
+    } catch (e) {
+      console.error("Error creating Appwrite auth user:", e);
+      return {
+        success: true,
+        requiresOTP: true,
+        userId: newDoctor.$id,
+        userType: "doctor",
+        error: "Cont creat, dar verificarea email-ului a eșuat. Încercați să vă autentificați.",
+      };
+    }
+  } catch (error) {
+    console.error("Error registering doctor:", error);
+    return { success: false, requiresOTP: false, error: "Eroare la înregistrare" };
+  }
+}
+
+/**
+ * Register a new patient with email and password
+ */
+export async function registerPatientWithPassword(data: RegisterPatientParams): Promise<RegistrationResult> {
+  try {
+    if (!PATIENT_COLLECTION_ID) {
+      return { success: false, requiresOTP: false, error: "Configurație incompletă" };
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(data.password);
+    if (!passwordValidation.valid) {
+      return { success: false, requiresOTP: false, error: passwordValidation.errors[0] };
+    }
+
+    // Check if email already exists
+    const existingPatient = await databases.listDocuments(DATABASE_ID!, PATIENT_COLLECTION_ID, [
+      Query.equal("email", data.email),
+    ]);
+
+    if (existingPatient.documents.length > 0) {
+      return { success: false, requiresOTP: false, error: "Această adresă de email este deja înregistrată" };
+    }
+
+    // Hash password
+    const passwordHash = await hashPassword(data.password);
+
+    // Get client info for device fingerprint
+    const { ip, userAgent } = await getClientInfo();
+    const deviceId = generateDeviceId(userAgent, ip);
+
+    // Create initial device
+    const devices = addOrUpdateDevice([], deviceId, userAgent, ip);
+
+    // Create patient in Appwrite
+    const newPatient = await databases.createDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID,
+      ID.unique(),
+      {
+        userId: ID.unique(), // Legacy field
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        birthDate: data.birthDate.toISOString(),
+        gender: data.gender,
+        address: data.address,
+        occupation: data.occupation,
+        emergencyContactName: data.emergencyContactName,
+        emergencyContactNumber: data.emergencyContactNumber,
+        primaryPhysician: data.primaryPhysician || null,
+        insuranceProvider: data.insuranceProvider || null,
+        insurancePolicyNumber: data.insurancePolicyNumber || null,
+        allergies: data.allergies || null,
+        currentMedication: data.currentMedication || null,
+        familyMedicalHistory: data.familyMedicalHistory || null,
+        pastMedicalHistory: data.pastMedicalHistory || null,
+        privacyConsent: data.privacyConsent,
+        passwordHash,
+        devices: stringifyDevices(devices),
+      }
+    );
+
+    // Create Appwrite Auth user for OTP
+    let appwriteUserId: string;
+    try {
+      const existingUsers = await users.list([Query.equal("email", data.email)]);
+      if (existingUsers.users.length > 0) {
+        appwriteUserId = existingUsers.users[0].$id;
+      } else {
+        const newUser = await users.create(
+          ID.unique(),
+          data.email,
+          undefined,
+          undefined,
+          data.name
+        );
+        appwriteUserId = newUser.$id;
+      }
+
+      // Update patient with Appwrite user ID
+      await databases.updateDocument(DATABASE_ID!, PATIENT_COLLECTION_ID, newPatient.$id, {
+        appwriteAuthId: appwriteUserId,
+      });
+
+      // Send OTP for email verification
+      await account.createEmailToken(appwriteUserId, data.email);
+
+      return {
+        success: true,
+        requiresOTP: true,
+        userId: newPatient.$id,
+        userType: "patient",
+      };
+    } catch (e) {
+      console.error("Error creating Appwrite auth user:", e);
+      return {
+        success: true,
+        requiresOTP: true,
+        userId: newPatient.$id,
+        userType: "patient",
+        error: "Cont creat, dar verificarea email-ului a eșuat. Încercați să vă autentificați.",
+      };
+    }
+  } catch (error) {
+    console.error("Error registering patient:", error);
+    return { success: false, requiresOTP: false, error: "Eroare la înregistrare" };
+  }
+}
+
+/**
+ * Login with email and password
+ * Returns requiresOTP: true if this is a new device
+ */
+export async function loginWithPassword(
+  email: string,
+  password: string
+): Promise<LoginResult> {
+  try {
+    // Get client info
+    const { ip, userAgent } = await getClientInfo();
+    const deviceId = generateDeviceId(userAgent, ip);
+
+    // Check user type and find user
+    const userCheck = await checkUserTypeByEmail(email);
+
+    if (!userCheck.exists || !userCheck.type) {
+      // Generic error to prevent email enumeration
+      return { success: false, requiresOTP: false, error: "Email sau parolă incorectă" };
+    }
+
+    let user: Admin | Doctor | Patient | null = null;
+    let collectionId: string | undefined;
+    let sessionCookieName: string;
+
+    // Find user based on type
+    switch (userCheck.type) {
+      case "admin":
+        collectionId = ADMIN_COLLECTION_ID;
+        sessionCookieName = ADMIN_SESSION_COOKIE_NAME;
+        const admins = await databases.listDocuments(DATABASE_ID!, collectionId!, [
+          Query.equal("email", email),
+        ]);
+        user = admins.documents[0] as unknown as Admin;
+        break;
+
+      case "doctor":
+        collectionId = DOCTOR_COLLECTION_ID;
+        sessionCookieName = DOCTOR_SESSION_COOKIE_NAME;
+        const doctors = await databases.listDocuments(DATABASE_ID!, collectionId!, [
+          Query.equal("email", email),
+        ]);
+        user = doctors.documents[0] as unknown as Doctor;
+        break;
+
+      case "patient":
+        collectionId = PATIENT_COLLECTION_ID;
+        sessionCookieName = SESSION_COOKIE_NAME;
+        const patients = await databases.listDocuments(DATABASE_ID!, collectionId!, [
+          Query.equal("email", email),
+        ]);
+        user = patients.documents[0] as unknown as Patient;
+        break;
+
+      default:
+        return { success: false, requiresOTP: false, error: "Email sau parolă incorectă" };
+    }
+
+    if (!user || !collectionId) {
+      return { success: false, requiresOTP: false, error: "Email sau parolă incorectă" };
+    }
+
+    // Check if user has a password set
+    const passwordHash = (user as any).passwordHash;
+    if (!passwordHash) {
+      return {
+        success: false,
+        requiresOTP: false,
+        error: "Acest cont nu are o parolă setată. Folosiți link-ul magic pentru autentificare.",
+      };
+    }
+
+    // Verify password
+    const isValidPassword = await verifyPassword(password, passwordHash);
+    if (!isValidPassword) {
+      return { success: false, requiresOTP: false, error: "Email sau parolă incorectă" };
+    }
+
+    // Check if device is known
+    const devices = parseDevices((user as any).devices);
+    const isKnown = isKnownDevice(devices, deviceId);
+
+    if (!isKnown) {
+      // New device - require OTP
+      const appwriteUserId = (user as any).appwriteAuthId;
+
+      if (appwriteUserId) {
+        try {
+          // Send OTP via Appwrite
+          await account.createEmailToken(appwriteUserId, email);
+        } catch (e) {
+          // If Appwrite OTP fails, send via Resend
+          console.error("Appwrite OTP failed, trying Resend:", e);
+
+          if (resend) {
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+            // Store OTP temporarily
+            await databases.updateDocument(DATABASE_ID!, collectionId, user.$id, {
+              magicLinkToken: otp,
+              magicLinkExpiresAt: otpExpiry.toISOString(),
+            });
+
+            await resend.emails.send({
+              from: EMAIL_FROM,
+              to: email,
+              subject: "Cod de verificare - Tandem Dent",
+              html: createOTPEmailHtml({
+                userName: user.name,
+                otpCode: otp,
+                deviceInfo: `${userAgent} (IP: ${ip})`,
+              }),
+            });
+          }
+        }
+      }
+
+      return {
+        success: true,
+        requiresOTP: true,
+        userId: user.$id,
+        userType: userCheck.type as UserRole,
+      };
+    }
+
+    // Known device - create session directly
+    const sessionToken = ID.unique();
+    const sessionExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    // Update last used time for device
+    const updatedDevices = addOrUpdateDevice(devices, deviceId, userAgent, ip);
+
+    await databases.updateDocument(DATABASE_ID!, collectionId, user.$id, {
+      sessionToken,
+      sessionExpiresAt: sessionExpiresAt.toISOString(),
+      devices: stringifyDevices(updatedDevices),
+    });
+
+    // Set session cookie
+    const cookieStore = await cookies();
+    cookieStore.set(sessionCookieName!, sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      expires: sessionExpiresAt,
+      path: "/",
+    });
+
+    return {
+      success: true,
+      requiresOTP: false,
+      userId: user.$id,
+      userType: userCheck.type as UserRole,
+    };
+  } catch (error) {
+    console.error("Error logging in with password:", error);
+    return { success: false, requiresOTP: false, error: "Eroare la autentificare" };
+  }
+}
+
+/**
+ * Verify OTP and complete login for new device
+ */
+export async function verifyOTPAndLogin(
+  userId: string,
+  userType: UserRole,
+  otp: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { ip, userAgent } = await getClientInfo();
+    const deviceId = generateDeviceId(userAgent, ip);
+
+    let collectionId: string | undefined;
+    let sessionCookieName: string;
+
+    switch (userType) {
+      case "admin":
+        collectionId = ADMIN_COLLECTION_ID;
+        sessionCookieName = ADMIN_SESSION_COOKIE_NAME;
+        break;
+      case "doctor":
+        collectionId = DOCTOR_COLLECTION_ID;
+        sessionCookieName = DOCTOR_SESSION_COOKIE_NAME;
+        break;
+      case "patient":
+        collectionId = PATIENT_COLLECTION_ID;
+        sessionCookieName = SESSION_COOKIE_NAME;
+        break;
+      default:
+        return { success: false, error: "Tip de utilizator invalid" };
+    }
+
+    if (!collectionId) {
+      return { success: false, error: "Configurație incompletă" };
+    }
+
+    // Get user
+    const user = await databases.getDocument(DATABASE_ID!, collectionId, userId);
+    const appwriteUserId = (user as any).appwriteAuthId;
+
+    // Try to verify with Appwrite first
+    let otpVerified = false;
+
+    if (appwriteUserId) {
+      try {
+        await account.createSession(appwriteUserId, otp);
+        otpVerified = true;
+      } catch (e) {
+        console.error("Appwrite OTP verification failed:", e);
+      }
+    }
+
+    // If Appwrite verification failed, try our stored OTP
+    if (!otpVerified) {
+      const storedOtp = (user as any).magicLinkToken;
+      const otpExpiry = (user as any).magicLinkExpiresAt;
+
+      if (storedOtp && storedOtp === otp) {
+        if (otpExpiry && new Date(otpExpiry) > new Date()) {
+          otpVerified = true;
+          // Clear stored OTP
+          await databases.updateDocument(DATABASE_ID!, collectionId, userId, {
+            magicLinkToken: null,
+            magicLinkExpiresAt: null,
+          });
+        } else {
+          return { success: false, error: "Codul OTP a expirat" };
+        }
+      }
+    }
+
+    if (!otpVerified) {
+      return { success: false, error: "Cod OTP invalid" };
+    }
+
+    // OTP verified - add device and create session
+    const devices = parseDevices((user as any).devices);
+    const updatedDevices = addOrUpdateDevice(devices, deviceId, userAgent, ip);
+
+    const sessionToken = ID.unique();
+    const sessionExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    await databases.updateDocument(DATABASE_ID!, collectionId, userId, {
+      sessionToken,
+      sessionExpiresAt: sessionExpiresAt.toISOString(),
+      devices: stringifyDevices(updatedDevices),
+    });
+
+    // Set session cookie
+    const cookieStore = await cookies();
+    cookieStore.set(sessionCookieName, sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      expires: sessionExpiresAt,
+      path: "/",
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    return { success: false, error: "Eroare la verificare" };
+  }
+}
+
+/**
+ * Verify registration OTP (email verification)
+ */
+export async function verifyRegistrationOTP(
+  userId: string,
+  userType: UserRole,
+  otp: string
+): Promise<{ success: boolean; error?: string }> {
+  // Registration OTP verification is the same as login OTP
+  return verifyOTPAndLogin(userId, userType, otp);
+}
+
+/**
+ * Get user's known devices
+ */
+export async function getKnownDevices(
+  userId: string,
+  userType: UserRole
+): Promise<DeviceFingerprint[]> {
+  try {
+    let collectionId: string | undefined;
+
+    switch (userType) {
+      case "admin":
+        collectionId = ADMIN_COLLECTION_ID;
+        break;
+      case "doctor":
+        collectionId = DOCTOR_COLLECTION_ID;
+        break;
+      case "patient":
+        collectionId = PATIENT_COLLECTION_ID;
+        break;
+      default:
+        return [];
+    }
+
+    if (!collectionId) return [];
+
+    const user = await databases.getDocument(DATABASE_ID!, collectionId, userId);
+    return parseDevices((user as any).devices);
+  } catch (error) {
+    console.error("Error getting known devices:", error);
+    return [];
+  }
+}
+
+/**
+ * Remove a device from user's known devices
+ */
+export async function removeUserDevice(
+  userId: string,
+  userType: UserRole,
+  deviceId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    let collectionId: string | undefined;
+
+    switch (userType) {
+      case "admin":
+        collectionId = ADMIN_COLLECTION_ID;
+        break;
+      case "doctor":
+        collectionId = DOCTOR_COLLECTION_ID;
+        break;
+      case "patient":
+        collectionId = PATIENT_COLLECTION_ID;
+        break;
+      default:
+        return { success: false, error: "Tip de utilizator invalid" };
+    }
+
+    if (!collectionId) {
+      return { success: false, error: "Configurație incompletă" };
+    }
+
+    const user = await databases.getDocument(DATABASE_ID!, collectionId, userId);
+    const devices = parseDevices((user as any).devices);
+    const updatedDevices = removeDeviceFromList(devices, deviceId);
+
+    await databases.updateDocument(DATABASE_ID!, collectionId, userId, {
+      devices: stringifyDevices(updatedDevices),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error removing device:", error);
+    return { success: false, error: "Eroare la ștergerea dispozitivului" };
+  }
+}
+
+/**
+ * Set password for existing user (who doesn't have one)
+ */
+export async function setUserPassword(
+  userId: string,
+  userType: UserRole,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Validate password
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      return { success: false, error: passwordValidation.errors[0] };
+    }
+
+    let collectionId: string | undefined;
+
+    switch (userType) {
+      case "admin":
+        collectionId = ADMIN_COLLECTION_ID;
+        break;
+      case "doctor":
+        collectionId = DOCTOR_COLLECTION_ID;
+        break;
+      case "patient":
+        collectionId = PATIENT_COLLECTION_ID;
+        break;
+      default:
+        return { success: false, error: "Tip de utilizator invalid" };
+    }
+
+    if (!collectionId) {
+      return { success: false, error: "Configurație incompletă" };
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+
+    await databases.updateDocument(DATABASE_ID!, collectionId, userId, {
+      passwordHash,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error setting password:", error);
+    return { success: false, error: "Eroare la setarea parolei" };
+  }
+}
+
+/**
+ * Resend OTP for device verification
+ */
+export async function resendOTP(
+  userId: string,
+  userType: UserRole
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    let collectionId: string | undefined;
+
+    switch (userType) {
+      case "admin":
+        collectionId = ADMIN_COLLECTION_ID;
+        break;
+      case "doctor":
+        collectionId = DOCTOR_COLLECTION_ID;
+        break;
+      case "patient":
+        collectionId = PATIENT_COLLECTION_ID;
+        break;
+      default:
+        return { success: false, error: "Tip de utilizator invalid" };
+    }
+
+    if (!collectionId) {
+      return { success: false, error: "Configurație incompletă" };
+    }
+
+    const user = await databases.getDocument(DATABASE_ID!, collectionId, userId);
+    const email = (user as any).email;
+    const appwriteUserId = (user as any).appwriteAuthId;
+
+    if (appwriteUserId) {
+      try {
+        await account.createEmailToken(appwriteUserId, email);
+        return { success: true };
+      } catch (e) {
+        console.error("Appwrite OTP resend failed:", e);
+      }
+    }
+
+    // Fallback to Resend
+    if (resend) {
+      const { ip, userAgent } = await getClientInfo();
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+      await databases.updateDocument(DATABASE_ID!, collectionId, userId, {
+        magicLinkToken: otp,
+        magicLinkExpiresAt: otpExpiry.toISOString(),
+      });
+
+      await resend.emails.send({
+        from: EMAIL_FROM,
+        to: email,
+        subject: "Cod de verificare - Tandem Dent",
+        html: createOTPEmailHtml({
+          userName: (user as any).name,
+          otpCode: otp,
+          deviceInfo: `${userAgent} (IP: ${ip})`,
+        }),
+      });
+
+      return { success: true };
+    }
+
+    return { success: false, error: "Nu s-a putut trimite codul OTP" };
+  } catch (error) {
+    console.error("Error resending OTP:", error);
+    return { success: false, error: "Eroare la retrimiterea codului" };
   }
 }

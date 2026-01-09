@@ -95,3 +95,71 @@ declare interface CalendarLinks {
 declare type EmailRecipientType = "patient" | "doctor";
 declare type EmailType = "confirmation" | "reminder" | "cancellation";
 declare type EmailStatus = "sent" | "delivered" | "failed";
+
+// User roles
+declare type UserRole = "admin" | "doctor" | "patient";
+
+// Auth-related params
+declare interface BaseAuthFields {
+  passwordHash?: string;
+  devices?: string; // JSON stringified DeviceFingerprint[]
+}
+
+declare interface CreateAdminParams extends BaseAuthFields {
+  name: string;
+  email: string;
+  phone?: string;
+  avatar?: string;
+}
+
+declare interface RegisterAdminParams {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+}
+
+declare interface RegisterDoctorParams {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  specialty?: string;
+}
+
+declare interface RegisterPatientParams {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  birthDate: Date;
+  gender: Gender;
+  address: string;
+  occupation: string;
+  emergencyContactName: string;
+  emergencyContactNumber: string;
+  primaryPhysician?: string;
+  insuranceProvider?: string;
+  insurancePolicyNumber?: string;
+  allergies?: string;
+  currentMedication?: string;
+  familyMedicalHistory?: string;
+  pastMedicalHistory?: string;
+  privacyConsent: boolean;
+}
+
+declare interface LoginResult {
+  success: boolean;
+  requiresOTP: boolean;
+  userId?: string;
+  userType?: UserRole;
+  error?: string;
+}
+
+declare interface RegistrationResult {
+  success: boolean;
+  requiresOTP: boolean;
+  userId?: string;
+  userType?: UserRole;
+  error?: string;
+}

@@ -1,7 +1,7 @@
 import type { Models } from "node-appwrite";
 
 // User role type for authentication
-export type UserRole = "admin" | "doctor";
+export type UserRole = "admin" | "doctor" | "patient";
 
 // Admin interface for clinic administrators
 export interface Admin extends Models.Document {

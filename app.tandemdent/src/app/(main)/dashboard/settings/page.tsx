@@ -1,4 +1,5 @@
-import { Bell, Building, Calendar, Mail, Shield, Users } from "lucide-react";
+import { Bell, Building, Calendar, ChevronRight, Mail, Shield, Users } from "lucide-react";
+import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -120,26 +121,22 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              <CardTitle>Securitate</CardTitle>
-            </div>
-            <CardDescription>Setări acces administrator și autentificare</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Cheie acces administrator necesară</Label>
-                <p className="text-sm text-muted-foreground">
-                  Necesită cheie de acces pentru panoul de administrare
-                </p>
+        <Link href="/dashboard/settings/security">
+          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  <CardTitle>Securitate</CardTitle>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
-              <Switch defaultChecked />
-            </div>
-          </CardContent>
-        </Card>
+              <CardDescription>
+                Gestionează dispozitivele conectate și setările de securitate
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
 
         <Card>
           <CardHeader>
