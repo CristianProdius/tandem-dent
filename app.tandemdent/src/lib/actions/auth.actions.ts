@@ -217,35 +217,6 @@ export async function verifyAdminOTP(
 }
 
 /**
- * Verify admin passkey (fallback method)
- */
-export async function verifyAdminPasskey(passkey: string): Promise<{ success: boolean; error?: string }> {
-  const correctPasskey = process.env.NEXT_PUBLIC_ADMIN_PASSKEY || "123456";
-
-  if (passkey !== correctPasskey) {
-    return { success: false, error: "Invalid passkey" };
-  }
-
-  // Store admin session in cookie
-  const cookieStore = await cookies();
-  const sessionData = {
-    type: "passkey",
-    authenticatedAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-  };
-
-  cookieStore.set(ADMIN_SESSION_COOKIE_NAME, JSON.stringify(sessionData), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: "/",
-  });
-
-  return { success: true };
-}
-
-/**
  * Check if admin is authenticated
  */
 export async function getAdminSession(): Promise<{ authenticated: boolean; session?: { type: string; expiresAt: string } }> {

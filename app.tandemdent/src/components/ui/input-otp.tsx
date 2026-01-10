@@ -51,9 +51,7 @@ function InputOTP({
 
   // Sync internal state when external value changes (e.g., form reset)
   React.useEffect(() => {
-    if (value !== internalValue) {
-      setInternalValue(value)
-    }
+    setInternalValue(value)
   }, [value])
 
   React.useEffect(() => {
