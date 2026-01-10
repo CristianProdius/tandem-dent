@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle, Mail, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import {
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
+  REGEXP_ONLY_DIGITS,
 } from "@/components/ui/input-otp";
 import {
   loginWithPassword,
@@ -240,6 +242,7 @@ export function LoginForm() {
                 value={otpForm.watch("otp")}
                 onChange={(value) => otpForm.setValue("otp", value)}
                 disabled={isLoading}
+                pattern={REGEXP_ONLY_DIGITS}
               >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
@@ -344,14 +347,22 @@ export function LoginForm() {
               )}
             </Button>
 
-            <button
-              type="button"
-              onClick={handleMagicLinkFallback}
-              disabled={isLoading}
-              className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-            >
-              Trimite-mi un link de autentificare
-            </button>
+            <div className="flex flex-col items-center gap-2">
+              <Link
+                href="/auth/v2/forgot-password"
+                className="text-sm text-primary hover:underline"
+              >
+                Ați uitat parola?
+              </Link>
+              <button
+                type="button"
+                onClick={handleMagicLinkFallback}
+                disabled={isLoading}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+              >
+                Trimite-mi un link de autentificare
+              </button>
+            </div>
           </form>
         </CardContent>
       </Card>

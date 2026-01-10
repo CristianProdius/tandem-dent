@@ -5,14 +5,12 @@ import { ID, Query } from "node-appwrite";
 
 import {
   databases,
+  account,
   DATABASE_ID,
   PATIENT_COLLECTION_ID,
   APPOINTMENT_COLLECTION_ID,
   DOCTOR_COLLECTION_ID,
   ADMIN_COLLECTION_ID,
-  users,
-  account,
-  messaging,
 } from "@/lib/appwrite/appwrite.config";
 import { resend, EMAIL_FROM } from "@/lib/resend/resend.config";
 import type { Patient, Admin, Doctor, UserRole } from "@/types/appwrite.types";
@@ -26,6 +24,9 @@ import {
   removeDevice as removeDeviceFromList,
   isKnownDevice,
   validatePassword,
+  generateResetToken,
+  hashResetToken,
+  verifyResetToken,
   type DeviceFingerprint,
 } from "@/lib/utils/password";
 
@@ -110,11 +111,11 @@ export async function getLoggedInUser(): Promise<LoggedInUser> {
 }
 
 // ===========================================
-// Admin Authentication (Appwrite Auth OTP)
+// Admin Authentication (OTP via Appwrite)
 // ===========================================
 
 /**
- * Send OTP to admin email using Appwrite Auth's email token system
+ * Send OTP to admin email using Appwrite
  */
 export async function sendAdminEmailOTP(email: string): Promise<{ success: boolean; adminId?: string; userId?: string; error?: string }> {
   try {
@@ -134,53 +135,22 @@ export async function sendAdminEmailOTP(email: string): Promise<{ success: boole
 
     const admin = admins.documents[0] as unknown as Admin;
 
-    // Check if admin has an Appwrite Auth user, if not create one
-    let appwriteUserId = admin.appwriteAuthId;
-
-    if (!appwriteUserId) {
-      try {
-        // Try to find existing user by email
-        const existingUsers = await users.list([Query.equal("email", email)]);
-
-        if (existingUsers.users.length > 0) {
-          appwriteUserId = existingUsers.users[0].$id;
-        } else {
-          // Create a new Appwrite Auth user for this admin
-          const newUser = await users.create(
-            ID.unique(),
-            email,
-            undefined, // phone
-            undefined, // password
-            admin.name
-          );
-          appwriteUserId = newUser.$id;
-        }
-
-        // Store the Appwrite user ID in admin record
-        await databases.updateDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, admin.$id, {
-          appwriteAuthId: appwriteUserId,
-        });
-      } catch (e: any) {
-        console.error("Error creating/finding Appwrite user:", e);
-        return { success: false, error: "Eroare la crearea utilizatorului" };
-      }
+    // Send OTP via Appwrite
+    const otpResult = await sendAppwriteOTP(email);
+    if (!otpResult.success) {
+      return { success: false, error: otpResult.error };
     }
 
-    // Send OTP using Appwrite Auth's email token system (via account.createEmailToken)
-    // This uses the SMTP configured in Appwrite Console
-    try {
-      // Use account.createEmailToken - this sends an OTP email via Appwrite's configured SMTP
-      const token = await account.createEmailToken(appwriteUserId, email);
+    // Store Appwrite userId for session creation
+    await databases.updateDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, admin.$id, {
+      appwriteOtpUserId: otpResult.userId,
+    });
 
-      return {
-        success: true,
-        adminId: admin.$id,
-        userId: appwriteUserId,
-      };
-    } catch (e: any) {
-      console.error("Error sending Appwrite email token:", e);
-      return { success: false, error: "Eroare la trimiterea codului OTP" };
-    }
+    return {
+      success: true,
+      adminId: admin.$id,
+      userId: otpResult.userId,
+    };
   } catch (error) {
     console.error("Error sending admin OTP:", error);
     return { success: false, error: "Eroare la trimiterea codului" };
@@ -188,7 +158,7 @@ export async function sendAdminEmailOTP(email: string): Promise<{ success: boole
 }
 
 /**
- * Verify admin OTP and create session using Appwrite Auth
+ * Verify admin OTP and create session
  */
 export async function verifyAdminOTP(
   adminId: string,
@@ -202,47 +172,44 @@ export async function verifyAdminOTP(
 
     // Get admin by ID
     const admin = await databases.getDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, adminId) as unknown as Admin;
-
-    // Get the Appwrite user ID
-    const appwriteUserId = userId || admin.appwriteAuthId;
+    const appwriteUserId = userId || (admin as any).appwriteOtpUserId;
 
     if (!appwriteUserId) {
-      return { success: false, error: "Utilizator negăsit" };
+      return { success: false, error: "Sesiune OTP invalidă" };
     }
 
-    // Verify OTP with Appwrite Auth and create session
+    // Verify OTP via Appwrite - creates session
     try {
-      // Create session using the OTP (this verifies the OTP)
-      const session = await account.createSession(appwriteUserId, otp);
-
-      // Generate our own session token for cookie-based auth
-      const sessionToken = ID.unique();
-      const sessionExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-
-      // Store session token in admin record
-      await databases.updateDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, admin.$id, {
-        sessionToken,
-        sessionExpiresAt: sessionExpiresAt.toISOString(),
-      });
-
-      // Set session cookie
-      const cookieStore = await cookies();
-      cookieStore.set(ADMIN_SESSION_COOKIE_NAME, sessionToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: "/",
-      });
-
-      return { success: true };
-    } catch (e: any) {
-      console.error("Appwrite session creation error:", e);
-      if (e?.code === 401) {
+      await account.createSession(appwriteUserId, otp);
+    } catch (error: any) {
+      if (error.code === 401) {
         return { success: false, error: "Cod OTP invalid sau expirat" };
       }
-      return { success: false, error: "Eroare de verificare" };
+      throw error;
     }
+
+    // OTP verified - create our session
+    const sessionToken = ID.unique();
+    const sessionExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    // Clear OTP userId and store session token
+    await databases.updateDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, admin.$id, {
+      appwriteOtpUserId: null,
+      sessionToken,
+      sessionExpiresAt: sessionExpiresAt.toISOString(),
+    });
+
+    // Set session cookie
+    const cookieStore = await cookies();
+    cookieStore.set(ADMIN_SESSION_COOKIE_NAME, sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: "/",
+    });
+
+    return { success: true };
   } catch (error) {
     console.error("Error verifying admin OTP:", error);
     return { success: false, error: "Eroare de verificare" };
@@ -927,49 +894,26 @@ async function getClientInfo(): Promise<{ ip: string; userAgent: string }> {
   return { ip, userAgent };
 }
 
+
 /**
- * OTP Email Template for new device verification
+ * Send OTP via Appwrite (uses configured SMTP provider - Resend)
  */
-const createOTPEmailHtml = (data: {
-  userName: string;
-  otpCode: string;
-  deviceInfo: string;
-}) => `
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background: linear-gradient(135deg, #d4af37, #b8860b); padding: 20px; text-align: center; color: white; border-radius: 8px 8px 0 0; }
-    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
-    .otp-code { font-size: 32px; font-weight: bold; color: #d4af37; letter-spacing: 4px; text-align: center; padding: 20px; background: white; border-radius: 8px; margin: 20px 0; }
-    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-    .warning { color: #666; font-size: 14px; margin-top: 20px; }
-    .device-info { background: #fff3cd; padding: 10px; border-radius: 4px; margin: 15px 0; font-size: 13px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Verificare Dispozitiv Nou</h1>
-    </div>
-    <div class="content">
-      <p>Dragă ${data.userName},</p>
-      <p>Am detectat o încercare de autentificare de pe un dispozitiv nou:</p>
-      <div class="device-info">${data.deviceInfo}</div>
-      <p>Introduceți codul de mai jos pentru a confirma că sunteți dvs.:</p>
-      <div class="otp-code">${data.otpCode}</div>
-      <p class="warning">Acest cod expiră în 10 minute.</p>
-      <p class="warning">Dacă nu ați încercat să vă autentificați, vă rugăm să vă schimbați parola imediat.</p>
-    </div>
-    <div class="footer">
-      <p>Tandem Dent - ${BASE_URL}</p>
-    </div>
-  </div>
-</body>
-</html>
-`;
+async function sendAppwriteOTP(email: string): Promise<{
+  success: boolean;
+  userId?: string;
+  error?: string;
+}> {
+  try {
+    const result = await account.createEmailToken(
+      ID.unique(),
+      email
+    );
+    return { success: true, userId: result.userId };
+  } catch (error) {
+    console.error("Error sending Appwrite OTP:", error);
+    return { success: false, error: "Eroare la trimiterea codului OTP" };
+  }
+}
 
 /**
  * Register a new admin with email and password
@@ -1019,39 +963,10 @@ export async function registerAdmin(data: RegisterAdminParams): Promise<Registra
       }
     );
 
-    // Create Appwrite Auth user for OTP
-    let appwriteUserId: string;
-    try {
-      const existingUsers = await users.list([Query.equal("email", data.email)]);
-      if (existingUsers.users.length > 0) {
-        appwriteUserId = existingUsers.users[0].$id;
-      } else {
-        const newUser = await users.create(
-          ID.unique(),
-          data.email,
-          undefined,
-          undefined,
-          data.name
-        );
-        appwriteUserId = newUser.$id;
-      }
+    // Send OTP for email verification via Appwrite
+    const otpResult = await sendAppwriteOTP(data.email);
 
-      // Update admin with Appwrite user ID
-      await databases.updateDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, newAdmin.$id, {
-        appwriteAuthId: appwriteUserId,
-      });
-
-      // Send OTP for email verification
-      await account.createEmailToken(appwriteUserId, data.email);
-
-      return {
-        success: true,
-        requiresOTP: true,
-        userId: newAdmin.$id,
-        userType: "admin",
-      };
-    } catch (e) {
-      console.error("Error creating Appwrite auth user:", e);
+    if (!otpResult.success) {
       // Admin was created, but OTP failed - they can still login
       return {
         success: true,
@@ -1061,6 +976,18 @@ export async function registerAdmin(data: RegisterAdminParams): Promise<Registra
         error: "Cont creat, dar verificarea email-ului a eșuat. Încercați să vă autentificați.",
       };
     }
+
+    // Store Appwrite userId for session creation
+    await databases.updateDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, newAdmin.$id, {
+      appwriteOtpUserId: otpResult.userId,
+    });
+
+    return {
+      success: true,
+      requiresOTP: true,
+      userId: newAdmin.$id,
+      userType: "admin",
+    };
   } catch (error) {
     console.error("Error registering admin:", error);
     return { success: false, requiresOTP: false, error: "Eroare la înregistrare" };
@@ -1117,39 +1044,10 @@ export async function registerDoctor(data: RegisterDoctorParams): Promise<Regist
       }
     );
 
-    // Create Appwrite Auth user for OTP
-    let appwriteUserId: string;
-    try {
-      const existingUsers = await users.list([Query.equal("email", data.email)]);
-      if (existingUsers.users.length > 0) {
-        appwriteUserId = existingUsers.users[0].$id;
-      } else {
-        const newUser = await users.create(
-          ID.unique(),
-          data.email,
-          undefined,
-          undefined,
-          data.name
-        );
-        appwriteUserId = newUser.$id;
-      }
+    // Send OTP for email verification via Appwrite
+    const otpResult = await sendAppwriteOTP(data.email);
 
-      // Update doctor with Appwrite user ID
-      await databases.updateDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID, newDoctor.$id, {
-        appwriteAuthId: appwriteUserId,
-      });
-
-      // Send OTP for email verification
-      await account.createEmailToken(appwriteUserId, data.email);
-
-      return {
-        success: true,
-        requiresOTP: true,
-        userId: newDoctor.$id,
-        userType: "doctor",
-      };
-    } catch (e) {
-      console.error("Error creating Appwrite auth user:", e);
+    if (!otpResult.success) {
       return {
         success: true,
         requiresOTP: true,
@@ -1158,6 +1056,18 @@ export async function registerDoctor(data: RegisterDoctorParams): Promise<Regist
         error: "Cont creat, dar verificarea email-ului a eșuat. Încercați să vă autentificați.",
       };
     }
+
+    // Store Appwrite userId for session creation
+    await databases.updateDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID, newDoctor.$id, {
+      appwriteOtpUserId: otpResult.userId,
+    });
+
+    return {
+      success: true,
+      requiresOTP: true,
+      userId: newDoctor.$id,
+      userType: "doctor",
+    };
   } catch (error) {
     console.error("Error registering doctor:", error);
     return { success: false, requiresOTP: false, error: "Eroare la înregistrare" };
@@ -1199,7 +1109,7 @@ export async function createDoctorWithPassword(data: {
       passwordHash = await hashPassword(data.password);
     }
 
-    // Create doctor in Appwrite
+    // Create doctor in Appwrite database
     const newDoctor = await databases.createDocument(
       DATABASE_ID!,
       DOCTOR_COLLECTION_ID,
@@ -1213,29 +1123,6 @@ export async function createDoctorWithPassword(data: {
         googleCalendarConnected: false,
       }
     );
-
-    // Create Appwrite Auth user for future OTP/magic link
-    try {
-      const existingUsers = await users.list([Query.equal("email", data.email)]);
-      if (existingUsers.users.length === 0) {
-        const newUser = await users.create(
-          ID.unique(),
-          data.email,
-          undefined,
-          undefined,
-          data.name
-        );
-        await databases.updateDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID, newDoctor.$id, {
-          appwriteAuthId: newUser.$id,
-        });
-      } else {
-        await databases.updateDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID, newDoctor.$id, {
-          appwriteAuthId: existingUsers.users[0].$id,
-        });
-      }
-    } catch (e) {
-      console.error("Error creating Appwrite auth user for doctor:", e);
-    }
 
     return { success: true, doctorId: newDoctor.$id };
   } catch (error) {
@@ -1307,39 +1194,10 @@ export async function registerPatientWithPassword(data: RegisterPatientParams): 
       }
     );
 
-    // Create Appwrite Auth user for OTP
-    let appwriteUserId: string;
-    try {
-      const existingUsers = await users.list([Query.equal("email", data.email)]);
-      if (existingUsers.users.length > 0) {
-        appwriteUserId = existingUsers.users[0].$id;
-      } else {
-        const newUser = await users.create(
-          ID.unique(),
-          data.email,
-          undefined,
-          undefined,
-          data.name
-        );
-        appwriteUserId = newUser.$id;
-      }
+    // Send OTP for email verification via Appwrite
+    const otpResult = await sendAppwriteOTP(data.email);
 
-      // Update patient with Appwrite user ID
-      await databases.updateDocument(DATABASE_ID!, PATIENT_COLLECTION_ID, newPatient.$id, {
-        appwriteAuthId: appwriteUserId,
-      });
-
-      // Send OTP for email verification
-      await account.createEmailToken(appwriteUserId, data.email);
-
-      return {
-        success: true,
-        requiresOTP: true,
-        userId: newPatient.$id,
-        userType: "patient",
-      };
-    } catch (e) {
-      console.error("Error creating Appwrite auth user:", e);
+    if (!otpResult.success) {
       return {
         success: true,
         requiresOTP: true,
@@ -1348,6 +1206,18 @@ export async function registerPatientWithPassword(data: RegisterPatientParams): 
         error: "Cont creat, dar verificarea email-ului a eșuat. Încercați să vă autentificați.",
       };
     }
+
+    // Store Appwrite userId for session creation
+    await databases.updateDocument(DATABASE_ID!, PATIENT_COLLECTION_ID, newPatient.$id, {
+      appwriteOtpUserId: otpResult.userId,
+    });
+
+    return {
+      success: true,
+      requiresOTP: true,
+      userId: newPatient.$id,
+      userType: "patient",
+    };
   } catch (error) {
     console.error("Error registering patient:", error);
     return { success: false, requiresOTP: false, error: "Eroare la înregistrare" };
@@ -1437,40 +1307,17 @@ export async function loginWithPassword(
     const isKnown = isKnownDevice(devices, deviceId);
 
     if (!isKnown) {
-      // New device - require OTP
-      const appwriteUserId = (user as any).appwriteAuthId;
+      // New device - require OTP via Appwrite
+      const otpResult = await sendAppwriteOTP(email);
 
-      if (appwriteUserId) {
-        try {
-          // Send OTP via Appwrite
-          await account.createEmailToken(appwriteUserId, email);
-        } catch (e) {
-          // If Appwrite OTP fails, send via Resend
-          console.error("Appwrite OTP failed, trying Resend:", e);
-
-          if (resend) {
-            const otp = Math.floor(100000 + Math.random() * 900000).toString();
-            const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-
-            // Store OTP temporarily
-            await databases.updateDocument(DATABASE_ID!, collectionId, user.$id, {
-              magicLinkToken: otp,
-              magicLinkExpiresAt: otpExpiry.toISOString(),
-            });
-
-            await resend.emails.send({
-              from: EMAIL_FROM,
-              to: email,
-              subject: "Cod de verificare - Tandem Dent",
-              html: createOTPEmailHtml({
-                userName: user.name,
-                otpCode: otp,
-                deviceInfo: `${userAgent} (IP: ${ip})`,
-              }),
-            });
-          }
-        }
+      if (!otpResult.success) {
+        return { success: false, requiresOTP: false, error: otpResult.error || "Eroare la trimiterea OTP" };
       }
+
+      // Store Appwrite userId for verification
+      await databases.updateDocument(DATABASE_ID!, collectionId, user.$id, {
+        appwriteOtpUserId: otpResult.userId,
+      });
 
       return {
         success: true,
@@ -1553,41 +1400,20 @@ export async function verifyOTPAndLogin(
 
     // Get user
     const user = await databases.getDocument(DATABASE_ID!, collectionId, userId);
-    const appwriteUserId = (user as any).appwriteAuthId;
+    const appwriteUserId = (user as any).appwriteOtpUserId;
 
-    // Try to verify with Appwrite first
-    let otpVerified = false;
-
-    if (appwriteUserId) {
-      try {
-        await account.createSession(appwriteUserId, otp);
-        otpVerified = true;
-      } catch (e) {
-        console.error("Appwrite OTP verification failed:", e);
-      }
+    if (!appwriteUserId) {
+      return { success: false, error: "Sesiune OTP invalidă" };
     }
 
-    // If Appwrite verification failed, try our stored OTP
-    if (!otpVerified) {
-      const storedOtp = (user as any).magicLinkToken;
-      const otpExpiry = (user as any).magicLinkExpiresAt;
-
-      if (storedOtp && storedOtp === otp) {
-        if (otpExpiry && new Date(otpExpiry) > new Date()) {
-          otpVerified = true;
-          // Clear stored OTP
-          await databases.updateDocument(DATABASE_ID!, collectionId, userId, {
-            magicLinkToken: null,
-            magicLinkExpiresAt: null,
-          });
-        } else {
-          return { success: false, error: "Codul OTP a expirat" };
-        }
+    // Verify OTP via Appwrite
+    try {
+      await account.createSession(appwriteUserId, otp);
+    } catch (error: any) {
+      if (error.code === 401) {
+        return { success: false, error: "Cod OTP invalid sau expirat" };
       }
-    }
-
-    if (!otpVerified) {
-      return { success: false, error: "Cod OTP invalid" };
+      throw error;
     }
 
     // OTP verified - add device and create session
@@ -1597,7 +1423,9 @@ export async function verifyOTPAndLogin(
     const sessionToken = ID.unique();
     const sessionExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
+    // Clear OTP userId and update session
     await databases.updateDocument(DATABASE_ID!, collectionId, userId, {
+      appwriteOtpUserId: null,
       sessionToken,
       sessionExpiresAt: sessionExpiresAt.toISOString(),
       devices: stringifyDevices(updatedDevices),
@@ -1788,45 +1616,682 @@ export async function resendOTP(
 
     const user = await databases.getDocument(DATABASE_ID!, collectionId, userId);
     const email = (user as any).email;
-    const appwriteUserId = (user as any).appwriteAuthId;
 
-    if (appwriteUserId) {
-      try {
-        await account.createEmailToken(appwriteUserId, email);
-        return { success: true };
-      } catch (e) {
-        console.error("Appwrite OTP resend failed:", e);
-      }
+    // Send new OTP via Appwrite
+    const otpResult = await sendAppwriteOTP(email);
+    if (!otpResult.success) {
+      return { success: false, error: otpResult.error };
     }
 
-    // Fallback to Resend
-    if (resend) {
-      const { ip, userAgent } = await getClientInfo();
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    // Update stored Appwrite userId
+    await databases.updateDocument(DATABASE_ID!, collectionId, userId, {
+      appwriteOtpUserId: otpResult.userId,
+    });
 
-      await databases.updateDocument(DATABASE_ID!, collectionId, userId, {
-        magicLinkToken: otp,
-        magicLinkExpiresAt: otpExpiry.toISOString(),
-      });
-
-      await resend.emails.send({
-        from: EMAIL_FROM,
-        to: email,
-        subject: "Cod de verificare - Tandem Dent",
-        html: createOTPEmailHtml({
-          userName: (user as any).name,
-          otpCode: otp,
-          deviceInfo: `${userAgent} (IP: ${ip})`,
-        }),
-      });
-
-      return { success: true };
-    }
-
-    return { success: false, error: "Nu s-a putut trimite codul OTP" };
+    return { success: true };
   } catch (error) {
     console.error("Error resending OTP:", error);
     return { success: false, error: "Eroare la retrimiterea codului" };
+  }
+}
+
+// ===========================================
+// Password Reset Flow
+// ===========================================
+
+/**
+ * Password Reset Email Template
+ */
+const createPasswordResetEmailHtml = (data: {
+  userName: string;
+  resetLink: string;
+  expiresInMinutes: number;
+}) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #d4af37, #b8860b); padding: 20px; text-align: center; color: white; border-radius: 8px 8px 0 0; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+    .button { display: inline-block; background: #d4af37; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    .warning { color: #666; font-size: 14px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Resetare Parolă</h1>
+    </div>
+    <div class="content">
+      <p>Dragă ${data.userName},</p>
+      <p>Am primit o cerere de resetare a parolei pentru contul dvs. Tandem Dent.</p>
+      <p>Apăsați butonul de mai jos pentru a vă seta o parolă nouă:</p>
+      <a href="${data.resetLink}" class="button">Resetează Parola</a>
+      <p class="warning">Acest link expiră în ${data.expiresInMinutes} minute.</p>
+      <p class="warning">Dacă nu ați solicitat resetarea parolei, puteți ignora acest email. Parola dvs. actuală va rămâne neschimbată.</p>
+    </div>
+    <div class="footer">
+      <p>Tandem Dent - ${BASE_URL}</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+/**
+ * Request password reset - sends email with reset link
+ * Returns success even if email doesn't exist (to prevent enumeration)
+ */
+export async function requestPasswordReset(
+  email: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Find user by email (check all collections)
+    let user: Admin | Doctor | Patient | null = null;
+    let collectionId: string | undefined;
+    let userType: string | null = null;
+
+    // Check admin
+    if (ADMIN_COLLECTION_ID) {
+      const admins = await databases.listDocuments(DATABASE_ID!, ADMIN_COLLECTION_ID, [
+        Query.equal("email", email),
+      ]);
+      if (admins.documents.length > 0) {
+        user = admins.documents[0] as unknown as Admin;
+        collectionId = ADMIN_COLLECTION_ID;
+        userType = "admin";
+      }
+    }
+
+    // Check doctor
+    if (!user && DOCTOR_COLLECTION_ID) {
+      const doctors = await databases.listDocuments(DATABASE_ID!, DOCTOR_COLLECTION_ID, [
+        Query.equal("email", email),
+      ]);
+      if (doctors.documents.length > 0) {
+        user = doctors.documents[0] as unknown as Doctor;
+        collectionId = DOCTOR_COLLECTION_ID;
+        userType = "doctor";
+      }
+    }
+
+    // Check patient
+    if (!user && PATIENT_COLLECTION_ID) {
+      const patients = await databases.listDocuments(DATABASE_ID!, PATIENT_COLLECTION_ID, [
+        Query.equal("email", email),
+      ]);
+      if (patients.documents.length > 0) {
+        user = patients.documents[0] as unknown as Patient;
+        collectionId = PATIENT_COLLECTION_ID;
+        userType = "patient";
+      }
+    }
+
+    // Return success even if user not found (prevent enumeration)
+    if (!user || !collectionId || !userType) {
+      return { success: true };
+    }
+
+    // Generate reset token
+    const token = generateResetToken();
+    const tokenHash = hashResetToken(token);
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    // Store hashed token in user document
+    await databases.updateDocument(DATABASE_ID!, collectionId, user.$id, {
+      resetToken: tokenHash,
+      resetTokenExpiry: expiresAt.toISOString(),
+    });
+
+    // Build reset link with token and email
+    const resetLink = `${BASE_URL}/auth/v2/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+    // Send email
+    if (resend) {
+      const { error } = await resend.emails.send({
+        from: EMAIL_FROM,
+        to: email,
+        subject: "Resetare Parolă - Tandem Dent",
+        html: createPasswordResetEmailHtml({
+          userName: user.name,
+          resetLink,
+          expiresInMinutes: 60,
+        }),
+      });
+
+      if (error) {
+        console.error("Error sending password reset email:", error);
+        return { success: false, error: "Eroare la trimiterea emailului" };
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error requesting password reset:", error);
+    return { success: false, error: "Eroare la procesarea cererii" };
+  }
+}
+
+/**
+ * Reset password using token from email link
+ */
+export async function resetPassword(
+  token: string,
+  email: string,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Validate password
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      return { success: false, error: passwordValidation.errors[0] };
+    }
+
+    // Find user by email (check all collections)
+    let user: Admin | Doctor | Patient | null = null;
+    let collectionId: string | undefined;
+
+    // Check admin
+    if (ADMIN_COLLECTION_ID) {
+      const admins = await databases.listDocuments(DATABASE_ID!, ADMIN_COLLECTION_ID, [
+        Query.equal("email", email),
+      ]);
+      if (admins.documents.length > 0) {
+        user = admins.documents[0] as unknown as Admin;
+        collectionId = ADMIN_COLLECTION_ID;
+      }
+    }
+
+    // Check doctor
+    if (!user && DOCTOR_COLLECTION_ID) {
+      const doctors = await databases.listDocuments(DATABASE_ID!, DOCTOR_COLLECTION_ID, [
+        Query.equal("email", email),
+      ]);
+      if (doctors.documents.length > 0) {
+        user = doctors.documents[0] as unknown as Doctor;
+        collectionId = DOCTOR_COLLECTION_ID;
+      }
+    }
+
+    // Check patient
+    if (!user && PATIENT_COLLECTION_ID) {
+      const patients = await databases.listDocuments(DATABASE_ID!, PATIENT_COLLECTION_ID, [
+        Query.equal("email", email),
+      ]);
+      if (patients.documents.length > 0) {
+        user = patients.documents[0] as unknown as Patient;
+        collectionId = PATIENT_COLLECTION_ID;
+      }
+    }
+
+    if (!user || !collectionId) {
+      return { success: false, error: "Link de resetare invalid sau expirat" };
+    }
+
+    // Get stored token hash and expiry
+    const storedTokenHash = (user as any).resetToken;
+    const tokenExpiry = (user as any).resetTokenExpiry;
+
+    if (!storedTokenHash || !tokenExpiry) {
+      return { success: false, error: "Link de resetare invalid sau expirat" };
+    }
+
+    // Check if token is expired
+    if (new Date(tokenExpiry) < new Date()) {
+      // Clear expired token
+      await databases.updateDocument(DATABASE_ID!, collectionId, user.$id, {
+        resetToken: null,
+        resetTokenExpiry: null,
+      });
+      return { success: false, error: "Link de resetare expirat. Vă rugăm solicitați unul nou." };
+    }
+
+    // Verify token
+    if (!verifyResetToken(token, storedTokenHash)) {
+      return { success: false, error: "Link de resetare invalid" };
+    }
+
+    // Hash new password
+    const passwordHash = await hashPassword(newPassword);
+
+    // Update password and clear reset token
+    await databases.updateDocument(DATABASE_ID!, collectionId, user.$id, {
+      passwordHash,
+      resetToken: null,
+      resetTokenExpiry: null,
+      // Optionally clear all devices to force re-login everywhere
+      // devices: null,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return { success: false, error: "Eroare la resetarea parolei" };
+  }
+}
+
+/**
+ * Validate reset token without using it
+ * Used to check if token is valid before showing reset form
+ */
+export async function validateResetToken(
+  token: string,
+  email: string
+): Promise<{ valid: boolean; error?: string }> {
+  try {
+    // Find user by email
+    let user: Admin | Doctor | Patient | null = null;
+    let collectionId: string | undefined;
+
+    if (ADMIN_COLLECTION_ID) {
+      const admins = await databases.listDocuments(DATABASE_ID!, ADMIN_COLLECTION_ID, [
+        Query.equal("email", email),
+      ]);
+      if (admins.documents.length > 0) {
+        user = admins.documents[0] as unknown as Admin;
+        collectionId = ADMIN_COLLECTION_ID;
+      }
+    }
+
+    if (!user && DOCTOR_COLLECTION_ID) {
+      const doctors = await databases.listDocuments(DATABASE_ID!, DOCTOR_COLLECTION_ID, [
+        Query.equal("email", email),
+      ]);
+      if (doctors.documents.length > 0) {
+        user = doctors.documents[0] as unknown as Doctor;
+        collectionId = DOCTOR_COLLECTION_ID;
+      }
+    }
+
+    if (!user && PATIENT_COLLECTION_ID) {
+      const patients = await databases.listDocuments(DATABASE_ID!, PATIENT_COLLECTION_ID, [
+        Query.equal("email", email),
+      ]);
+      if (patients.documents.length > 0) {
+        user = patients.documents[0] as unknown as Patient;
+        collectionId = PATIENT_COLLECTION_ID;
+      }
+    }
+
+    if (!user) {
+      return { valid: false, error: "Link de resetare invalid" };
+    }
+
+    const storedTokenHash = (user as any).resetToken;
+    const tokenExpiry = (user as any).resetTokenExpiry;
+
+    if (!storedTokenHash || !tokenExpiry) {
+      return { valid: false, error: "Link de resetare invalid sau expirat" };
+    }
+
+    if (new Date(tokenExpiry) < new Date()) {
+      return { valid: false, error: "Link de resetare expirat" };
+    }
+
+    if (!verifyResetToken(token, storedTokenHash)) {
+      return { valid: false, error: "Link de resetare invalid" };
+    }
+
+    return { valid: true };
+  } catch (error) {
+    console.error("Error validating reset token:", error);
+    return { valid: false, error: "Eroare la validarea link-ului" };
+  }
+}
+
+// ===========================================
+// Admin Invitation System
+// ===========================================
+
+/**
+ * Admin Invitation Email Template
+ */
+const createAdminInviteEmailHtml = (data: {
+  adminName: string;
+  inviterName: string;
+  inviteLink: string;
+  expiresInHours: number;
+}) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #d4af37, #b8860b); padding: 20px; text-align: center; color: white; border-radius: 8px 8px 0 0; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+    .button { display: inline-block; background: #d4af37; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    .warning { color: #666; font-size: 14px; margin-top: 20px; }
+    .highlight { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Invitație Administrator</h1>
+    </div>
+    <div class="content">
+      <p>Dragă ${data.adminName},</p>
+      <p><strong>${data.inviterName}</strong> v-a invitat să vă alăturați echipei de administrare Tandem Dent.</p>
+      <div class="highlight">
+        <p><strong>Ce puteți face ca administrator:</strong></p>
+        <ul>
+          <li>Gestiona programările clinicii</li>
+          <li>Administra medicii și pacienții</li>
+          <li>Configura setările clinicii</li>
+        </ul>
+      </div>
+      <p>Apăsați butonul de mai jos pentru a vă configura contul:</p>
+      <a href="${data.inviteLink}" class="button">Acceptă Invitația</a>
+      <p class="warning">Acest link expiră în ${data.expiresInHours} ore.</p>
+      <p class="warning">Dacă nu vă așteptați la această invitație, puteți ignora acest email.</p>
+    </div>
+    <div class="footer">
+      <p>Tandem Dent - ${BASE_URL}</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+/**
+ * Invite a new admin
+ * Creates admin document with invite token and sends invitation email
+ */
+export async function inviteAdmin(data: {
+  name: string;
+  email: string;
+  inviterName: string;
+}): Promise<{ success: boolean; adminId?: string; error?: string }> {
+  try {
+    if (!ADMIN_COLLECTION_ID) {
+      return { success: false, error: "Configurație incompletă" };
+    }
+
+    // Check if email already exists
+    const existingAdmin = await databases.listDocuments(DATABASE_ID!, ADMIN_COLLECTION_ID, [
+      Query.equal("email", data.email),
+    ]);
+
+    if (existingAdmin.documents.length > 0) {
+      return { success: false, error: "Această adresă de email este deja înregistrată" };
+    }
+
+    // Also check doctors collection to prevent duplicate emails across roles
+    if (DOCTOR_COLLECTION_ID) {
+      const existingDoctor = await databases.listDocuments(DATABASE_ID!, DOCTOR_COLLECTION_ID, [
+        Query.equal("email", data.email),
+      ]);
+      if (existingDoctor.documents.length > 0) {
+        return { success: false, error: "Această adresă de email este deja folosită de un medic" };
+      }
+    }
+
+    // Generate invite token
+    const token = generateResetToken();
+    const tokenHash = hashResetToken(token);
+    const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72 hours (3 days)
+
+    // Create admin document with pending status
+    const newAdmin = await databases.createDocument(
+      DATABASE_ID!,
+      ADMIN_COLLECTION_ID,
+      ID.unique(),
+      {
+        name: data.name,
+        email: data.email,
+        inviteToken: tokenHash,
+        inviteTokenExpiry: expiresAt.toISOString(),
+        inviteStatus: "pending",
+      }
+    );
+
+    // Build invite link
+    const inviteLink = `${BASE_URL}/auth/v2/accept-invite?token=${token}&email=${encodeURIComponent(data.email)}`;
+
+    // Send invitation email
+    if (resend) {
+      const { error } = await resend.emails.send({
+        from: EMAIL_FROM,
+        to: data.email,
+        subject: "Invitație Administrator - Tandem Dent",
+        html: createAdminInviteEmailHtml({
+          adminName: data.name,
+          inviterName: data.inviterName,
+          inviteLink,
+          expiresInHours: 72,
+        }),
+      });
+
+      if (error) {
+        console.error("Error sending admin invite email:", error);
+        // Delete the admin document since email failed
+        await databases.deleteDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, newAdmin.$id);
+        return { success: false, error: "Eroare la trimiterea invitației pe email" };
+      }
+    }
+
+    return { success: true, adminId: newAdmin.$id };
+  } catch (error) {
+    console.error("Error inviting admin:", error);
+    return { success: false, error: "Eroare la crearea invitației" };
+  }
+}
+
+/**
+ * Validate admin invite token
+ */
+export async function validateAdminInvite(
+  token: string,
+  email: string
+): Promise<{ valid: boolean; adminName?: string; error?: string }> {
+  try {
+    if (!ADMIN_COLLECTION_ID) {
+      return { valid: false, error: "Configurație incompletă" };
+    }
+
+    // Find admin by email
+    const admins = await databases.listDocuments(DATABASE_ID!, ADMIN_COLLECTION_ID, [
+      Query.equal("email", email),
+    ]);
+
+    if (admins.documents.length === 0) {
+      return { valid: false, error: "Invitație invalidă" };
+    }
+
+    const admin = admins.documents[0] as unknown as Admin;
+
+    // Check invite status
+    if ((admin as any).inviteStatus !== "pending") {
+      return { valid: false, error: "Această invitație a fost deja folosită" };
+    }
+
+    // Get stored token hash and expiry
+    const storedTokenHash = (admin as any).inviteToken;
+    const tokenExpiry = (admin as any).inviteTokenExpiry;
+
+    if (!storedTokenHash || !tokenExpiry) {
+      return { valid: false, error: "Invitație invalidă sau expirată" };
+    }
+
+    // Check if token is expired
+    if (new Date(tokenExpiry) < new Date()) {
+      return { valid: false, error: "Invitația a expirat. Solicitați o nouă invitație." };
+    }
+
+    // Verify token
+    if (!verifyResetToken(token, storedTokenHash)) {
+      return { valid: false, error: "Invitație invalidă" };
+    }
+
+    return { valid: true, adminName: admin.name };
+  } catch (error) {
+    console.error("Error validating admin invite:", error);
+    return { valid: false, error: "Eroare la validarea invitației" };
+  }
+}
+
+/**
+ * Accept admin invitation and set password
+ */
+export async function acceptAdminInvite(
+  token: string,
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!ADMIN_COLLECTION_ID) {
+      return { success: false, error: "Configurație incompletă" };
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return { success: false, error: passwordValidation.errors[0] };
+    }
+
+    // Find admin by email
+    const admins = await databases.listDocuments(DATABASE_ID!, ADMIN_COLLECTION_ID, [
+      Query.equal("email", email),
+    ]);
+
+    if (admins.documents.length === 0) {
+      return { success: false, error: "Invitație invalidă" };
+    }
+
+    const admin = admins.documents[0] as unknown as Admin;
+
+    // Check invite status
+    if ((admin as any).inviteStatus !== "pending") {
+      return { success: false, error: "Această invitație a fost deja folosită" };
+    }
+
+    // Get stored token hash and expiry
+    const storedTokenHash = (admin as any).inviteToken;
+    const tokenExpiry = (admin as any).inviteTokenExpiry;
+
+    if (!storedTokenHash || !tokenExpiry) {
+      return { success: false, error: "Invitație invalidă sau expirată" };
+    }
+
+    // Check if token is expired
+    if (new Date(tokenExpiry) < new Date()) {
+      return { success: false, error: "Invitația a expirat. Solicitați o nouă invitație." };
+    }
+
+    // Verify token
+    if (!verifyResetToken(token, storedTokenHash)) {
+      return { success: false, error: "Invitație invalidă" };
+    }
+
+    // Hash password
+    const passwordHash = await hashPassword(password);
+
+    // Update admin document
+    await databases.updateDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, admin.$id, {
+      passwordHash,
+      inviteToken: null,
+      inviteTokenExpiry: null,
+      inviteStatus: "active",
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error accepting admin invite:", error);
+    return { success: false, error: "Eroare la activarea contului" };
+  }
+}
+
+/**
+ * Resend admin invitation
+ */
+export async function resendAdminInvite(
+  adminId: string,
+  inviterName: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!ADMIN_COLLECTION_ID) {
+      return { success: false, error: "Configurație incompletă" };
+    }
+
+    // Get admin document
+    const admin = await databases.getDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, adminId) as unknown as Admin;
+
+    // Check if invite is still pending
+    if ((admin as any).inviteStatus !== "pending") {
+      return { success: false, error: "Această invitație a fost deja acceptată" };
+    }
+
+    // Generate new invite token
+    const token = generateResetToken();
+    const tokenHash = hashResetToken(token);
+    const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72 hours
+
+    // Update admin document with new token
+    await databases.updateDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, adminId, {
+      inviteToken: tokenHash,
+      inviteTokenExpiry: expiresAt.toISOString(),
+    });
+
+    // Build invite link
+    const inviteLink = `${BASE_URL}/auth/v2/accept-invite?token=${token}&email=${encodeURIComponent(admin.email)}`;
+
+    // Send invitation email
+    if (resend) {
+      const { error } = await resend.emails.send({
+        from: EMAIL_FROM,
+        to: admin.email,
+        subject: "Invitație Administrator - Tandem Dent",
+        html: createAdminInviteEmailHtml({
+          adminName: admin.name,
+          inviterName,
+          inviteLink,
+          expiresInHours: 72,
+        }),
+      });
+
+      if (error) {
+        console.error("Error resending admin invite email:", error);
+        return { success: false, error: "Eroare la retrimiterea invitației" };
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error resending admin invite:", error);
+    return { success: false, error: "Eroare la retrimiterea invitației" };
+  }
+}
+
+/**
+ * Delete pending admin invite
+ */
+export async function deleteAdminInvite(
+  adminId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!ADMIN_COLLECTION_ID) {
+      return { success: false, error: "Configurație incompletă" };
+    }
+
+    // Get admin document
+    const admin = await databases.getDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, adminId) as unknown as Admin;
+
+    // Only allow deleting pending invites
+    if ((admin as any).inviteStatus !== "pending") {
+      return { success: false, error: "Doar invitațiile în așteptare pot fi șterse" };
+    }
+
+    // Delete admin document
+    await databases.deleteDocument(DATABASE_ID!, ADMIN_COLLECTION_ID, adminId);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting admin invite:", error);
+    return { success: false, error: "Eroare la ștergerea invitației" };
   }
 }

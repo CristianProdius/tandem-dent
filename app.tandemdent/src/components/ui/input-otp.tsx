@@ -1,28 +1,118 @@
 "use client"
 
 import * as React from "react"
-import { OTPInput, OTPInputContext } from "input-otp"
 import { MinusIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// Custom implementation to fix React 19 compatibility issues with input-otp library
+
+interface InputOTPContextValue {
+  value: string
+  maxLength: number
+  disabled?: boolean
+}
+
+const InputOTPContext = React.createContext<InputOTPContextValue | null>(null)
+
+// Re-export for compatibility
+const REGEXP_ONLY_DIGITS = /^\d+$/
+
+interface InputOTPProps {
+  maxLength: number
+  value?: string
+  onChange?: (value: string) => void
+  onBlur?: () => void
+  name?: string
+  disabled?: boolean
+  pattern?: RegExp
+  autoFocus?: boolean
+  className?: string
+  containerClassName?: string
+  children: React.ReactNode
+}
+
 function InputOTP({
+  maxLength,
+  value = "",
+  onChange,
+  onBlur,
+  name,
+  disabled,
+  pattern,
+  autoFocus,
   className,
   containerClassName,
-  ...props
-}: React.ComponentProps<typeof OTPInput> & {
-  containerClassName?: string
-}) {
+  children,
+}: InputOTPProps) {
+  // Use internal state for immediate UI updates, sync with external value
+  const [internalValue, setInternalValue] = React.useState(value)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  // Sync internal state when external value changes (e.g., form reset)
+  React.useEffect(() => {
+    if (value !== internalValue) {
+      setInternalValue(value)
+    }
+  }, [value])
+
+  React.useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [autoFocus])
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let newValue = e.target.value
+
+    // Filter to only digits if pattern is set
+    if (pattern) {
+      newValue = newValue
+        .split("")
+        .filter((char) => /^\d$/.test(char))
+        .join("")
+    }
+
+    const truncatedValue = newValue.slice(0, maxLength)
+    setInternalValue(truncatedValue) // Update UI immediately
+    onChange?.(truncatedValue) // Notify parent
+  }
+
+  const handleContainerClick = () => {
+    inputRef.current?.focus()
+  }
+
   return (
-    <OTPInput
-      data-slot="input-otp"
-      containerClassName={cn(
-        "flex items-center gap-2 has-disabled:opacity-50",
-        containerClassName
-      )}
-      className={cn("disabled:cursor-not-allowed", className)}
-      {...props}
-    />
+    <InputOTPContext.Provider value={{ value: internalValue, maxLength, disabled }}>
+      <div
+        data-slot="input-otp"
+        className={cn(
+          "relative flex items-center gap-2 has-disabled:opacity-50",
+          containerClassName
+        )}
+        onClick={handleContainerClick}
+      >
+        <input
+          ref={inputRef}
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          name={name}
+          value={internalValue}
+          onChange={handleInput}
+          onBlur={onBlur}
+          disabled={disabled}
+          maxLength={maxLength}
+          className={cn(
+            "absolute inset-0 w-full h-full opacity-0 cursor-default",
+            disabled && "cursor-not-allowed",
+            className
+          )}
+          aria-label="One-time password"
+        />
+        {children}
+      </div>
+    </InputOTPContext.Provider>
   )
 }
 
@@ -43,8 +133,12 @@ function InputOTPSlot({
 }: React.ComponentProps<"div"> & {
   index: number
 }) {
-  const inputOTPContext = React.useContext(OTPInputContext)
-  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {}
+  const context = React.useContext(InputOTPContext)
+  const char = context?.value[index] ?? ""
+  const isActive = context
+    ? index === Math.min(context.value.length, context.maxLength - 1)
+    : false
+  const hasFakeCaret = isActive && context?.value.length === index
 
   return (
     <div
@@ -74,4 +168,10 @@ function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
   )
 }
 
-export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator }
+export {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+  REGEXP_ONLY_DIGITS,
+}

@@ -396,7 +396,7 @@ async function createStorageBucket() {
       ],
       false, // fileSecurity
       true, // enabled
-      50000000, // 50MB max file size
+      30000000, // 30MB max file size (self-hosted limit)
       ["image/jpeg", "image/png", "image/gif", "application/pdf"] // allowed file extensions
     );
     console.log(`  Created bucket: ${bucket.name} (${bucket.$id})`);

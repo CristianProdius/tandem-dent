@@ -215,3 +215,26 @@ export function validatePassword(password: string): {
     errors,
   };
 }
+
+/**
+ * Generate a secure random token for password reset
+ */
+export function generateResetToken(): string {
+  return randomBytes(32).toString("hex");
+}
+
+/**
+ * Hash a reset token for secure storage
+ * We store the hash, not the plain token
+ */
+export function hashResetToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+/**
+ * Verify a reset token against its stored hash
+ */
+export function verifyResetToken(token: string, storedHash: string): boolean {
+  const tokenHash = hashResetToken(token);
+  return tokenHash === storedHash;
+}

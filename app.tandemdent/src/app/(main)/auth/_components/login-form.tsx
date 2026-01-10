@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Loader2, Mail, ArrowLeft, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -15,11 +16,10 @@ import {
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
+  REGEXP_ONLY_DIGITS,
 } from "@/components/ui/input-otp";
 import {
   checkUserTypeByEmail,
-  sendAdminEmailOTP,
-  verifyAdminOTP,
   sendDoctorMagicLink,
   loginWithPassword,
   verifyOTPAndLogin,
@@ -38,14 +38,13 @@ const OTPSchema = z.object({
   otp: z.string().min(6, { message: "Codul OTP trebuie să aibă 6 caractere." }),
 });
 
-type Step = "email" | "password" | "otp" | "magic-link-sent" | "new-device-otp";
+type Step = "email" | "password" | "magic-link-sent" | "new-device-otp";
 
 export function LoginForm() {
   const [step, setStep] = useState<Step>("email");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [adminId, setAdminId] = useState("");
   const [userId, setUserId] = useState("");
   const [userType, setUserType] = useState<"admin" | "doctor" | null>(null);
 
@@ -86,14 +85,12 @@ export function LoginForm() {
       setUserEmail(data.email);
       setUserType(result.type as "admin" | "doctor");
 
-      // If user doesn't have a password, skip directly to legacy auth (OTP/magic link)
-      if (!result.hasPassword) {
+      // If doctor doesn't have a password, send magic link
+      if (!result.hasPassword && result.type === "doctor") {
         toast.info("Cont fără parolă", {
-          description: result.type === "admin"
-            ? "Vă trimitem un cod OTP pe email."
-            : "Vă trimitem un link magic pe email.",
+          description: "Vă trimitem un link magic pe email.",
         });
-        await handleLegacyAuthForType(data.email, result.type as "admin" | "doctor");
+        await handleDoctorMagicLink(data.email);
         return;
       }
 
@@ -108,39 +105,21 @@ export function LoginForm() {
     }
   };
 
-  const handleLegacyAuthForType = async (email: string, type: "admin" | "doctor") => {
+  const handleDoctorMagicLink = async (email: string) => {
     try {
-      if (type === "admin") {
-        const otpResult = await sendAdminEmailOTP(email);
-        if (otpResult.success && otpResult.adminId) {
-          setAdminId(otpResult.adminId);
-          if (otpResult.userId) {
-            setUserId(otpResult.userId);
-          }
-          setStep("otp");
-          toast.success("Cod OTP trimis", {
-            description: "Verificați emailul pentru codul de autentificare.",
-          });
-        } else {
-          toast.error("Eroare la trimiterea OTP", {
-            description: otpResult.error || "Vă rugăm încercați din nou.",
-          });
-        }
-      } else if (type === "doctor") {
-        const magicLinkResult = await sendDoctorMagicLink(email);
-        if (magicLinkResult.success) {
-          setStep("magic-link-sent");
-          toast.success("Link de autentificare trimis", {
-            description: "Verificați emailul pentru linkul de autentificare.",
-          });
-        } else {
-          toast.error("Eroare la trimiterea linkului", {
-            description: magicLinkResult.error || "Vă rugăm încercați din nou.",
-          });
-        }
+      const magicLinkResult = await sendDoctorMagicLink(email);
+      if (magicLinkResult.success) {
+        setStep("magic-link-sent");
+        toast.success("Link de autentificare trimis", {
+          description: "Verificați emailul pentru linkul de autentificare.",
+        });
+      } else {
+        toast.error("Eroare la trimiterea linkului", {
+          description: magicLinkResult.error || "Vă rugăm încercați din nou.",
+        });
       }
     } catch (error) {
-      console.error("Legacy auth error:", error);
+      console.error("Magic link error:", error);
       toast.error("Eroare", {
         description: "A apărut o eroare. Vă rugăm încercați din nou.",
       });
@@ -153,14 +132,9 @@ export function LoginForm() {
       const result = await loginWithPassword(userEmail, data.password);
 
       if (!result.success) {
-        if (result.error?.includes("parolă setată")) {
-          // User doesn't have a password, use legacy auth
-          await handleLegacyAuth();
-        } else {
-          toast.error("Autentificare eșuată", {
-            description: result.error || "Email sau parolă incorectă.",
-          });
-        }
+        toast.error("Autentificare eșuată", {
+          description: result.error || "Email sau parolă incorectă.",
+        });
         setIsLoading(false);
         return;
       }
@@ -187,66 +161,18 @@ export function LoginForm() {
     }
   };
 
-  const handleLegacyAuth = async () => {
-    // Fallback to legacy OTP/magic link for users without password
-    if (userType === "admin") {
-      const otpResult = await sendAdminEmailOTP(userEmail);
-      if (otpResult.success && otpResult.adminId) {
-        setAdminId(otpResult.adminId);
-        if (otpResult.userId) {
-          setUserId(otpResult.userId);
-        }
-        setStep("otp");
-        toast.success("Cod OTP trimis", {
-          description: "Verificați emailul pentru codul de autentificare.",
-        });
-      } else {
-        toast.error("Eroare la trimiterea OTP", {
-          description: otpResult.error || "Vă rugăm încercați din nou.",
-        });
-      }
-    } else if (userType === "doctor") {
-      const magicLinkResult = await sendDoctorMagicLink(userEmail);
-      if (magicLinkResult.success) {
-        setStep("magic-link-sent");
-        toast.success("Link de autentificare trimis", {
-          description: "Verificați emailul pentru linkul de autentificare.",
-        });
-      } else {
-        toast.error("Eroare la trimiterea linkului", {
-          description: magicLinkResult.error || "Vă rugăm încercați din nou.",
-        });
-      }
-    }
-  };
-
   const onOTPSubmit = async (data: z.infer<typeof OTPSchema>) => {
     setIsLoading(true);
     try {
-      if (step === "new-device-otp") {
-        // Verifying OTP for new device
-        const result = await verifyOTPAndLogin(userId, userType!, data.otp);
-        if (result.success) {
-          toast.success("Dispozitiv verificat cu succes!");
-          window.location.href = "/dashboard/clinic";
-        } else {
-          toast.error("Cod OTP invalid", {
-            description: result.error || "Vă rugăm încercați din nou.",
-          });
-          setIsLoading(false);
-        }
+      const result = await verifyOTPAndLogin(userId, userType!, data.otp);
+      if (result.success) {
+        toast.success("Dispozitiv verificat cu succes!");
+        window.location.href = "/dashboard/clinic";
       } else {
-        // Legacy admin OTP verification
-        const result = await verifyAdminOTP(adminId, data.otp, userId);
-        if (result.success) {
-          toast.success("Autentificare reușită!");
-          window.location.href = "/dashboard/clinic";
-        } else {
-          toast.error("Cod OTP invalid", {
-            description: result.error || "Vă rugăm încercați din nou.",
-          });
-          setIsLoading(false);
-        }
+        toast.error("Cod OTP invalid", {
+          description: result.error || "Vă rugăm încercați din nou.",
+        });
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("OTP verification error:", error);
@@ -260,32 +186,15 @@ export function LoginForm() {
   const handleResendOTP = async () => {
     setIsLoading(true);
     try {
-      if (step === "new-device-otp") {
-        const result = await resendOTP(userId, userType!);
-        if (result.success) {
-          toast.success("Cod OTP retrimis", {
-            description: "Verificați emailul pentru noul cod.",
-          });
-        } else {
-          toast.error("Eroare", {
-            description: result.error || "Nu s-a putut retrimite codul.",
-          });
-        }
+      const result = await resendOTP(userId, userType!);
+      if (result.success) {
+        toast.success("Cod OTP retrimis", {
+          description: "Verificați emailul pentru noul cod.",
+        });
       } else {
-        const result = await sendAdminEmailOTP(userEmail);
-        if (result.success && result.adminId) {
-          setAdminId(result.adminId);
-          if (result.userId) {
-            setUserId(result.userId);
-          }
-          toast.success("Cod OTP retrimis", {
-            description: "Verificați emailul pentru noul cod.",
-          });
-        } else {
-          toast.error("Eroare", {
-            description: result.error || "Nu s-a putut retrimite codul.",
-          });
-        }
+        toast.error("Eroare", {
+          description: result.error || "Nu s-a putut retrimite codul.",
+        });
       }
     } catch (error) {
       toast.error("Eroare", {
@@ -324,7 +233,7 @@ export function LoginForm() {
       setUserEmail("");
       setUserType(null);
       passwordForm.reset();
-    } else if (step === "otp" || step === "new-device-otp" || step === "magic-link-sent") {
+    } else if (step === "new-device-otp" || step === "magic-link-sent") {
       setStep("password");
       otpForm.reset();
     }
@@ -333,7 +242,6 @@ export function LoginForm() {
   const goToStart = () => {
     setStep("email");
     setUserEmail("");
-    setAdminId("");
     setUserId("");
     setUserType(null);
     emailForm.reset();
@@ -447,13 +355,12 @@ export function LoginForm() {
         </Form>
 
         <div className="text-center">
-          <button
-            onClick={handleLegacyAuth}
-            disabled={isLoading}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+          <Link
+            href="/auth/v2/forgot-password"
+            className="text-sm text-primary hover:underline"
           >
-            Autentificare cu {userType === "admin" ? "cod OTP" : "link magic"}
-          </button>
+            Ați uitat parola?
+          </Link>
         </div>
       </div>
     );
@@ -497,6 +404,8 @@ export function LoginForm() {
                       value={field.value}
                       onChange={field.onChange}
                       disabled={isLoading}
+                      pattern={REGEXP_ONLY_DIGITS}
+                      autoFocus
                     >
                       <InputOTPGroup>
                         <InputOTPSlot index={0} />
@@ -523,85 +432,6 @@ export function LoginForm() {
                 </>
               ) : (
                 "Verifică și adaugă dispozitiv"
-              )}
-            </Button>
-          </form>
-        </Form>
-
-        <div className="text-center">
-          <button
-            onClick={handleResendOTP}
-            disabled={isLoading}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-          >
-            Nu ați primit codul? Retrimite
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Legacy OTP verification step (for admins without password)
-  if (step === "otp") {
-    return (
-      <div className="space-y-6">
-        <button
-          onClick={goToStart}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Înapoi
-        </button>
-
-        <div className="text-center space-y-2">
-          <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-            <Mail className="h-6 w-6 text-primary" />
-          </div>
-          <h3 className="font-medium">Verificare OTP</h3>
-          <p className="text-sm text-muted-foreground">
-            Am trimis un cod de verificare la <strong>{userEmail}</strong>
-          </p>
-        </div>
-
-        <Form {...otpForm}>
-          <form onSubmit={otpForm.handleSubmit(onOTPSubmit)} className="space-y-4">
-            <FormField
-              control={otpForm.control}
-              name="otp"
-              render={({ field }) => (
-                <FormItem className="flex flex-col items-center">
-                  <FormControl>
-                    <InputOTP
-                      maxLength={6}
-                      value={field.value}
-                      onChange={field.onChange}
-                      disabled={isLoading}
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                      </InputOTPGroup>
-                      <InputOTPSeparator />
-                      <InputOTPGroup>
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Se verifică...
-                </>
-              ) : (
-                "Verifică codul"
               )}
             </Button>
           </form>
